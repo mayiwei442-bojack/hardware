@@ -1,0 +1,61 @@
+{
+  "usb_shell_case_intersections": 0,
+  "joystick": [
+    {
+      "pose": [
+        0,
+        0,
+        0
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        23,
+        0,
+        0
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        -23,
+        0,
+        0
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        0,
+        23,
+        0
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        0,
+        -23,
+        0
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        23,
+        23,
+        1
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        -23,
+        -23,
+        1
+      ],
+      "cap_intersections": []
+    }
+  ]
+}

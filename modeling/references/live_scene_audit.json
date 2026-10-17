@@ -1,0 +1,1287 @@
+{
+  "observed_at": "2026-10-01T19:58:15.408262+08:00",
+  "blend_path": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\modeling\\assets\\OpenMicroKbd.blend",
+  "scene": "Scene",
+  "unit_scale_m_per_blender_unit": 0.0010000000474974513,
+  "keys": [
+    {
+      "reference": "SW3",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW03_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            -18.125,
+            -0.925000011920929
+          ],
+          [
+            19.975000381469727,
+            37.17499923706055
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | warm white polymer",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 1.908279720911466e-07
+    },
+    {
+      "reference": "SW4",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW04_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            0.925000011920929,
+            18.125
+          ],
+          [
+            19.975000381469727,
+            37.17499923706055
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | sunflower yellow polymer",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 1.908279720911466e-07
+    },
+    {
+      "reference": "SW5",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW05_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            -18.125,
+            -0.925000011920929
+          ],
+          [
+            -37.17499923706055,
+            -19.975000381469727
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | warm white polymer",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 1.908279720911466e-07
+    },
+    {
+      "reference": "SW6",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW06_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            0.925000011920929,
+            18.125
+          ],
+          [
+            -37.17499923706055,
+            -19.975000381469727
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | warm white polymer",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 1.908279720911466e-07
+    },
+    {
+      "reference": "SW7",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW07_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            19.975000381469727,
+            37.17499923706055
+          ],
+          [
+            -37.17499923706055,
+            -19.975000381469727
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | warm white polymer",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 2.6973982946486263e-07
+    },
+    {
+      "reference": "SW8",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW08_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            -37.17499923706055,
+            -19.975000381469727
+          ],
+          [
+            0.925000011920929,
+            18.125
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | clear polycarbonate",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 1.908279720911466e-07
+    },
+    {
+      "reference": "SW9",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW09_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            -18.125,
+            -0.925000011920929
+          ],
+          [
+            0.925000011920929,
+            18.125
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | clear polycarbonate",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 8.42936919974922e-09
+    },
+    {
+      "reference": "SW10",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW10_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            0.925000011920929,
+            18.125
+          ],
+          [
+            0.925000011920929,
+            18.125
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | clear polycarbonate",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 8.42936919974922e-09
+    },
+    {
+      "reference": "SW11",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW11_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            19.975000381469727,
+            37.17499923706055
+          ],
+          [
+            0.925000011920929,
+            18.125
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | clear polycarbonate",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 1.908279720911466e-07
+    },
+    {
+      "reference": "SW12",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW12_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            -37.17499923706055,
+            -19.975000381469727
+          ],
+          [
+            -18.125,
+            -0.925000011920929
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | warm white polymer",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 1.908279720911466e-07
+    },
+    {
+      "reference": "SW13",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW13_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            -18.125,
+            -0.925000011920929
+          ],
+          [
+            -18.125,
+            -0.925000011920929
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | warm white polymer",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 8.42936919974922e-09
+    },
+    {
+      "reference": "SW14",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW14_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            0.925000011920929,
+            18.125
+          ],
+          [
+            -18.125,
+            -0.925000011920929
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | warm white polymer",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 8.42936919974922e-09
+    },
+    {
+      "reference": "SW15",
+      "cap": {
+        "exists": true,
+        "type": "MESH",
+        "parent": "SW15_CapDetach",
+        "hide_render": false,
+        "world_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bounds_mm": [
+          [
+            19.975000381469727,
+            37.17499923706055
+          ],
+          [
+            -18.125,
+            -0.925000011920929
+          ],
+          [
+            6.019999980926514,
+            10.270000457763672
+          ]
+        ],
+        "original_faces": 512,
+        "materials": [
+          "Keycap | warm white polymer",
+          null
+        ]
+      },
+      "control_exists": true,
+      "press_value": 0.0,
+      "xy_center_error_mm": 1.908279720911466e-07
+    }
+  ],
+  "key_count_found": 13,
+  "key_control_count_found": 13,
+  "drivers": {
+    "count": 37,
+    "invalid": []
+  },
+  "identified_led_references": [
+    "LED1",
+    "LED17",
+    "LED18",
+    "LED19",
+    "LED2",
+    "LED20",
+    "LED21",
+    "LED22",
+    "LED23",
+    "LED24",
+    "LED25",
+    "LED26",
+    "LED27",
+    "LED28",
+    "LED29",
+    "LED3",
+    "LED4",
+    "LED5",
+    "LED6",
+    "LED7",
+    "LED8"
+  ],
+  "expected_led_references": [
+    "LED1",
+    "LED2",
+    "LED3",
+    "LED4",
+    "LED5",
+    "LED6",
+    "LED7",
+    "LED8",
+    "LED17",
+    "LED18",
+    "LED19",
+    "LED20",
+    "LED21",
+    "LED22",
+    "LED23",
+    "LED24",
+    "LED25",
+    "LED26",
+    "LED27",
+    "LED28",
+    "LED29"
+  ],
+  "usb": {
+    "J03_USB_C_Contact_-1_01": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        -2.799999952316284,
+        48.900001525878906,
+        -1.9220000505447388
+      ],
+      "bounds_mm": [
+        [
+          -2.919999837875366,
+          -2.680000066757202
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.936000108718872,
+          -1.9079999923706055
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_-1_02": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        -2.0,
+        48.900001525878906,
+        -1.9220000505447388
+      ],
+      "bounds_mm": [
+        [
+          -2.119999885559082,
+          -1.8799999952316284
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.936000108718872,
+          -1.9079999923706055
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_-1_03": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        -1.2000000476837158,
+        48.900001525878906,
+        -1.9220000505447388
+      ],
+      "bounds_mm": [
+        [
+          -1.3200000524520874,
+          -1.0800000429153442
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.936000108718872,
+          -1.9079999923706055
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_-1_04": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        -0.4000000059604645,
+        48.900001525878906,
+        -1.9220000505447388
+      ],
+      "bounds_mm": [
+        [
+          -0.5199999809265137,
+          -0.2800000011920929
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.936000108718872,
+          -1.9079999923706055
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_-1_05": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        0.4000000059604645,
+        48.900001525878906,
+        -1.9220000505447388
+      ],
+      "bounds_mm": [
+        [
+          0.2800000011920929,
+          0.5199999809265137
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.936000108718872,
+          -1.9079999923706055
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_-1_06": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        1.2000000476837158,
+        48.900001525878906,
+        -1.9220000505447388
+      ],
+      "bounds_mm": [
+        [
+          1.0800000429153442,
+          1.3200000524520874
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.936000108718872,
+          -1.9079999923706055
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_-1_07": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        2.0,
+        48.900001525878906,
+        -1.9220000505447388
+      ],
+      "bounds_mm": [
+        [
+          1.8799999952316284,
+          2.119999885559082
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.936000108718872,
+          -1.9079999923706055
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_-1_08": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        2.799999952316284,
+        48.900001525878906,
+        -1.9220000505447388
+      ],
+      "bounds_mm": [
+        [
+          2.680000066757202,
+          2.919999837875366
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.936000108718872,
+          -1.9079999923706055
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_1_01": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        -2.799999952316284,
+        48.900001525878906,
+        -1.3380000591278076
+      ],
+      "bounds_mm": [
+        [
+          -2.919999837875366,
+          -2.680000066757202
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.352000117301941,
+          -1.3240000009536743
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_1_02": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        -2.0,
+        48.900001525878906,
+        -1.3380000591278076
+      ],
+      "bounds_mm": [
+        [
+          -2.119999885559082,
+          -1.8799999952316284
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.352000117301941,
+          -1.3240000009536743
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_1_03": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        -1.2000000476837158,
+        48.900001525878906,
+        -1.3380000591278076
+      ],
+      "bounds_mm": [
+        [
+          -1.3200000524520874,
+          -1.0800000429153442
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.352000117301941,
+          -1.3240000009536743
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_1_04": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        -0.4000000059604645,
+        48.900001525878906,
+        -1.3380000591278076
+      ],
+      "bounds_mm": [
+        [
+          -0.5199999809265137,
+          -0.2800000011920929
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.352000117301941,
+          -1.3240000009536743
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_1_05": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        0.4000000059604645,
+        48.900001525878906,
+        -1.3380000591278076
+      ],
+      "bounds_mm": [
+        [
+          0.2800000011920929,
+          0.5199999809265137
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.352000117301941,
+          -1.3240000009536743
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_1_06": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        1.2000000476837158,
+        48.900001525878906,
+        -1.3380000591278076
+      ],
+      "bounds_mm": [
+        [
+          1.0800000429153442,
+          1.3200000524520874
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.352000117301941,
+          -1.3240000009536743
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_1_07": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        2.0,
+        48.900001525878906,
+        -1.3380000591278076
+      ],
+      "bounds_mm": [
+        [
+          1.8799999952316284,
+          2.119999885559082
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.352000117301941,
+          -1.3240000009536743
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_Contact_1_08": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        2.799999952316284,
+        48.900001525878906,
+        -1.3380000591278076
+      ],
+      "bounds_mm": [
+        [
+          2.680000066757202,
+          2.919999837875366
+        ],
+        [
+          48.375,
+          49.42500305175781
+        ],
+        [
+          -1.352000117301941,
+          -1.3240000009536743
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Contact gold"
+      ]
+    },
+    "J03_USB_C_MetalShell": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bounds_mm": [
+        [
+          -4.46999979019165,
+          4.46999979019165
+        ],
+        [
+          42.45000076293945,
+          49.779998779296875
+        ],
+        [
+          -3.259999990463257,
+          0.0
+        ]
+      ],
+      "original_faces": 200,
+      "materials": [
+        "OMK Brushed stainless"
+      ]
+    },
+    "J03_USB_C_RearInsulator": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        0.0,
+        42.79999923706055,
+        -1.6299999952316284
+      ],
+      "bounds_mm": [
+        [
+          -4.110000133514404,
+          4.110000133514404
+        ],
+        [
+          42.474998474121094,
+          43.125
+        ],
+        [
+          -2.880000114440918,
+          -0.3799999952316284
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Connector polymer"
+      ]
+    },
+    "J03_USB_C_ShellTab_-1_42.51": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        -4.320000171661377,
+        42.5099983215332,
+        -0.6499999761581421
+      ],
+      "bounds_mm": [
+        [
+          -4.559999942779541,
+          -4.080000400543213
+        ],
+        [
+          41.80999755859375,
+          43.209999084472656
+        ],
+        [
+          -1.6999999284744263,
+          0.3999999761581421
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Brushed stainless"
+      ]
+    },
+    "J03_USB_C_ShellTab_-1_46.69": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        -4.320000171661377,
+        46.689998626708984,
+        -0.6499999761581421
+      ],
+      "bounds_mm": [
+        [
+          -4.559999942779541,
+          -4.080000400543213
+        ],
+        [
+          45.98999786376953,
+          47.38999938964844
+        ],
+        [
+          -1.6999999284744263,
+          0.3999999761581421
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Brushed stainless"
+      ]
+    },
+    "J03_USB_C_ShellTab_1_42.51": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        4.320000171661377,
+        42.5099983215332,
+        -0.6499999761581421
+      ],
+      "bounds_mm": [
+        [
+          4.080000400543213,
+          4.559999942779541
+        ],
+        [
+          41.80999755859375,
+          43.209999084472656
+        ],
+        [
+          -1.6999999284744263,
+          0.3999999761581421
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Brushed stainless"
+      ]
+    },
+    "J03_USB_C_ShellTab_1_46.69": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        4.320000171661377,
+        46.689998626708984,
+        -0.6499999761581421
+      ],
+      "bounds_mm": [
+        [
+          4.080000400543213,
+          4.559999942779541
+        ],
+        [
+          45.98999786376953,
+          47.38999938964844
+        ],
+        [
+          -1.6999999284744263,
+          0.3999999761581421
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Brushed stainless"
+      ]
+    },
+    "J03_USB_C_Tongue": {
+      "exists": true,
+      "type": "MESH",
+      "parent": "J3_USB_C_Assembly",
+      "hide_render": false,
+      "world_position": [
+        0.0,
+        47.0,
+        -1.6299999952316284
+      ],
+      "bounds_mm": [
+        [
+          -3.325000047683716,
+          3.325000047683716
+        ],
+        [
+          44.599998474121094,
+          49.400001525878906
+        ],
+        [
+          -1.9049999713897705,
+          -1.3550000190734863
+        ]
+      ],
+      "original_faces": 6,
+      "materials": [
+        "OMK Connector polymer"
+      ]
+    }
+  },
+  "usb_far_outside_board": [],
+  "pcb": {
+    "exists": true,
+    "type": "MESH",
+    "parent": "LAYER_02_PCB",
+    "hide_render": false,
+    "world_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "bounds_mm": [
+      [
+        -47.5,
+        47.5
+      ],
+      [
+        -47.5,
+        47.5
+      ],
+      [
+        0.0,
+        1.600000023841858
+      ]
+    ],
+    "original_faces": 1586,
+    "materials": [
+      "PCB | matte black solder mask",
+      null
+    ]
+  },
+  "housing": {
+    "exists": true,
+    "type": "MESH",
+    "parent": "OMK_ROOT_CTRL",
+    "hide_render": false,
+    "world_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "bounds_mm": [
+      [
+        -49.70000076293945,
+        49.70000076293945
+      ],
+      [
+        -49.70000076293945,
+        49.70000076293945
+      ],
+      [
+        -11.0,
+        1.600000023841858
+      ]
+    ],
+    "original_faces": 1280,
+    "materials": [
+      "Housing | printed white polymer"
+    ]
+  },
+  "joystick_envelope_proxy": {
+    "exists": true,
+    "type": "MESH",
+    "parent": null,
+    "hide_render": true,
+    "world_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "bounds_mm": [
+      [
+        20.475000381469727,
+        38.67499923706055
+      ],
+      [
+        18.725000381469727,
+        40.42499923706055
+      ],
+      [
+        1.600000023841858,
+        12.800000190734863
+      ]
+    ],
+    "original_faces": 6,
+    "materials": [
+      "Control | brushed nickel"
+    ]
+  },
+  "scope": "Snapshot evidence only. Does not move controls, prove collision-free motion, review images, reopen files, or certify overall completion."
+}

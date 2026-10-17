@@ -1,0 +1,42 @@
+{
+  "evidence": "worker-events.jsonl completed execute_blender_code at 03:37 source transform; independent source mesh calculation",
+  "current_transform": "(47.5-z, x-47.5, y)",
+  "current_determinant": -1,
+  "correct_rigid_transform": "(47.5-z, 47.5-x, y)",
+  "correct_determinant": 1,
+  "signed_volume_mm3": {
+    "original": 64253.404108406125,
+    "current": -64253.40410840595,
+    "corrected": 64253.40410840595
+  },
+  "units": {
+    "mm_numeric_coordinates_require_scale_length": 0.001,
+    "alternative": "Convert ALL geometry, positions, camera clipping, lights and drivers to meters, then use scale_length=1.0",
+    "physical_shell_width_m": 0.0994
+  },
+  "required": "Rebuild original-source vertices using proper rotation, confirm normals and rear USB, rerender and visually inspect; apply unit consistency before formal assembly.",
+  "usb_source_opening_flat_segment": {
+    "x": [
+      -2.2,
+      -0.2
+    ],
+    "y": [
+      -3.86,
+      0.4
+    ],
+    "z": [
+      44.46,
+      50.54
+    ],
+    "source_side": "-X",
+    "mapped_side": "+Y",
+    "pcb_footprint": "J3 on B.Cu"
+  },
+  "source_shell_vertical_planes_mm": {
+    "bottom": -11,
+    "inner_floor": -5,
+    "pcb_bearing": 0,
+    "rim": 1.6
+  },
+  "note": "Previous candidate +90deg was proper but put USB on -Y; use -90deg as corrected here based on actual opening vertices."
+}

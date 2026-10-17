@@ -1,0 +1,359 @@
+{
+  "keys": [
+    {
+      "key": 3,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 4,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 5,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 6,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 7,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 8,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 9,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 10,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 11,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 12,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 13,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 14,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    },
+    {
+      "key": 15,
+      "operator": [
+        "FINISHED"
+      ],
+      "pass": true,
+      "pressed_delta_mm": [
+        0.0,
+        0.0,
+        -3.200000047683716
+      ]
+    }
+  ],
+  "manual_controls": {
+    "encoder_rotation_deg": 120.00000333930423,
+    "encoder_press_mm": -0.5,
+    "joystick_axis_deg": [
+      16.263455640271157,
+      16.263455640271157
+    ],
+    "led_energy": 22000.0,
+    "led_color": [
+      1.0,
+      0.10000000149011612,
+      0.019999999552965164
+    ]
+  },
+  "reset_max_matrix_error": 0.0,
+  "demo_snapshots": [
+    {
+      "frame": 1,
+      "star_press": 0.0,
+      "encoder_deg": 0.0,
+      "encoder_press": 0.0,
+      "joystick": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "explode": 0.0,
+      "pcb_world_z": 0.0,
+      "led_color": [
+        0.015,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "frame": 14,
+      "star_press": 1.0,
+      "encoder_deg": 0.0,
+      "encoder_press": 0.0,
+      "joystick": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "explode": 0.0,
+      "pcb_world_z": 0.0,
+      "led_color": [
+        0.015,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "frame": 104,
+      "star_press": 0.0,
+      "encoder_deg": 112.0,
+      "encoder_press": 0.0,
+      "joystick": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "explode": 0.0,
+      "pcb_world_z": 0.0,
+      "led_color": [
+        0.015,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "frame": 113,
+      "star_press": 0.0,
+      "encoder_deg": -18.0,
+      "encoder_press": 1.0,
+      "joystick": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "explode": 0.0,
+      "pcb_world_z": 0.0,
+      "led_color": [
+        0.015,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "frame": 150,
+      "star_press": 0.0,
+      "encoder_deg": 0.0,
+      "encoder_press": 0.0,
+      "joystick": [
+        23.0,
+        0.0,
+        0.0
+      ],
+      "explode": 0.0,
+      "pcb_world_z": 0.0,
+      "led_color": [
+        0.015,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "frame": 174,
+      "star_press": 0.0,
+      "encoder_deg": 0.0,
+      "encoder_press": 0.0,
+      "joystick": [
+        0.0,
+        23.0,
+        0.0
+      ],
+      "explode": 0.0,
+      "pcb_world_z": 0.0,
+      "led_color": [
+        0.015,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "frame": 196,
+      "star_press": 0.0,
+      "encoder_deg": 0.0,
+      "encoder_press": 0.0,
+      "joystick": [
+        16.0,
+        16.0,
+        1.0
+      ],
+      "explode": 0.0,
+      "pcb_world_z": 0.0,
+      "led_color": [
+        0.015,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "frame": 220,
+      "star_press": 0.0,
+      "encoder_deg": 0.0,
+      "encoder_press": 0.0,
+      "joystick": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "explode": 0.0,
+      "pcb_world_z": 0.0,
+      "led_color": [
+        1.0,
+        0.07999999821186066,
+        0.014999999664723873
+      ]
+    },
+    {
+      "frame": 285,
+      "star_press": 0.0,
+      "encoder_deg": 0.0,
+      "encoder_press": 0.0,
+      "joystick": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "explode": 1.0,
+      "pcb_world_z": 38.0,
+      "led_color": [
+        0.014999999664723873,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "frame": 360,
+      "star_press": 0.0,
+      "encoder_deg": 0.0,
+      "encoder_press": 0.0,
+      "joystick": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "explode": 0.0,
+      "pcb_world_z": 0.0,
+      "led_color": [
+        0.014999999664723873,
+        0.5,
+        1.0
+      ]
+    }
+  ],
+  "invalid_drivers": [],
+  "scope": "Operators, evaluated transforms, animation sample frames and light data. Does not substitute for rendered motion and GUI review."
+}

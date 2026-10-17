@@ -1,0 +1,41 @@
+{
+  "reopened_file": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\modeling\\assets\\OpenMicroKbd.blend",
+  "addon_enabled": true,
+  "panel_registered": true,
+  "all_keys_pass": true,
+  "reset_error": 0.0,
+  "invalid_drivers": [],
+  "scene_snapshot": {
+    "report": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\modeling\\references\\live_scene_audit.json",
+    "keys": 13,
+    "key_controls": 13,
+    "invalid_drivers": [],
+    "usb_far_outside_board": [],
+    "led_refs": [
+      "LED1",
+      "LED17",
+      "LED18",
+      "LED19",
+      "LED2",
+      "LED20",
+      "LED21",
+      "LED22",
+      "LED23",
+      "LED24",
+      "LED25",
+      "LED26",
+      "LED27",
+      "LED28",
+      "LED29",
+      "LED3",
+      "LED4",
+      "LED5",
+      "LED6",
+      "LED7",
+      "LED8"
+    ]
+  },
+  "missing_libraries": [],
+  "file_images": [],
+  "embedded_control_script": true
+}

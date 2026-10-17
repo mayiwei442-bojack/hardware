@@ -1,0 +1,215 @@
+{
+  "created_at": "2026-10-01T20:01:24.312847+08:00",
+  "files": [
+    {
+      "path": "assets/OpenMicroKbd.blend",
+      "size_bytes": 1323153,
+      "sha256": "c657252dfad0dbee25e992ee97d864cb32f23277ba9fac34c558c6dd00944406"
+    },
+    {
+      "path": "操作说明.md",
+      "size_bytes": 4189,
+      "sha256": "3e108b99d2a3f10786a4491d176942037fbcd5961418986651cc3cee64edf955"
+    },
+    {
+      "path": "验收报告.md",
+      "size_bytes": 6866,
+      "sha256": "7d92240d5bb53d33a84b6e1bbbdec35c879a46e78a55f38570b6ce4b36e7a078"
+    },
+    {
+      "path": "资料整理.md",
+      "size_bytes": 17860,
+      "sha256": "27cb366a3af2031ee8fc40db92bf3a40e66947d21a6951d497b1ed416d01a3b6"
+    },
+    {
+      "path": "建模计划.md",
+      "size_bytes": 5498,
+      "sha256": "5c3ddc3a541630d02cc35738a23eb6946f6bb3dc56dad745f7811c566b520692"
+    },
+    {
+      "path": "工作日志.md",
+      "size_bytes": 11840,
+      "sha256": "62fd150a03db31823f785638d1496f5b2f3195417941f795de29c618e3a6afbb"
+    },
+    {
+      "path": "tools/openmicro_controls.py",
+      "size_bytes": 8276,
+      "sha256": "799320077636aeb93eb7d844449855dfd28799f9f5bff7bbb4fd70771b63144d"
+    },
+    {
+      "path": "references/appearance_multiview_v2.png",
+      "size_bytes": 1740029,
+      "sha256": "87b39d23cbfd49f80e9dc68c665b997b3089ce637ecda88c54a0a17714f46f83"
+    },
+    {
+      "path": "renders/final_hero.png",
+      "size_bytes": 1504547,
+      "sha256": "e7c7e4587d271bc5c75207493bd821b001050321eb6b44fdb82a22937e5bd104"
+    },
+    {
+      "path": "renders/final_night.png",
+      "size_bytes": 1428822,
+      "sha256": "d47516fa6203f7d727f9fdb5b714fbc6c8556246a87dc73d009de749f3856106"
+    },
+    {
+      "path": "renders/final_exploded.png",
+      "size_bytes": 1978418,
+      "sha256": "d9cf3c8ef0868ddfa4b396376401da1831f5c351bfe8d7b12a910582912facc3"
+    },
+    {
+      "path": "renders/final_top.png",
+      "size_bytes": 1656341,
+      "sha256": "1daf1a7c81a72811b06d6d47654a1a0156592da04c5b3d6e680c997995624b64"
+    },
+    {
+      "path": "renders/final_front.png",
+      "size_bytes": 867149,
+      "sha256": "63676de34fc969ab62e1fe1762a89942b1e5ff939002a338344226c0546f2f33"
+    },
+    {
+      "path": "renders/final_right.png",
+      "size_bytes": 860313,
+      "sha256": "fa2faa1711313b350fd63128747e81e6faa304d6a78b6eb5e026a55f2da7885e"
+    },
+    {
+      "path": "renders/final_rear.png",
+      "size_bytes": 869728,
+      "sha256": "9a364b74745b122c193656a2a20f8bef0b2df0d279fcb0cd7fc83f00cdd321d8"
+    },
+    {
+      "path": "renders/final_usb.png",
+      "size_bytes": 878022,
+      "sha256": "6e1c28ec9504fbbb4cd10dd9784b95817575c4fc4606f5ad82f4b4aafe0d16e3"
+    },
+    {
+      "path": "renders/final_pcb_top.png",
+      "size_bytes": 2112361,
+      "sha256": "dfd024727903482bb4251253fd47e32c24ed5c2f542de8f63f619672a7762bbb"
+    },
+    {
+      "path": "renders/final_pcb_bottom.png",
+      "size_bytes": 2053143,
+      "sha256": "185180c0a1d92af70d73c7aab591bd479c9f449969d1b6b6ba1900c308d2d73a"
+    },
+    {
+      "path": "renders/final_demo_014.png",
+      "size_bytes": 1356439,
+      "sha256": "86bc4baf2a44dd2443abb45e97842cc828f6b1d6fe2b24118e707286a89458fc"
+    },
+    {
+      "path": "renders/final_demo_113.png",
+      "size_bytes": 1357203,
+      "sha256": "ef0101cfdb9fc8a9a186608ed95fe708347e13f54c224d3d40345c5a55b0a069"
+    },
+    {
+      "path": "renders/final_demo_196.png",
+      "size_bytes": 1351566,
+      "sha256": "2bcfc46586a9c79978cc0c196bda73451d9c75b8d6059b30d07b7019a34e1f70"
+    },
+    {
+      "path": "renders/final_demo_220.png",
+      "size_bytes": 1357575,
+      "sha256": "8d10539dc8de9a9c68e13e40339bf0fd4bad662fc3bf7b8cf9181c189b6829cc"
+    },
+    {
+      "path": "renders/final_demo_285.png",
+      "size_bytes": 1403470,
+      "sha256": "8b3b8942ca5db7f74d1f077dbf476e0bb86d732b123511e531d61f081f4bdd45"
+    },
+    {
+      "path": "renders/final_controls_ui_pressed.png",
+      "size_bytes": 614245,
+      "sha256": "88eb56e3a4b2b57ebd692a085fc973f69dd05a6b660131be4428252a871ce1ec"
+    },
+    {
+      "path": "renders/direct_01_usb_rear.png",
+      "size_bytes": 818071,
+      "sha256": "72fbb0dca0b801edbe311962a6e90a38799510d52a421d060001550107899df0"
+    },
+    {
+      "path": "renders/direct_01_mechanics_overview.png",
+      "size_bytes": 1747078,
+      "sha256": "774b078384b59407cbbcd47f0892d994a40b0cb69b604733acde5fa6a6275bd3"
+    },
+    {
+      "path": "renders/direct_02_electronics_top.png",
+      "size_bytes": 1544734,
+      "sha256": "670f8ebca522ddc4ba4dcadca388bc8770b0b1e1121816dcfc971c7521b751a6"
+    },
+    {
+      "path": "renders/direct_02_electronics_bottom.png",
+      "size_bytes": 1876954,
+      "sha256": "e709857b351437804fa4d7c298c1aa7235befd0247348e3fafbb6d619442717d"
+    },
+    {
+      "path": "renders/direct_03_key_pressed.png",
+      "size_bytes": 1653259,
+      "sha256": "fba544fa19c7672b93c5ac156e1c12538cd7d16457bdcefe979c63155191bdde"
+    },
+    {
+      "path": "renders/direct_05_exploded.png",
+      "size_bytes": 2635083,
+      "sha256": "26de6675d87ae904f68e5d2b0d19140063f336e1d1daf44d0a56f9dad04c57d2"
+    },
+    {
+      "path": "renders/direct_06_materials_lights_corrected.png",
+      "size_bytes": 1887101,
+      "sha256": "9c817ef94a44cb89c480ec7dc4aaae2f00ba85a904218f7de78a57b3896547bc"
+    },
+    {
+      "path": "renders/direct_06_lights_apertures.png",
+      "size_bytes": 1990480,
+      "sha256": "20b3619a138d9931b284091dfb1d37814645907fc2773ab27d3aaec27ff9d9fa"
+    },
+    {
+      "path": "progress.json",
+      "size_bytes": 11278,
+      "sha256": "f8b376ded8395de3bb063ccb4a99352d27fa3ca5fc3870874fdda4dc110defdb"
+    },
+    {
+      "path": "references/final_structural_audit.json",
+      "size_bytes": 13978,
+      "sha256": "52584b917b18426c5310dda31a91d8357aeadafdcbeb084c213ac8f9524f33a1"
+    },
+    {
+      "path": "references/interaction_demo_audit.json",
+      "size_bytes": 6362,
+      "sha256": "acda3933d7df1a2acd63a83e8794c24ce4d700c468a20d42d0990093df0bf1e9"
+    },
+    {
+      "path": "references/reopen_audit.json",
+      "size_bytes": 927,
+      "sha256": "88c318024bbf831ca009d357ae20825b32b221b01189cc9432f08799c353b3fc"
+    },
+    {
+      "path": "references/key_clearance_audit.json",
+      "size_bytes": 11379,
+      "sha256": "9c8228b060f88ade04851313e4525e241c63234a7a11479d897c2492660ac67e"
+    },
+    {
+      "path": "references/final_mechanical_pending.json",
+      "size_bytes": 831,
+      "sha256": "d7f4d795ca89e64a9880554853942c2f22a12259266a34582c4868eb8905d25b"
+    },
+    {
+      "path": "references/exploded_rig_audit.json",
+      "size_bytes": 609,
+      "sha256": "c1a7be2b195f710fc9890a3686e77b62cd3af13c6c03ae2db0a85c35d40d19f1"
+    },
+    {
+      "path": "references/gui_click_audit.json",
+      "size_bytes": 132,
+      "sha256": "4d1d938aa4f4bb3b1cc4a767090084c6c0fcf1fb6b3f9a12ec03b8af6b9a4017"
+    },
+    {
+      "path": "references/playback_audit.json",
+      "size_bytes": 116,
+      "sha256": "863b3d593cac1fb07847f13e832c04310c166e88a3426c32d8b0f7d07de69c95"
+    },
+    {
+      "path": "references/live_scene_audit.json",
+      "size_bytes": 27802,
+      "sha256": "bba025fb2842f7bb3c6193e460728a91de0c1548f0397b1300e65ef3e5a897df"
+    }
+  ]
+}

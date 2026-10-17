@@ -1,0 +1,41 @@
+{
+  "sample_world_displacement_mm": {
+    "PCB_Main": [
+      0.0,
+      0.0,
+      38.0
+    ],
+    "U3_Package": [
+      0.0,
+      0.0,
+      18.0
+    ],
+    "SW09_Base": [
+      0.0,
+      0.0,
+      65.0
+    ],
+    "SW09_Cap": [
+      0.0,
+      0.0,
+      95.0
+    ],
+    "OpenMicroRotator_SourceMesh": [
+      0.0,
+      0.0,
+      95.0
+    ],
+    "OpenMicroJoystickCap_SourceMesh": [
+      0.0,
+      0.0,
+      95.0
+    ],
+    "Housing_Shell_V1": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "round_trip_matrix_max_error": 0.0,
+  "layer_drivers_valid": true
+}

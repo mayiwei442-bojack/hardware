@@ -1,0 +1,674 @@
+{
+  "source_unchanged": true,
+  "missing_original_objects": [],
+  "added_objects": [
+    "AA_CoverPanel"
+  ],
+  "reparented_original_objects": [],
+  "changed_original_meshes": [
+    "OpenMicroRotator_SourceMesh",
+    "SW03_Cap",
+    "SW03_Legend_StarOutline",
+    "SW04_Cap",
+    "SW04_Legend_Eye_1",
+    "SW04_Legend_Eye_2",
+    "SW04_Legend_Mouth",
+    "SW04_Legend_Smile_Outline",
+    "SW05_Cap",
+    "SW05_Legend_Mic_body",
+    "SW05_Legend_Mic_grip",
+    "SW05_Legend_Mic_Stem",
+    "SW06_Cap",
+    "SW06_Legend_Spark_00",
+    "SW06_Legend_Spark_01",
+    "SW06_Legend_Spark_02",
+    "SW06_Legend_Spark_03",
+    "SW06_Legend_Spark_04",
+    "SW06_Legend_Spark_05",
+    "SW06_Legend_Spark_06",
+    "SW06_Legend_Spark_07",
+    "SW06_Legend_Spark_08",
+    "SW06_Legend_Spark_09",
+    "SW06_Legend_Spark_10",
+    "SW06_Legend_Spark_11",
+    "SW06_Legend_Starlet_1",
+    "SW06_Legend_Starlet_2",
+    "SW06_Legend_Starlet_3",
+    "SW06_Legend_Starlet_4",
+    "SW07_Cap",
+    "SW07_Legend_Heli_body",
+    "SW07_Legend_Heli_leg1",
+    "SW07_Legend_Heli_leg2",
+    "SW07_Legend_Heli_mast",
+    "SW07_Legend_Heli_rotor",
+    "SW07_Legend_Heli_skid",
+    "SW07_Legend_Heli_tail",
+    "SW07_Legend_Heli_TailRotor",
+    "SW08_Cap",
+    "SW09_Cap",
+    "SW10_Cap",
+    "SW11_Cap",
+    "SW12_Cap",
+    "SW12_Legend_Grid_1",
+    "SW12_Legend_Grid_2",
+    "SW12_Legend_Grid_3",
+    "SW12_Legend_Grid_4",
+    "SW13_Cap",
+    "SW13_Legend_Check",
+    "SW14_Cap",
+    "SW14_Legend_X1",
+    "SW14_Legend_X2",
+    "SW15_Cap",
+    "SW15_Legend_Cursor",
+    "SW15_Legend_Prompt",
+    "SW15_Legend_TerminalFrame"
+  ],
+  "unexpected_geometry_changes": [],
+  "changed_vertex_counts": [],
+  "visibility_changes": [],
+  "panel_intersections_at_rest": [],
+  "panel_nonmanifold_edges": 0,
+  "panel_connected_components": 1,
+  "keys": [
+    {
+      "key": 3,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 4,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 5,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 6,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 7,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 8,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 9,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 10,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 11,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 12,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 13,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 14,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    },
+    {
+      "key": 15,
+      "independent_press_pass": true,
+      "travel_mm": 3.200000047683716
+    }
+  ],
+  "cap_clearance_samples": [
+    {
+      "key": 3,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 3,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 3,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 3,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 3,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 4,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 4,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 4,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 4,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 4,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 5,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 5,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 5,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 5,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 5,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 6,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 6,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 6,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 6,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 6,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 7,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 7,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 7,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 7,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 7,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 8,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 8,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 8,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 8,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 8,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 9,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 9,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 9,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 9,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 9,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 10,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 10,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 10,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 10,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 10,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 11,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 11,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 11,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 11,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 11,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 12,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 12,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 12,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 12,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 12,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 13,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 13,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 13,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 13,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 13,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 14,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 14,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 14,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 14,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 14,
+      "press": 1,
+      "intersections": []
+    },
+    {
+      "key": 15,
+      "press": 0,
+      "intersections": []
+    },
+    {
+      "key": 15,
+      "press": 0.25,
+      "intersections": []
+    },
+    {
+      "key": 15,
+      "press": 0.5,
+      "intersections": []
+    },
+    {
+      "key": 15,
+      "press": 0.75,
+      "intersections": []
+    },
+    {
+      "key": 15,
+      "press": 1,
+      "intersections": []
+    }
+  ],
+  "joystick": [
+    {
+      "pose": [
+        0,
+        0,
+        0
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        23,
+        0,
+        0
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        -23,
+        0,
+        0
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        0,
+        23,
+        0
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        0,
+        -23,
+        0
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        23,
+        23,
+        1
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        -23,
+        -23,
+        1
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        23,
+        -23,
+        1
+      ],
+      "cap_intersections": []
+    },
+    {
+      "pose": [
+        -23,
+        23,
+        1
+      ],
+      "cap_intersections": []
+    }
+  ],
+  "encoder_panel": [
+    {
+      "angle": 0,
+      "intersections": 0
+    },
+    {
+      "angle": 30,
+      "intersections": 0
+    },
+    {
+      "angle": 60,
+      "intersections": 0
+    },
+    {
+      "angle": 90,
+      "intersections": 0
+    },
+    {
+      "angle": 120,
+      "intersections": 0
+    },
+    {
+      "angle": 180,
+      "intersections": 0
+    },
+    {
+      "angle": 270,
+      "intersections": 0
+    }
+  ],
+  "explode": [
+    {
+      "amount": 0,
+      "panel_z_offset": 0.0,
+      "panel_intersections": []
+    },
+    {
+      "amount": 0.25,
+      "panel_z_offset": 13.0,
+      "panel_intersections": []
+    },
+    {
+      "amount": 0.5,
+      "panel_z_offset": 26.0,
+      "panel_intersections": []
+    },
+    {
+      "amount": 0.75,
+      "panel_z_offset": 39.0,
+      "panel_intersections": []
+    },
+    {
+      "amount": 1,
+      "panel_z_offset": 52.0,
+      "panel_intersections": []
+    }
+  ],
+  "reset_max_matrix_error": 0.0,
+  "invalid_drivers": [],
+  "packed_images": [
+    {
+      "name": "case_front_print.png",
+      "packed": true
+    },
+    {
+      "name": "case_side_print.png",
+      "packed": true
+    },
+    {
+      "name": "joystick_print.png",
+      "packed": true
+    },
+    {
+      "name": "key_03.png",
+      "packed": true
+    },
+    {
+      "name": "key_04.png",
+      "packed": true
+    },
+    {
+      "name": "key_05.png",
+      "packed": true
+    },
+    {
+      "name": "key_06.png",
+      "packed": true
+    },
+    {
+      "name": "key_07.png",
+      "packed": true
+    },
+    {
+      "name": "key_08.png",
+      "packed": true
+    },
+    {
+      "name": "key_09.png",
+      "packed": true
+    },
+    {
+      "name": "key_10.png",
+      "packed": true
+    },
+    {
+      "name": "key_11.png",
+      "packed": true
+    },
+    {
+      "name": "key_12.png",
+      "packed": true
+    },
+    {
+      "name": "key_13.png",
+      "packed": true
+    },
+    {
+      "name": "key_14.png",
+      "packed": true
+    },
+    {
+      "name": "key_15.png",
+      "packed": true
+    },
+    {
+      "name": "knob_print.png",
+      "packed": true
+    },
+    {
+      "name": "panel_print.png",
+      "packed": true
+    }
+  ],
+  "scope": "Preserved original object identities, parents and mesh vertex counts. Surface intersections sampled at listed poses; not a manufacturing-tolerance or continuous solid collision certification."
+}

@@ -1,0 +1,567 @@
+{
+  "source_footprint_count": 88,
+  "coverage": [
+    {
+      "reference": "LED8",
+      "object": "LED8_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.831054685652589e-07
+    },
+    {
+      "reference": "SW4",
+      "object": "SW04_Assembly",
+      "exists": true,
+      "xy_error_mm": 8.529922407464181e-07
+    },
+    {
+      "reference": "SW1",
+      "object": "SW01_MechanicalAssembly",
+      "exists": true,
+      "xy_error_mm": 1.0789593228837463e-06
+    },
+    {
+      "reference": "SW8",
+      "object": "SW08_Assembly",
+      "exists": true,
+      "xy_error_mm": 8.529922407464181e-07
+    },
+    {
+      "reference": "SW15",
+      "object": "SW15_Assembly",
+      "exists": true,
+      "xy_error_mm": 8.529922407464181e-07
+    },
+    {
+      "reference": "SW6",
+      "object": "SW06_Assembly",
+      "exists": true,
+      "xy_error_mm": 8.529922407464181e-07
+    },
+    {
+      "reference": "C21",
+      "object": "C21_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 5.019607850036899e-07
+    },
+    {
+      "reference": "SW10",
+      "object": "SW10_Assembly",
+      "exists": true,
+      "xy_error_mm": 5.394796614418732e-07
+    },
+    {
+      "reference": "R3",
+      "object": "R3_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.276690877091325e-06
+    },
+    {
+      "reference": "SW7",
+      "object": "SW07_Assembly",
+      "exists": true,
+      "xy_error_mm": 1.0789593228837463e-06
+    },
+    {
+      "reference": "J1",
+      "object": "J01_MechanicalAssembly",
+      "exists": true,
+      "xy_error_mm": 1.0789593228837463e-06
+    },
+    {
+      "reference": "LED1",
+      "object": "LED1_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.831054685652589e-07
+    },
+    {
+      "reference": "SW14",
+      "object": "SW14_Assembly",
+      "exists": true,
+      "xy_error_mm": 5.394796614418732e-07
+    },
+    {
+      "reference": "H3",
+      "object": "Fastener_Assembly_H_RF",
+      "exists": true,
+      "xy_error_mm": 0.0
+    },
+    {
+      "reference": "R1",
+      "object": "R1_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 4.750078964268834e-07
+    },
+    {
+      "reference": "LED2",
+      "object": "LED2_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.831054685652589e-07
+    },
+    {
+      "reference": "SW3",
+      "object": "SW03_Assembly",
+      "exists": true,
+      "xy_error_mm": 8.529922407464181e-07
+    },
+    {
+      "reference": "SW9",
+      "object": "SW09_Assembly",
+      "exists": true,
+      "xy_error_mm": 5.394796614418732e-07
+    },
+    {
+      "reference": "LED4",
+      "object": "LED4_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.831054685652589e-07
+    },
+    {
+      "reference": "H1",
+      "object": "Fastener_Assembly_H_LB",
+      "exists": true,
+      "xy_error_mm": 0.0
+    },
+    {
+      "reference": "C19",
+      "object": "C19_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.0948437832749022e-06
+    },
+    {
+      "reference": "SW12",
+      "object": "SW12_Assembly",
+      "exists": true,
+      "xy_error_mm": 8.529922407464181e-07
+    },
+    {
+      "reference": "H4",
+      "object": "Fastener_Assembly_H_LF",
+      "exists": true,
+      "xy_error_mm": 0.0
+    },
+    {
+      "reference": "LED6",
+      "object": "LED6_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.831054685652589e-07
+    },
+    {
+      "reference": "C18",
+      "object": "C18_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 5.656676799445915e-07
+    },
+    {
+      "reference": "LED7",
+      "object": "LED7_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.831054685652589e-07
+    },
+    {
+      "reference": "SW13",
+      "object": "SW13_Assembly",
+      "exists": true,
+      "xy_error_mm": 5.394796614418732e-07
+    },
+    {
+      "reference": "C14",
+      "object": "C14_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 7.422502149437762e-08
+    },
+    {
+      "reference": "TP1",
+      "object": "TP1_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.0789593228837463e-06
+    },
+    {
+      "reference": "C20",
+      "object": "C20_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.386929806021666e-06
+    },
+    {
+      "reference": "H2",
+      "object": "Fastener_Assembly_H_RB",
+      "exists": true,
+      "xy_error_mm": 0.0
+    },
+    {
+      "reference": "LED3",
+      "object": "LED3_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.831054685652589e-07
+    },
+    {
+      "reference": "SW5",
+      "object": "SW05_Assembly",
+      "exists": true,
+      "xy_error_mm": 8.529922407464181e-07
+    },
+    {
+      "reference": "SW11",
+      "object": "SW11_Assembly",
+      "exists": true,
+      "xy_error_mm": 8.529922407464181e-07
+    },
+    {
+      "reference": "LED5",
+      "object": "LED5_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.831054685652589e-07
+    },
+    {
+      "reference": "R2",
+      "object": "R2_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.2766424294722895e-06
+    },
+    {
+      "reference": "C29",
+      "object": "C29_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 7.629394502828291e-07
+    },
+    {
+      "reference": "Y1",
+      "object": "Y1_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 0.0
+    },
+    {
+      "reference": "C28",
+      "object": "C28_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.0789593178594505e-06
+    },
+    {
+      "reference": "C17",
+      "object": "C17_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.9366251364476323e-06
+    },
+    {
+      "reference": "C15",
+      "object": "C15_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 3.7605843359915916e-07
+    },
+    {
+      "reference": "J2",
+      "object": "J2_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 0.0
+    },
+    {
+      "reference": "LED19",
+      "object": "LED19_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 2.6702880795426154e-07
+    },
+    {
+      "reference": "C9",
+      "object": "C9_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 5.007957684580236e-07
+    },
+    {
+      "reference": "U2",
+      "object": "U2_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 8.103972592220999e-08
+    },
+    {
+      "reference": "LED21",
+      "object": "LED21_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 3.051757815342171e-07
+    },
+    {
+      "reference": "LED17",
+      "object": "LED17_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 6.662082368280616e-07
+    },
+    {
+      "reference": "LED27",
+      "object": "LED27_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 2.697398297160774e-07
+    },
+    {
+      "reference": "D12",
+      "object": "D12_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 5.394796601857992e-07
+    },
+    {
+      "reference": "D6",
+      "object": "D6_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 7.633118919606475e-07
+    },
+    {
+      "reference": "U1",
+      "object": "U1_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 7.629394502828291e-07
+    },
+    {
+      "reference": "D5",
+      "object": "D5_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.0789593178594505e-06
+    },
+    {
+      "reference": "U3",
+      "object": "U3_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 0.0
+    },
+    {
+      "reference": "D7",
+      "object": "D7_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 9.830249813526368e-08
+    },
+    {
+      "reference": "C11",
+      "object": "C11_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 3.964014432513974e-07
+    },
+    {
+      "reference": "C6",
+      "object": "C6_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 9.066511994519804e-07
+    },
+    {
+      "reference": "LED20",
+      "object": "LED20_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 2.6702880795426154e-07
+    },
+    {
+      "reference": "C7",
+      "object": "C7_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 2.0309814161749945e-07
+    },
+    {
+      "reference": "D9",
+      "object": "D9_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 7.633118884096673e-07
+    },
+    {
+      "reference": "D1",
+      "object": "D1_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 7.68876815340951e-07
+    },
+    {
+      "reference": "C5",
+      "object": "C5_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 5.286215099121634e-07
+    },
+    {
+      "reference": "LED23",
+      "object": "LED23_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 2.835477582832221e-07
+    },
+    {
+      "reference": "C8",
+      "object": "C8_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 2.4372749549417744e-07
+    },
+    {
+      "reference": "C2",
+      "object": "C2_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 4.855857316322723e-07
+    },
+    {
+      "reference": "C10",
+      "object": "C10_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 8.403971721298727e-07
+    },
+    {
+      "reference": "D10",
+      "object": "D10_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 8.529922399520072e-07
+    },
+    {
+      "reference": "C26",
+      "object": "C26_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 2.188018549239167e-08
+    },
+    {
+      "reference": "C1",
+      "object": "C1_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 8.78379724407565e-07
+    },
+    {
+      "reference": "D3",
+      "object": "D3_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 7.688768118156719e-07
+    },
+    {
+      "reference": "C3",
+      "object": "C3_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 2.6437313434771514e-07
+    },
+    {
+      "reference": "J3",
+      "object": "J3_USB_C_Assembly",
+      "exists": true,
+      "xy_error_mm": 6.103515630684342e-07
+    },
+    {
+      "reference": "D8",
+      "object": "D8_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 3.82214058800021e-07
+    },
+    {
+      "reference": "D2",
+      "object": "D2_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 8.529922407464181e-07
+    },
+    {
+      "reference": "LED28",
+      "object": "LED28_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 2.697398297160774e-07
+    },
+    {
+      "reference": "D13",
+      "object": "D13_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 8.529922367743635e-07
+    },
+    {
+      "reference": "LED25",
+      "object": "LED25_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 3.197298931676343e-07
+    },
+    {
+      "reference": "LED26",
+      "object": "LED26_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 3.0755072604824844e-07
+    },
+    {
+      "reference": "D4",
+      "object": "D4_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 8.529922375687744e-07
+    },
+    {
+      "reference": "LED18",
+      "object": "LED18_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 6.662082368280616e-07
+    },
+    {
+      "reference": "C13",
+      "object": "C13_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.712739412139475e-06
+    },
+    {
+      "reference": "C27",
+      "object": "C27_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 1.0561974165288758e-06
+    },
+    {
+      "reference": "LED22",
+      "object": "LED22_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 3.197298931676343e-07
+    },
+    {
+      "reference": "C4",
+      "object": "C4_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 4.835949759802163e-07
+    },
+    {
+      "reference": "LED29",
+      "object": "LED29_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 3.0755072604824844e-07
+    },
+    {
+      "reference": "C12",
+      "object": "C12_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 4.6387340749563795e-07
+    },
+    {
+      "reference": "C16",
+      "object": "C16_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 9.505354064190298e-07
+    },
+    {
+      "reference": "D11",
+      "object": "D11_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 3.9320999243334723e-07
+    },
+    {
+      "reference": "LED24",
+      "object": "LED24_ElectronicAssembly",
+      "exists": true,
+      "xy_error_mm": 2.835477582832221e-07
+    }
+  ],
+  "missing": [],
+  "max_xy_error_mm": 1.9366251364476323e-06,
+  "dimensions_mm": {
+    "PCB_Main": [
+      95.0,
+      95.0,
+      1.600000023841858
+    ],
+    "Housing_Shell_V1": [
+      99.4000015258789,
+      99.4000015258789,
+      12.600000023841858
+    ],
+    "OpenMicroRotator_SourceMesh": [
+      15.0,
+      14.996292114257812,
+      20.00000035762787
+    ],
+    "OpenMicroJoystickCap_SourceMesh": [
+      17.995468139648438,
+      18.0,
+      13.000000953674316
+    ],
+    "J03_USB_C_MetalShell": [
+      8.9399995803833,
+      7.329998016357422,
+      3.259999990463257
+    ]
+  },
+  "visible_model_objects_outside_root": [],
+  "pose_keyframe_operator": [
+    "FINISHED"
+  ],
+  "pose_keyframed_control_count": 18
+}

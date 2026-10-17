@@ -1,0 +1,165 @@
+{
+  "observed_at": "2026-10-01T09:47:10.128358+08:00",
+  "kind": "sidebar_toggle_operators",
+  "rows": [
+    {
+      "key": 3,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 4,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 5,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 6,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 7,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 8,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 9,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 10,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 11,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 12,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 13,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 14,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    },
+    {
+      "key": 15,
+      "operator": [
+        "FINISHED"
+      ],
+      "press_before": 0.0,
+      "press_after": 1.0,
+      "target_z_change_mm": -3.1999999284744263,
+      "expected_z_change_mm": -3.2,
+      "max_other_key_change_mm": 0.0,
+      "pass": true
+    }
+  ],
+  "all_pass": true,
+  "restored": true,
+  "scope": "Operator behavior only; does not certify collision clearance or visual acceptance."
+}

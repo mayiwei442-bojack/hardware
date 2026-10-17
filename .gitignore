@@ -1,0 +1,5 @@
+*.blend1
+*.blend2
+modeling/assets/OpenMicroKbd_AcidAlloy_before_keyprints.blend
+__pycache__/
+.DS_Store

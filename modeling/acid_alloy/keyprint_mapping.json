@@ -1,0 +1,97 @@
+{
+  "source": "openmicrokbd-review/app/src/config.rs:1153-1167 CODEX_KEYS",
+  "profile": "Codex; configurable, Claude Code preset differs",
+  "keys": [
+    {
+      "number": "01",
+      "object": "SW03_Cap",
+      "label": "ATTN",
+      "function": "下一个需要关注的会话",
+      "pictogram": "告警雷达"
+    },
+    {
+      "number": "02",
+      "object": "SW04_Cap",
+      "label": "NEW CHAT",
+      "function": "新建会话",
+      "pictogram": "新建窗口"
+    },
+    {
+      "number": "03",
+      "object": "SW08_Cap",
+      "label": "CHAT 1",
+      "function": "最近会话 1",
+      "pictogram": "会话槽 1"
+    },
+    {
+      "number": "04",
+      "object": "SW09_Cap",
+      "label": "CHAT 2",
+      "function": "最近会话 2",
+      "pictogram": "会话槽 2"
+    },
+    {
+      "number": "05",
+      "object": "SW10_Cap",
+      "label": "CHAT 3",
+      "function": "最近会话 3",
+      "pictogram": "会话槽 3"
+    },
+    {
+      "number": "06",
+      "object": "SW11_Cap",
+      "label": "CHAT 4",
+      "function": "最近会话 4",
+      "pictogram": "会话槽 4"
+    },
+    {
+      "number": "07",
+      "object": "SW12_Cap",
+      "label": "COMMAND",
+      "function": "命令菜单",
+      "pictogram": "指令轨道"
+    },
+    {
+      "number": "08",
+      "object": "SW13_Cap",
+      "label": "APPROVE",
+      "function": "批准请求",
+      "pictogram": "闭合闸门"
+    },
+    {
+      "number": "09",
+      "object": "SW14_Cap",
+      "label": "REJECT",
+      "function": "拒绝请求",
+      "pictogram": "截断闸门"
+    },
+    {
+      "number": "10",
+      "object": "SW15_Cap",
+      "label": "TERMINAL",
+      "function": "打开终端",
+      "pictogram": "代码光标"
+    },
+    {
+      "number": "11",
+      "object": "SW05_Cap",
+      "label": "VOICE",
+      "function": "语音输入",
+      "pictogram": "声波采样"
+    },
+    {
+      "number": "12",
+      "object": "SW06_Cap",
+      "label": "SIDE CHAT",
+      "function": "打开侧边会话",
+      "pictogram": "分支会话"
+    },
+    {
+      "number": "13",
+      "object": "SW07_Cap",
+      "label": "MODEL",
+      "function": "模型选择",
+      "pictogram": "芯片选择器"
+    }
+  ]
+}

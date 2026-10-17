@@ -1,0 +1,245 @@
+{
+  "phase": "complete",
+  "completed_batches": [
+    "01_source_cad_baseline",
+    "02_shell_pcb_assembly",
+    "03_13_choc_switches_and_keycaps",
+    "04_ec11_rkjxv_controls",
+    "05_internal_electronics_21_leds",
+    "06_materials_interaction_exploded_rig",
+    "07_demo_reopen_visual_acceptance_delivery"
+  ],
+  "next_action": "交付完成；在Blender打开主文件，N侧栏选择OpenMicroKbd。",
+  "known_issues": [],
+  "render_paths": [
+    "modeling/renders/batch_01_source_top.png",
+    "modeling/renders/batch_01_source_front.png",
+    "modeling/renders/batch_01_source_right.png",
+    "modeling/renders/batch_01_source_rear.png",
+    "modeling/renders/batch_01_source_bottom.png",
+    "modeling/renders/batch_01_housing_top.png",
+    "modeling/renders/batch_01_housing_front.png",
+    "modeling/renders/batch_01_housing_right.png",
+    "modeling/renders/batch_01_housing_rear.png",
+    "modeling/renders/batch_01_housing_bottom.png",
+    "modeling/renders/batch_01_housing_rear_corrected.png",
+    "modeling/renders/batch_01_usb_rear_closeup.png",
+    "modeling/renders/batch_02_pcb_usb_top.png",
+    "modeling/renders/batch_02_usb_rear_closeup.png",
+    "modeling/renders/batch_02_pcb_usb_right.png",
+    "modeling/renders/batch_02_pcb_usb_bottom.png",
+    "modeling/renders/batch_02_pcb_underside_review.png",
+    "modeling/renders/batch_03_keycaps_top_review.png",
+    "modeling/renders/batch_03_pressed_key_3q_review.png",
+    "modeling/renders/batch_04_controls_top.png",
+    "modeling/renders/batch_04_controls_3q.png",
+    "modeling/renders/batch_04_controls_cluster.png",
+    "modeling/renders/batch_04_encoder_rotated_pressed.png",
+    "modeling/renders/batch_04_joystick_x_limit.png",
+    "modeling/renders/batch_04_joystick_y_limit.png",
+    "modeling/renders/batch_04_joystick_diagonal_press.png",
+    "modeling/renders/final_hero.png",
+    "modeling/renders/final_night.png",
+    "modeling/renders/final_exploded.png",
+    "modeling/renders/final_top.png",
+    "modeling/renders/final_front.png",
+    "modeling/renders/final_right.png",
+    "modeling/renders/final_rear.png",
+    "modeling/renders/final_usb.png",
+    "modeling/renders/final_pcb_top.png",
+    "modeling/renders/final_pcb_bottom.png",
+    "modeling/renders/final_demo_014.png",
+    "modeling/renders/final_demo_113.png",
+    "modeling/renders/final_demo_196.png",
+    "modeling/renders/final_demo_220.png",
+    "modeling/renders/final_demo_285.png",
+    "modeling/renders/final_controls_ui_pressed.png",
+    "modeling/renders/direct_01_usb_rear.png",
+    "modeling/renders/direct_01_mechanics_overview.png",
+    "modeling/renders/direct_02_electronics_top.png",
+    "modeling/renders/direct_02_electronics_bottom.png",
+    "modeling/renders/direct_03_key_pressed.png",
+    "modeling/renders/direct_05_exploded.png",
+    "modeling/renders/direct_06_materials_lights_corrected.png",
+    "modeling/renders/direct_06_lights_apertures.png"
+  ],
+  "visual_reviews": [
+    {
+      "result": "view_image 实看；核对外壳圆角、四角孔和分离控制件；USB边缘缺口不清晰。",
+      "view": "source_top"
+    },
+    {
+      "result": "view_image 实看；壳体高度包络与旋钮/摇杆帽轮廓可辨。",
+      "view": "source_front"
+    },
+    {
+      "result": "view_image 实看；确认壳体厚度轮廓及旋钮滚花。",
+      "view": "source_right"
+    },
+    {
+      "result": "view_image 实看；USB开口未能明确辨认，列入批次2复核。",
+      "view": "source_rear"
+    },
+    {
+      "result": "view_image 实看；摇杆帽轴孔可辨，外壳底面和孔位可见。",
+      "view": "source_bottom"
+    },
+    {
+      "result": "view_image 实看；正式外壳复制源网格，包络和四角孔与参考一致。",
+      "view": "housing_top"
+    },
+    {
+      "result": "view_image 实看；壳体侧边连续，当前未确认USB口。",
+      "view": "housing_front"
+    },
+    {
+      "result": "view_image 实看；厚度侧视符合源网格。",
+      "view": "housing_right"
+    },
+    {
+      "result": "view_image 实看；缺口仍不够明确，未判通过。",
+      "view": "housing_rear"
+    },
+    {
+      "result": "view_image 实看；底面、圆角和安装位轮廓符合源CAD。",
+      "view": "housing_bottom"
+    },
+    {
+      "view": "batch01_rear_corrected",
+      "result": "view_image 实看；重新校正相机后侧朝向；一般后视仍不能单独确认开口，保留该限制。"
+    },
+    {
+      "view": "batch01_usb_rear_closeup",
+      "result": "view_image 实看；空腔内浅色表面仍降低开口辨识度，因此本图不作为开口通过证据。"
+    },
+    {
+      "view": "batch02_pcb_usb_top",
+      "result": "view_image 实看；PCB 外轮廓/13组开关穿孔与四角螺钉可辨；黑色裸板尚无器件和丝印，留待后批。"
+    },
+    {
+      "view": "batch02_usb_rear_closeup",
+      "result": "view_image 实看；后侧 USB-C 金属框、暗腔、舌片及触点可辨，开口朝向与外壳后侧一致。"
+    },
+    {
+      "view": "batch02_pcb_usb_right",
+      "result": "view_image 实看；侧视显示板厚/壳体边缘；整壳遮挡内部属于当前装配状态。"
+    },
+    {
+      "view": "batch02_pcb_usb_bottom",
+      "result": "view_image 实看；底壳外表面与圆角完整，内部被壳底遮挡。"
+    },
+    {
+      "view": "batch02_pcb_underside_review",
+      "result": "view_image 实看；为审看板体临时隐藏壳后，板孔分布清楚；B面器件本批尚未建模，隐藏状态已恢复且未保存为默认隐藏。"
+    },
+    {
+      "view": "source_cad_multiview_rereview",
+      "result": "本次用 view_image 重新检查源 CAD 顶/前/右/后/底五视图；控制件在源参考视图中分离显示，PCB坐标与器件布局取自KiCad，不从该分离画面估尺寸。"
+    },
+    {
+      "view": "batch03_initial_key_layout",
+      "result": "首轮实看发现父级矩阵重复平移，开关壳偏到板外；透明帽内轴芯顶穿帽顶。该轮判不合格，修正后重渲染。"
+    },
+    {
+      "view": "batch03_keycaps_top_review",
+      "result": "view_image 实看修正版：13个独立帽按源布局位于PCB板框内；4个透明帽透见棕色十字轴芯，8个白帽和1个黄帽配图标可数；没有看到相邻帽接触。"
+    },
+    {
+      "view": "batch03_pressed_key_3q_review",
+      "result": "view_image 实看修正版：SW09透明帽按下后低于相邻帽，开关壳/PCB厚度关系可辨；局部帽侧壁仍被机构遮挡，控制行程以MCP几何检查辅助确认。"
+    },
+    {
+      "view": "batch03_all_key_press_controls",
+      "result": "MCP逐个将13个CTRL_SW press设为1并评估独立运动Empty/帽包围盒，各自下移3.2 mm；全部有效且之后press复位为0。"
+    },
+    {
+      "view": "batch04_source_photo_review",
+      "result": "view_image 实际复看 hardware.webp、underside.webp、enclosure.webp；对应后排旋钮/摇杆相对键帽位置、底面布局和打印外壳外观。"
+    },
+    {
+      "view": "batch04_controls_first_pass",
+      "result": "view_image 初审发现正式副本继承源 CAD 隐藏渲染标记，旋钮/摇杆帽未显示；已取消副本隐藏并替换渲染，首轮图不作为通过证据。"
+    },
+    {
+      "view": "batch04_controls_top_final",
+      "result": "view_image 审看修正版；13键、左后滚花旋钮、右后圆摇杆帽与四角紧固件可辨，布局符合实拍及 PCB 轴心坐标。"
+    },
+    {
+      "view": "batch04_controls_3q_final",
+      "result": "view_image 审看修正版；两控制件高出低矮 Choc 键帽，EC11 金属壳/衬套和 RKJXV 金属外壳在近景可辨。"
+    },
+    {
+      "view": "batch04_encoder_motion",
+      "result": "view_image 审看旋钮旋转并按压状态；MCP 驱动实测 120 度旋转、0.50 mm 下移；按压行程仅作视觉代理。"
+    },
+    {
+      "view": "batch04_joystick_xy_press",
+      "result": "view_image 分别检查 X、Y、对角倾斜与按压图；驱动器有效，23+23度输入按比例限制到合成 22.84 度，按压 0.40 mm。"
+    },
+    {
+      "view": "batch04_joystick_key_clearance",
+      "result": "MCP 以变换后网格 BVH 求交检查中立、四向和对角姿态，摇杆帽与 SW03/SW04/SW10/SW11/SW07 键帽均无三角面交叠；属性已复位。"
+    },
+    {
+      "view": "direct_01_hardware_corrected",
+      "result": "实看USB和机械总览；双重平移、悬空圆片、摇杆实心包络已修复。"
+    },
+    {
+      "view": "direct_02_electronics",
+      "result": "实看PCB上下表面；88源位号全部对应，21灯和简化器件可辨。"
+    },
+    {
+      "view": "direct_03_key_pressed",
+      "result": "实看重建内腔后的按下透明键，65个行程采样0失败。"
+    },
+    {
+      "view": "direct_05_exploded",
+      "result": "修复驱动变量后重新渲染实看，PCB/机构/帽/内部器件分层，复位误差0。"
+    },
+    {
+      "view": "direct_06_materials",
+      "result": "首轮过曝不通过；调低棚灯并补21个PCB光孔后重渲染实看通过。"
+    },
+    {
+      "view": "final_hero_night",
+      "result": "实际查看日间/夜间；13键布局清楚、透明帽与棕轴可见、灯光可辨。"
+    },
+    {
+      "view": "final_orthographic_usb",
+      "result": "实看顶/前/右/后与USB特写，尺寸层位、后侧胶囊口对准。"
+    },
+    {
+      "view": "final_pcb_top_bottom",
+      "result": "实看正反面，器件封装和布局可识别；最终再次实看底面。"
+    },
+    {
+      "view": "final_exploded",
+      "result": "实际查看全部解构层，最终交付复核再次实看。"
+    },
+    {
+      "view": "final_demo_frames",
+      "result": "实看14/113/196/220/285帧，覆盖按键、旋钮、摇杆、RGB触摸及解构。"
+    },
+    {
+      "view": "final_gui_reopen",
+      "result": "实际重开文件、鼠标点击星形按钮并实看截图；播放推进至27帧，停止复位。"
+    },
+    {
+      "view": "delivery_repeat",
+      "result": "再次实看整机、爆炸图、PCB底面；MCP重跑13键、旋钮、摇杆、灯光、解构、动画采样及复位均通过。"
+    }
+  ],
+  "complete": true,
+  "audit_complete": true,
+  "limitations": [
+    "MakerWorld网页访问受限；使用已读取的用户仓库、V1 CAD/PCB、厂商图和官网照片。",
+    "Choc以CPG1353家族参考建模；17.2 mm帽宽、曲面及部分内部结构为视觉近似。",
+    "EC11E15244A5准确按压行程未确认，0.50 mm为演示代理。",
+    "电子器件按封装族简化，触摸高亮和RGB是动画演示，不提供电气仿真。",
+    "碰撞检查为记录范围内的离散表面检查，非连续实体或制造公差证明。",
+    "12秒示范保存在blend中，未另行导出MP4。"
+  ],
+  "updated_at": "2026-10-01T20:01:24.312847+08:00",
+  "acceptance_report": "modeling/验收报告.md",
+  "blend_file": "modeling/assets/OpenMicroKbd.blend"
+}

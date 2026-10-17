@@ -1,0 +1,14 @@
+{
+  "thread_id": "01a0f3cb-9c6d-75e3-8958-dfebcfb0fd7e",
+  "status": "stopped_at_quota",
+  "phase": "second",
+  "runner_pid": 20100,
+  "server_pid": 43552,
+  "turn_id": "01a0f51a-f712-7501-9ce1-0ea2c9c669ea",
+  "last_turn_status": "completed",
+  "quota": {
+    "usedPercent": 95,
+    "windowDurationMins": 300,
+    "resetsAt": 1790833258
+  }
+}

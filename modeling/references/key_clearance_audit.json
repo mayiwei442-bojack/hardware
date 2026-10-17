@@ -1,0 +1,592 @@
+{
+  "samples": [
+    {
+      "key": "SW03",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW03",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW03",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW03",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW03",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW04",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW04",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW04",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW04",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW04",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW05",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW05",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW05",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW05",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW05",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW06",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW06",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW06",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW06",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW06",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW07",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW07",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW07",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW07",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW07",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW08",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW08",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW08",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW08",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW08",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW09",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW09",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW09",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW09",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW09",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW10",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW10",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW10",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW10",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW10",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW11",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW11",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW11",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW11",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW11",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW12",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW12",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW12",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW12",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW12",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW13",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW13",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW13",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW13",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW13",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW14",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW14",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW14",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW14",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW14",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    },
+    {
+      "key": "SW15",
+      "press": 0,
+      "intersections": [],
+      "slider_z": [
+        5.039999961853027,
+        7.019999980926514
+      ]
+    },
+    {
+      "key": "SW15",
+      "press": 0.25,
+      "intersections": [],
+      "slider_z": [
+        4.239999771118164,
+        6.21999979019165
+      ]
+    },
+    {
+      "key": "SW15",
+      "press": 0.5,
+      "intersections": [],
+      "slider_z": [
+        3.440000057220459,
+        5.420000076293945
+      ]
+    },
+    {
+      "key": "SW15",
+      "press": 0.75,
+      "intersections": [],
+      "slider_z": [
+        2.6399998664855957,
+        4.619999885559082
+      ]
+    },
+    {
+      "key": "SW15",
+      "press": 1,
+      "intersections": [],
+      "slider_z": [
+        1.8399999141693115,
+        3.819999933242798
+      ]
+    }
+  ],
+  "sample_count": 65,
+  "failing_samples": 0,
+  "scope": "13 keys at five positions; evaluated moving surfaces versus base/guide/seat/locator/shell/PCB. Cap-to-stem attachment is intentional. Surface BVH does not prove solid containment clearance."
+}

@@ -1,0 +1,29 @@
+{
+  "source": "OpenMicroKbkCase.3mf",
+  "rigid_transform_mm": "(47.5-z, 47.5-x, y)",
+  "first_hit_distance_mm": {
+    "rear_center_port": 107.7,
+    "rear_beside_port": 10.3,
+    "front_center": 10.3,
+    "left_center": 10.3,
+    "right_center": 10.3
+  },
+  "near_wall_probe_limit_mm": 15,
+  "rear_port_open": true,
+  "other_probes_closed": true,
+  "bounds_mm": [
+    [
+      -49.7,
+      49.7
+    ],
+    [
+      -49.7,
+      49.7
+    ],
+    [
+      -11.0,
+      1.6
+    ]
+  ],
+  "scope": "Authoritative source geometry only; does not claim the current Blender scene is corrected or visually accepted."
+}

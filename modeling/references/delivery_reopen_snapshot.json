@@ -1,0 +1,30 @@
+{
+  "reopened_file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\modeling\\assets\\OpenMicroKbd.blend",
+  "objects": 1239,
+  "frame": 1,
+  "fps": 30,
+  "end": 360,
+  "keys": 13,
+  "presses": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "explode": 0.0,
+  "addon_enabled": true,
+  "panel_registered": true,
+  "embedded_script": true,
+  "invalid_drivers": [],
+  "camera": "CAM_Hero",
+  "demo_enabled": false
+}
