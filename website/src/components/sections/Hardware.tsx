@@ -1,16 +1,100 @@
 'use client';
-import {useEffect,useMemo,useRef,useState} from 'react';
-import {motion,AnimatePresence,useReducedMotion} from 'motion/react';
-import {hardware,assemblyStages} from '@/data/product';
-import {assets} from '@/data/assets';
+
+import dynamic from 'next/dynamic';
+import {Component,useCallback,useEffect,useMemo,useRef,useState,type ReactNode} from 'react';
+import {useReducedMotion} from 'motion/react';
+import {hardwareLabels,hardwareParts,type PartSelection} from '@/data/hardware';
 import {createSceneController} from '@/lib/three/controller';
-import {bindSceneScroll} from '@/lib/animations/usePageMotion';
-import ModelSlot from '../three/ModelSlot';
-import {SectionLabel} from '../ui/Primitives';
+
+const HardwareScene=dynamic(()=>import('../three/HardwareScene'),{ssr:false});
+class SceneBoundary extends Component<{children:ReactNode;onRetry:()=>void;onError:()=>void},{failed:boolean}>{
+ state={failed:false};
+ static getDerivedStateFromError(){return {failed:true};}
+ componentDidCatch(){this.props.onError();}
+ render(){return this.state.failed?<div className="hardware-loading" role="alert"><p>模型暂时无法加载</p><button className="btn small" onClick={this.props.onRetry}>重新加载</button></div>:this.props.children;}
+}
+
 export default function Hardware(){
- const [selected,setSelected]=useState(0);const [progress,setProgress]=useState(0);const [notice,setNotice]=useState('');const reduced=useReducedMotion();const ref=useRef<HTMLDivElement>(null);
- const controller=useMemo(createSceneController,[]);const ready=assets.models.keyboardExploded.status==='ready'&&!!assets.models.keyboardExploded.src;
- useEffect(()=>ref.current?bindSceneScroll(ref.current,controller,ready&&!reduced):undefined,[controller,ready,reduced]);
- const item=hardware[selected];const stage=Math.min(5,Math.floor(progress*6/101));
- return <section id="hardware" className="section"><SectionLabel n="02" label="硬件解构"/><div className="section-heading" data-reveal><h2>逐一认识输入。<br/><span className="serif-line">一台控制设备。</span></h2><p>从触感到控制核心。<br/>逐个查看构成酸性合金的部件。</p></div><div className="hardware-layout" ref={ref}><div className="hardware-visual"><ModelSlot id="keyboardExploded" controller={controller}/><div className="assembly-control"><div className="between mono"><label htmlFor="assembly">装配阶段 / {assemblyStages[stage]}</label><span>{progress.toString().padStart(3,'0')}%</span></div><input id="assembly" aria-label="拆解阶段预览" type="range" min="0" max="100" value={progress} onChange={e=>{const value=Number(e.target.value);setProgress(value);controller.setProgress(value/100);setNotice(ready?'':'阶段预览已更新，三维动画待接入。')}}/><div className="between"><small>{ready?'拖动查看装配阶段':'界面预览 · 三维拆解待接入'}</small><button className="text-button" onClick={()=>{setProgress(0);controller.resetAssembly();setNotice('已回到完整键盘阶段。')}}>重置装配 ↺</button></div><span className="sr-only" role="status">{notice}</span></div></div><div className="hardware-info"><div className="part-menu" role="group" aria-label="硬件部件">{hardware.map((part,i)=><button key={part.id} aria-pressed={selected===i} onClick={()=>setSelected(i)}><span className="mono">0{i+1}</span>{part.name}<span aria-hidden="true">↗</span></button>)}</div><AnimatePresence mode="wait" initial={false}><motion.div className="part-detail" key={item.id} initial={{opacity:0,x:reduced?0:12}} animate={{opacity:1,x:0}} exit={{opacity:0,x:reduced?0:-12}} transition={{duration:.18}}><div className="between"><span className="mono">{item.cn}</span><span className="tag">{item.type}</span></div><strong className="part-value">{item.value}</strong><span className="mono part-unit">{item.unit}</span><p>{item.desc}</p><ul>{item.specs.map(s=><li key={s}>{s}</li>)}</ul></motion.div></AnimatePresence></div></div></section>;
+ const section=useRef<HTMLElement>(null);
+ const viewport=useRef<HTMLDivElement>(null);
+ const controller=useMemo(createSceneController,[]);
+ const reduced=!!useReducedMotion();
+ const [nearby,setNearby]=useState(false);
+ const [active,setActive]=useState(false);
+ const [loaded,setLoaded]=useState(false);
+ const [complete,setComplete]=useState(false);
+ const [selected,setSelected]=useState<PartSelection|null>(null);
+ const [attempt,setAttempt]=useState(0);
+ const [failed,setFailed]=useState(false);
+ const [focusReady,setFocusReady]=useState(false);
+ const back=useRef<HTMLButtonElement>(null);
+ const selectedRef=useRef(selected);
+ const close=useCallback(()=>{
+  const part=selectedRef.current?.part;
+  setSelected(null);
+  requestAnimationFrame(()=>{if(part)section.current?.querySelector<HTMLButtonElement>(`[data-part="${part}"]`)?.focus({preventScroll:true});});
+ },[]);
+ useEffect(()=>{selectedRef.current=selected;},[selected]);
+ useEffect(()=>{
+  const element=section.current;
+  if(!element)return;
+  const observer=new IntersectionObserver(entries=>setNearby(entries[0].isIntersecting),{rootMargin:'1000px 0px'});
+  observer.observe(element);
+  return()=>observer.disconnect();
+ },[]);
+ useEffect(()=>{
+  let frame=0;
+  const update=()=>{
+   frame=0;
+   if(!section.current||!viewport.current)return;
+   const rect=section.current.getBoundingClientRect();
+   const height=viewport.current.clientHeight;
+   const progress=Math.max(0,Math.min(1,-rect.top/(height*2.35)));
+   controller.setProgress(progress);
+   section.current.dataset.progress=progress.toFixed(3);
+   setActive(rect.top<height&&rect.bottom>0);
+   if(selectedRef.current&&(progress<.99||rect.bottom<height*.25))setSelected(null);
+  };
+  const schedule=()=>{if(!frame)frame=requestAnimationFrame(update);};
+  update();
+  window.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule);
+  return()=>{cancelAnimationFrame(frame);window.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);};
+ },[controller]);
+ useEffect(()=>{
+  if(!selected)return;
+  const escape=(event:KeyboardEvent)=>{if(event.key==='Escape')close();};
+  window.addEventListener('keydown',escape);
+  back.current?.focus({preventScroll:true});
+  return()=>window.removeEventListener('keydown',escape);
+ },[selected,close]);
+ const select=useCallback((value:PartSelection)=>{setFocusReady(false);setSelected(value);},[]);
+ const onLoaded=useCallback(()=>setLoaded(true),[]);
+ const onComplete=useCallback((value:boolean)=>setComplete(value),[]);
+ const onFocusReady=useCallback((value:boolean)=>setFocusReady(value),[]);
+ const onError=useCallback(()=>{setFailed(true);setLoaded(false);setComplete(false);setSelected(null);},[]);
+ const retry=()=>{setLoaded(false);setFailed(false);setAttempt(value=>value+1);};
+ const item=selected?hardwareParts[selected.part]:null;
+ const capNumber=selected?.part==='keycaps'?selected.node.match(/SW\d+/)?.[0]:null;
+ const phase=selected?'inspecting':complete?'exploded':'assembling';
+
+ return <section id="hardware" ref={section} className="hardware-experience" aria-label="硬件解构" data-phase={phase} data-loaded={loaded} data-focus-ready={focusReady}>
+  <div className="hardware-viewport" ref={viewport}>
+   <h2 className="sr-only">硬件解构</h2>
+   <div className={`hardware-canvas${selected?' is-inspecting':''}`}>
+    {nearby?<SceneBoundary key={attempt} onRetry={retry} onError={onError}><HardwareScene controller={controller} selected={selected} onSelect={select} onLoaded={onLoaded} onComplete={onComplete} onFocusReady={onFocusReady} reduced={reduced} active={active} attempt={attempt}/></SceneBoundary>:null}
+   </div>
+   {!loaded&&!failed?<div className="hardware-loading" role="status"><span className="hardware-loader"/><span>正在加载键盘模型</span></div>:null}
+   {loaded&&complete&&!selected?<div className="hardware-part-labels" role="group" aria-label="选择硬件部件">{hardwareLabels.map((id,index)=><button key={id} data-part={id} className={`hardware-part-label label-${index}`} onClick={()=>select({part:id,node:hardwareParts[id].node})}><span className="part-label-dot"/>{hardwareParts[id].name}<span aria-hidden="true">↗</span></button>)}</div>:null}
+   {selected&&item?<>
+    <button ref={back} className="hardware-back" onClick={close}><span aria-hidden="true">↖</span> 返回解构总览 <kbd>ESC</kbd></button>
+    <aside className="hardware-part-card" aria-label={`${item.name}下载`}>
+     <span className="hardware-card-index mono">{capNumber||'ACID / ALLOY'}</span>
+     <h3>{item.name}</h3><p>{item.detail}</p>
+     <div className="hardware-downloads">{capNumber?<a href={`/downloads/acid-alloy-keycap-${capNumber}.stl`} download>下载此键帽 · STL <span aria-hidden="true">↓</span></a>:null}{item.downloads.map(download=><a key={download.href} href={download.href} download>{download.label}<span aria-hidden="true">↓</span></a>)}</div>
+    </aside>
+   </>:null}
+   {loaded?<div className="hardware-scroll-hint" aria-live="polite">{selected?<><span className="hint-orbit" aria-hidden="true">↔</span> 拖动旋转，查看细节</>:complete?<>点击部件或名称，查看细节 <span aria-hidden="true">·</span> 继续下滑浏览</>:<>向下滚动，展开设备 <span className="hint-down" aria-hidden="true">↓</span></>}</div>:null}
+  </div>
+ </section>;
 }

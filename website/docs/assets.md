@@ -2,6 +2,8 @@
 
 首页已接入的透明二维图片使用 `assets.overviewImage` 配置，来源与提示词见 [概览说明](overview.md)。
 
+2026-10-21：硬件解构页已接入 `OpenMicroKbd_AcidAlloy.blend` 导出的正式模型和 `HardwareExplode` 动画，不再使用滑杆或待接入占位。导出、下载来源和验证说明见 [硬件解构](hardware.md)。其余场景的模型状态仍独立配置。
+
 ## 模型
 
 把正式 GLB 放进 public/assets，然后修改 src/data/assets.ts 中对应条目：
@@ -27,7 +29,7 @@ assets.models.keyboard.nodeInputs = {
 
 ## 动画
 
-正式 GLB 内须提供实际动画片段。用 clips.assembly 指定拆解片段名称，通过 createSceneController 的 setProgress(0–1)、resetAssembly、playClip(name)、stop 控制。Hardware 的阶段滑块已连接控制器。bindSceneScroll(element,controller,enabled) 可订阅滚动；enabled 仅在真实资源已就绪且场景加载完成后开启。本阶段不产生任何模型拆解或制造动画。
+正式 GLB 内须提供实际动画片段。通用 ModelScene 用 clips.assembly 指定拆解片段名称，通过 createSceneController 的 setProgress(0–1)、resetAssembly、playClip(name)、stop 控制。硬件页使用独立 HardwareScene：页面顶部到达视口顶部后，继续滚动 2.35 个视口高度推动完整解构；之后保留停留区用于选择部件。动画直接读取同一控制器，反向滚动反向合拢。
 
 ## 图片和贴图
 
@@ -35,4 +37,4 @@ productImages.status='ready' 后填入 items：{src,alt,width,height}。keycapTe
 
 ## 接入后的检查
 
-正式模型和图片素材未提供，当前无法验收其比例、UV、节点映射与动画片段。接入后逐项确认相机取景、材质名称、所有输入事件、完整动画区间、加载失败重试，以及桌面/手机的渲染性能。此清单属于下一阶段真实媒体接入，不要求本阶段创建替代模型。
+硬件解构模型已有真实资源；桌面/手机取景、部件点击、名称选择、镜头聚焦、拖动旋转、下载和加载重试由 tests/hardware.spec.ts 验证。其余 pending 模型和图片仍需在提供正式素材后检查取景、UV、事件和性能。

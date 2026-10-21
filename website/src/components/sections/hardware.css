@@ -1,0 +1,41 @@
+.hardware-experience{position:relative;height:440svh;width:100%;scroll-margin-top:0;background:#090c0b}
+.hardware-viewport{position:sticky;top:0;width:100%;height:100svh;overflow:hidden;isolation:isolate;background:radial-gradient(ellipse at 46% 53%,#1d2520 0%,#101511 42%,#090c0b 76%)}
+.hardware-canvas{position:absolute;inset:0;touch-action:pan-y}
+.hardware-canvas canvas{touch-action:pan-y!important}
+.hardware-canvas.is-inspecting canvas{touch-action:none!important}
+.hardware-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;color:var(--muted);font-size:12px;pointer-events:none}
+.hardware-loading button{pointer-events:auto}
+.hardware-loader{width:24px;height:24px;border:1px solid #c6ff3630;border-top-color:var(--lime);border-radius:50%;animation:hardware-load 1s linear infinite}
+@keyframes hardware-load{to{transform:rotate(360deg)}}
+.hardware-scroll-hint{position:absolute;bottom:35px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;white-space:nowrap;font-size:11px;letter-spacing:.09em;color:#a4afa6;pointer-events:none}
+.hint-down{font-size:19px;color:var(--lime);animation:hardware-scroll 2s ease-in-out infinite}
+.hint-orbit{font-size:20px;color:var(--lime)}
+@keyframes hardware-scroll{50%{transform:translateY(5px)}}
+.hardware-part-labels{position:absolute;inset:0;pointer-events:none;animation:hardware-appear .55s ease both}
+.hardware-part-label{position:absolute;display:flex;align-items:center;gap:12px;min-width:122px;min-height:44px;padding:10px 14px;color:#d9e1d8;background:#1016109c;border:1px solid #768b6b42;backdrop-filter:blur(10px);font-size:12px;pointer-events:auto}
+.hardware-part-label:hover,.hardware-part-label:focus-visible{color:var(--lime);border-color:var(--lime);background:#1c2815}
+.hardware-part-label>span:last-child{margin-left:auto;color:var(--lime)}
+.part-label-dot{width:4px;height:4px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px #c6ff3650}
+.hardware-part-label:after{content:'';position:absolute;width:clamp(24px,4vw,70px);height:1px;background:linear-gradient(90deg,#aabd9166,#aabd9110);left:100%;pointer-events:none}
+.hardware-part-label:nth-child(odd){left:8%}
+.hardware-part-label:nth-child(even){right:8%}
+.hardware-part-label:nth-child(even):after{left:auto;right:100%;transform:rotate(180deg)}
+.label-0,.label-1{top:25%}.label-2,.label-3{top:39%}.label-4,.label-5{top:54%}.label-6,.label-7{top:70%}
+.hardware-back{position:absolute;top:112px;left:40px;display:flex;align-items:center;gap:13px;min-height:44px;padding:10px 16px;border:1px solid #68756266;background:#101610b0;backdrop-filter:blur(10px);font-size:12px;animation:hardware-appear .4s ease both}
+.hardware-back>span{color:var(--lime);font-size:20px}.hardware-back kbd{font:9px var(--mono);margin-left:20px;color:var(--muted)}
+.hardware-part-card{position:absolute;right:40px;bottom:78px;width:300px;padding:24px;border:1px solid #58634e77;background:#0c120ee8;backdrop-filter:blur(18px);animation:hardware-card .55s cubic-bezier(.2,.8,.2,1) both}
+.hardware-card-index{color:var(--lime);font-size:9px}.hardware-part-card h3{font-size:29px;font-weight:500;letter-spacing:.02em;margin-top:7px}.hardware-part-card p{font-size:11px;color:var(--muted);margin-top:6px}
+.hardware-downloads{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.hardware-downloads a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px;border:1px solid #414d38;padding:9px 12px;font-size:11px;flex:1;white-space:nowrap}
+.hardware-downloads a:first-child{flex-basis:100%;background:var(--lime);border-color:var(--lime);color:#0c120e}.hardware-downloads a:hover{border-color:var(--lime);background:#29371e}.hardware-downloads a:first-child:hover{background:#dbff82}
+@keyframes hardware-appear{from{opacity:0}to{opacity:1}}
+@keyframes hardware-card{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:760px){
+ .hardware-part-labels{inset:auto 18px 88px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+ .hardware-part-label{position:static!important;min-width:0;min-height:40px;padding:9px 7px;gap:5px;font-size:10px;justify-content:center;background:#0c120ee8}
+ .part-label-dot,.hardware-part-label:after,.hardware-part-label>span:last-child{display:none}
+ .hardware-scroll-hint{bottom:28px;font-size:9px;gap:8px;letter-spacing:.025em}
+ .hardware-back{top:88px;left:18px;font-size:11px;padding:8px 12px}.hardware-back kbd{display:none}
+ .hardware-part-card{left:18px;right:18px;bottom:70px;width:auto;padding:17px 19px}.hardware-part-card h3{font-size:23px;margin-top:2px}.hardware-part-card p{font-size:10px}.hardware-card-index{font-size:8px}.hardware-downloads{margin-top:14px;gap:6px}.hardware-downloads a{font-size:10px;min-height:38px}
+}
+@media(prefers-reduced-motion:reduce){.hardware-experience *{animation:none!important;transition:none!important}}

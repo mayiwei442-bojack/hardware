@@ -1,16 +1,16 @@
 import {test,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-test('five chapters, responsive navigation and no 3D requests',async({page},testInfo)=>{
- const errors:string[]=[];const modelRequests:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/\.(glb|gltf)(\?|$)/i.test(r.url()))modelRequests.push(r.url())});
- await page.goto('/');await page.waitForLoadState('networkidle');await expect(page.locator('main>section')).toHaveCount(5);await expect(page.locator('h1')).toHaveText('Key board');
- expect(await page.locator('body').innerText()).not.toMatch(/openmicro|开源/i);await expect(page.locator('.model-slot canvas')).toHaveCount(0);await expect(page.locator('#film')).toHaveCount(0);
+test('five chapters, responsive navigation and the real hardware model',async({page},testInfo)=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/');await expect(page.locator('main>section')).toHaveCount(5);await expect(page.locator('h1')).toHaveText('Key board');
+ await expect(page.locator('#film')).toHaveCount(0);
  if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'展开导航'}).click();
- await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:/02\s*硬件/}).click();await expect(page).toHaveURL(/#hardware$/);await page.waitForTimeout(800);
- await page.getByRole('button',{name:/06\s*PCB/}).click();await expect(page.locator('.part-detail')).toContainText('STM32F072CBT6');
- const range=page.getByLabel('拆解阶段预览');await range.fill('80');await expect(page.locator('.assembly-control')).toContainText('PCB 显露');await page.getByRole('button',{name:'重置装配'}).click();await expect(range).toHaveValue('0');
- for(const id of ['overview','hardware','try','build','resources']){await page.locator(`#${id}`).scrollIntoViewIfNeeded();await page.waitForTimeout(100);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1)).toBeTruthy()}
- await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await page.waitForTimeout(1200);await page.screenshot({path:`artifacts/${testInfo.project.name}-overview.png`});
- expect(modelRequests).toEqual([]);expect(errors).toEqual([]);
+ await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:/02\s*硬件/}).click();await expect(page).toHaveURL(/#hardware$/);
+ await expect(page.locator('#hardware')).toHaveAttribute('data-loaded','true',{timeout:45000});
+ await expect(page.locator('#hardware canvas')).toHaveCount(1);
+ await expect(page.getByLabel('拆解阶段预览')).toHaveCount(0);
+ for(const id of ['overview','hardware','try','build','resources']){await page.locator(`#${id}`).scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1)).toBeTruthy()}
+ expect(errors).toEqual([]);
 });
 test('virtual computer responds to all four input event types',async({page},testInfo)=>{
  await page.goto('/#try');const display=page.locator('.computer-screen');

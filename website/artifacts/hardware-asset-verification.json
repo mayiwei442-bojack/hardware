@@ -1,0 +1,27 @@
+{
+  "model_bytes": 2860284,
+  "nodes": 38,
+  "moving_channels": 37,
+  "keycaps": 13,
+  "clip": "HardwareExplode",
+  "vertical_deltas": {
+    "keycap_SW03": [
+      0.0,
+      1.9,
+      0.0
+    ],
+    "panel": [
+      0.0,
+      1.04,
+      0.0
+    ],
+    "pcb": [
+      0.0,
+      0.76,
+      0.0
+    ]
+  },
+  "stl_files": 16,
+  "fabrication_source_match": true,
+  "source_sha256": "ae500c1fa74f7abde4de2db519057b5dc288c3ad983f2836dbe79804b1bd3d83"
+}

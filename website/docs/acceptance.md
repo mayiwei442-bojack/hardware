@@ -1,5 +1,7 @@
 # 本阶段验收记录
 
+此文件保留早期阶段记录。硬件解构现已接入真实 3D 模型；以文末「硬件解构接入」及 hardware.md 为当前状态。
+
 日期：2026-10-21。范围：五章节网页、中文界面、二维交互和正式素材接入架构。正式 3D 内容留待下一阶段。
 
 | 目标要求 | 当前实现与证据 |
@@ -47,3 +49,15 @@
 - TypeScript 检查及生产构建通过。
 - 视觉证据：artifacts/pixel-wash-01-cover.png、pixel-wash-02-reveal.png、pixel-wash-03-background.png、desktop-pixel-overview.png、mobile-pixel-overview.png；中间帧采样记录在 pixel-wash-review.json。
 - 二维透明图来源及内置 imagegen 提示词见 overview.md。
+
+## 硬件解构接入（2026-10-21）
+
+- 从用户指定的 OpenMicroKbd_AcidAlloy.blend 导出真实几何和解构曲线。984 个可见表面归并为 38 组，动画 37 个运动通道；13 个键帽独立可选。压缩资源 2,860,284 字节，解码器本地提供。
+- Hardware 改为全屏 sticky 场景。完全占满视口后继续滚动才解构，向上滚动合拢；保留解构后停留区，继续下滑自然进入下一节。
+- 名称和真实网格均可点击；镜头平滑聚焦，淡出其他部件；鼠标及手机触摸均可旋转，返回/ESC 恢复整体视图。
+- 单个及全部键帽 STL、盖板/旋钮/摇杆帽 STL、底壳 3MF、PCB 打板包和 Gerber/BOM/CPL 均是实际本地下载。已检查 16 个 STL 二进制结构、13 件键帽 ZIP 内容及制造文件与源仓库字节一致。未声称新增制造公差或可打印性认证。
+- TypeScript 检查和生产构建通过。生产环境桌面/手机完整交互 2 项、桌面加载失败重试 1 项通过。首次批量运行中手机加载失败检查超时；该项在开发环境手动复现及生产环境单独重跑均通过（生产补测 1 passed / 14.6s）。该项首次超时尚无稳定复现原因。
+- 首页像素开场及减少动态效果回归：桌面/手机 4 项全部通过。overview.css 的 contain:paint 阻止首页固定开场覆盖层越过章节边界。
+- 已实际查看桌面展开、单键聚焦、旋转后，以及手机展开、聚焦和旋转后的截图。关键证据：artifacts/hardware-desktop-exploded.png、hardware-desktop-keycap-rotated.png、hardware-mobile-exploded.png、hardware-mobile-keycap-rotated.png、hardware-asset-verification.json。
+- 原 .blend 未保存覆盖，修改时间仍为 2026-10-17 03:55:55，SHA-256 为 ae500c1fa74f7abde4de2db519057b5dc288c3ad983f2836dbe79804b1bd3d83。Blender 已重新打开原文件。
+- 保留工作区同时存在的其他交互试用页修改；本次仅推送硬件解构功能，未发布线上。
