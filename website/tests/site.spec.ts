@@ -1,26 +1,30 @@
 import {test,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-test('five chapters, responsive navigation and no 3D requests',async({page},testInfo)=>{
- const errors:string[]=[];const modelRequests:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/\.(glb|gltf)(\?|$)/i.test(r.url()))modelRequests.push(r.url())});
- await page.goto('/');await page.waitForLoadState('networkidle');await expect(page.locator('main>section')).toHaveCount(5);await expect(page.locator('h1')).toHaveText('Key board');
- expect(await page.locator('body').innerText()).not.toMatch(/keyboard|开源/i);await expect(page.locator('.model-slot canvas')).toHaveCount(0);await expect(page.locator('#film')).toHaveCount(0);
+test('five chapters, responsive navigation and the real hardware model',async({page},testInfo)=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/');await expect(page.locator('main>section')).toHaveCount(5);await expect(page.locator('h1')).toHaveText('Key board');
+ await expect(page.locator('#film')).toHaveCount(0);
  if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'展开导航'}).click();
- await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:/02\s*硬件/}).click();await expect(page).toHaveURL(/#hardware$/);await page.waitForTimeout(800);
- await page.getByRole('button',{name:/06\s*PCB/}).click();await expect(page.locator('.part-detail')).toContainText('STM32F072CBT6');
- const range=page.getByLabel('拆解阶段预览');await range.fill('80');await expect(page.locator('.assembly-control')).toContainText('PCB 显露');await page.getByRole('button',{name:'重置装配'}).click();await expect(range).toHaveValue('0');
- for(const id of ['overview','hardware','try','build','resources']){await page.locator(`#${id}`).scrollIntoViewIfNeeded();await page.waitForTimeout(100);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1)).toBeTruthy()}
- await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await page.waitForTimeout(1200);await page.screenshot({path:`artifacts/${testInfo.project.name}-overview.png`});
- expect(modelRequests).toEqual([]);expect(errors).toEqual([]);
+ await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:/02\s*硬件/}).click();await expect(page).toHaveURL(/#hardware$/);
+ await expect(page.locator('#hardware')).toHaveAttribute('data-loaded','true',{timeout:45000});
+ await expect(page.locator('#hardware canvas')).toHaveCount(1);
+ await expect(page.getByLabel('拆解阶段预览')).toHaveCount(0);
+ for(const id of ['overview','hardware','try','build','resources']){await page.locator(`#${id}`).scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1)).toBeTruthy()}
+ expect(errors).toEqual([]);
 });
 test('virtual computer responds to all four input event types',async({page},testInfo)=>{
- await page.goto('/#try');await page.getByRole('button',{name:'K02 新建',exact:true}).click();await expect(page.getByLabel('代码编辑器')).toHaveValue(/New session/);await page.getByLabel('代码编辑器').fill('const edited = true;');
- await page.getByRole('button',{name:'旋钮顺时针'}).click();await expect(page.locator('.work-status')).toContainText('15px');await page.getByRole('button',{name:'摇杆右',exact:true}).click();await expect(page.locator('.editor-toolbar')).toContainText('input.ts');
- await page.getByRole('button',{name:'K07 命令',exact:true}).click();await expect(page.getByRole('dialog')).toBeVisible();await page.getByRole('button',{name:'整理代码空白'}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
- await page.getByRole('button',{name:'K10 终端',exact:true}).click();await expect(page.locator('.terminal')).toBeVisible();await page.getByRole('button',{name:'K12 侧栏',exact:true}).click();await page.getByLabel('侧边会话笔记').fill('Side session works.');
- await page.getByRole('tab',{name:/02\s*音频/}).click();await page.getByLabel('主音量').fill('45');await page.getByRole('button',{name:'旋钮顺时针'}).click();await expect(page.getByLabel('主音量')).toHaveValue('50');await page.getByRole('button',{name:'轻触触摸板'}).click();await expect(page.getByRole('button',{name:'暂停电平'})).toBeVisible();await page.getByRole('button',{name:'静音',exact:true}).click();await expect(page.locator('#try').getByRole('button',{name:'取消静音'})).toBeVisible();await page.getByLabel('延迟',{exact:true}).fill('70');await expect(page.getByLabel('延迟',{exact:true})).toHaveValue('70');
- await page.getByRole('tab',{name:/03\s*快捷键/}).click();await page.getByRole('button',{name:'摇杆右',exact:true}).click();await expect(page.locator('.shortcut-main h3')).toHaveText('音频参数');await page.getByRole('button',{name:'批准请求',exact:true}).click();await expect(page.locator('.action-history')).toContainText('已批准');await page.locator('#try').scrollIntoViewIfNeeded();await page.screenshot({path:`artifacts/${testInfo.project.name}-workstation.png`});
- await page.getByRole('button',{name:'复位试用'}).click();await expect(page.getByLabel('代码编辑器')).toHaveValue(/instrument/);
+ await page.goto('/#try');await expect(page.locator('#hardware canvas')).toHaveCount(0);const display=page.locator('.computer-screen');
+ await page.getByRole('button',{name:'K02 新建',exact:true}).click();await expect(page.getByLabel('代码编辑器')).toHaveValue(/New session/);await page.getByLabel('代码编辑器').fill('const edited = true;');
+ await page.getByRole('button',{name:'旋钮顺时针'}).click();await expect(display).toHaveAttribute('data-screen','encoder');await expect(page.locator('.work-status')).toContainText('15px');
+ await page.getByRole('button',{name:'摇杆右',exact:true}).click();await expect(display).toHaveAttribute('data-screen','joystick');await expect(page.locator('.navigation-files .selected')).toHaveText('input.ts');
+ await page.getByRole('button',{name:'K07 命令',exact:true}).click();await expect(page.getByRole('region',{name:'命令面板',exact:true})).toBeVisible();await page.getByRole('button',{name:'整理代码空白'}).click();await expect(page.getByLabel('代码编辑器')).toBeVisible();
+ await page.getByRole('button',{name:'K10 终端',exact:true}).click();await expect(page.locator('.screen-terminal')).toBeVisible();await page.getByRole('button',{name:'K12 侧栏',exact:true}).click();await page.getByLabel('侧边会话笔记').fill('Side session works.');
+ await page.getByRole('tab',{name:/02\s*音频/}).click();await page.getByLabel('主音量').fill('45');await page.getByRole('button',{name:'旋钮顺时针'}).click();await expect(page.locator('.screen-big-value strong')).toHaveText('50');await page.getByRole('button',{name:'轻触触摸板'}).click();await expect(display).toHaveAttribute('data-screen','touch');await expect(display).toContainText('音频电平已启动');
+ await page.getByRole('tab',{name:/02\s*音频/}).click();await expect(page.getByRole('button',{name:'暂停电平'})).toBeVisible();await page.getByRole('button',{name:'静音',exact:true}).click();await expect(page.getByRole('button',{name:'取消静音'})).toBeVisible();await page.getByLabel('延迟',{exact:true}).fill('70');await expect(page.getByLabel('延迟',{exact:true})).toHaveValue('70');
+ await page.getByRole('tab',{name:/03\s*快捷键/}).click();await page.getByRole('button',{name:'音频混音台',exact:false}).click();await expect(page.locator('.shortcut-main h4')).toHaveText('音频参数');await page.getByRole('button',{name:'批准请求',exact:true}).click();await expect(display).toHaveAttribute('data-screen','K08');await expect(page.locator('.action-history')).toContainText('已批准');
+ await page.locator('.try-desk').scrollIntoViewIfNeeded();await page.screenshot({path:`artifacts/${testInfo.project.name}-workstation.png`});await page.getByRole('button',{name:'复位试用'}).click();await expect(display).toHaveAttribute('data-screen','ready');
 });
+
 test('seven-step build completes, rejects invalid files and can be reconfigured',async({page},testInfo)=>{
  await page.goto('/#build');const lab=page.locator('#build');const next=lab.getByRole('button',{name:'下一步'});
  await expect(next).toBeDisabled();await lab.getByRole('button',{name:'代码 ↓'}).click();await lab.getByRole('button',{name:'下载 ZIP ↓'}).click();await expect(next).toBeEnabled();await next.click();
@@ -36,7 +40,7 @@ test('seven-step build completes, rejects invalid files and can be reconfigured'
 test('reduced motion, keyboard navigation and accessibility',async({page})=>{
  const errors:string[]=[];page.on('console',msg=>{if(msg.type()==='error')errors.push(msg.text())});await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await page.waitForLoadState('networkidle');const animation=await page.locator('.overview-product-float').evaluate(el=>getComputedStyle(el).animationName);expect(animation).toBe('none');
  const report=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(report.violations).toEqual([]);
- await page.getByRole('button',{name:'K07 命令',exact:true}).click();await expect(page.getByLabel('搜索命令')).toBeFocused();await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0);expect(errors).toEqual([]);
+ await page.getByRole('button',{name:'K07 命令',exact:true}).click();await expect(page.getByLabel('搜索命令')).toBeFocused();await page.keyboard.press('Escape');await expect(page.getByRole('region',{name:'命令面板',exact:true})).toHaveCount(0);expect(errors).toEqual([]);
 });
 
 test('all navigation anchors and narrow layouts',async({page})=>{

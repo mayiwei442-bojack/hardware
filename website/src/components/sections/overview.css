@@ -6,6 +6,7 @@
   width: 100%;
   height: 100svh;
   overflow: hidden;
+  contain: paint;
   background: radial-gradient(ellipse at 100% 52%, #35125436, transparent 67%), #080a09;
 }
 .overview-pixels {

@@ -9,23 +9,31 @@ import re
 import struct
 import zipfile
 import shutil
+import tempfile
 from pathlib import Path
 from collections import defaultdict
 from mathutils import Matrix, Vector
 import numpy as np
 
-BASE = Path(r'C:\Users\myw\Documents\ChatGPT\硬件')
+BASE = Path(bpy.data.filepath).resolve().parents[2]
 OUT = BASE / 'website/public/assets'
 DOWNLOADS = BASE / 'website/public/downloads'
 OUT.mkdir(parents=True, exist_ok=True)
 DOWNLOADS.mkdir(parents=True, exist_ok=True)
+EXPORT_FILE = Path(tempfile.gettempdir())/'acid-alloy-hardware.glb'
 source = bpy.data.objects['OMK_ROOT_CTRL'].users_scene[0]
 bpy.context.window.scene = source
 source_frame = source.frame_current
 root = bpy.data.objects['OMK_ROOT_CTRL']
 root_value = root['explode']
 tracks = [(t, t.mute) for t in root.animation_data.nla_tracks]
-objects = [o for o in source.objects if o.type in {'MESH', 'CURVE', 'FONT'}
+def invisible_ink(o):
+    materials = list(getattr(o.data, 'materials', []))
+    return bool(materials) and all(m and m.use_nodes and
+        any(n.type == 'BSDF_TRANSPARENT' for n in m.node_tree.nodes) and
+        not any(n.type == 'BSDF_PRINCIPLED' for n in m.node_tree.nodes) for m in materials)
+
+objects = [o for o in source.objects if o.type in {'MESH', 'CURVE', 'FONT'} and not invisible_ink(o)
            and not o.hide_render and not any(c.name in {'90_Studio', '99_SourceReferences'} for c in o.users_collection)]
 
 def ancestors(o):
@@ -110,6 +118,18 @@ def web_material(mat):
         pixels = np.empty(w*h*4, dtype=np.float32)
         tex.image.pixels.foreach_get(pixels)
         pixels = pixels.reshape((h, w, 4))
+        if principal.inputs['Transmission Weight'].is_linked:
+            mask = bpy.data.images.new('WEB_TRANSMISSION_' + tex.image.name, width=w, height=h, alpha=True)
+            mask.colorspace_settings.name = 'Non-Color'
+            values = np.ones_like(pixels)
+            values[:, :, :3] = 1-pixels[:, :, 3:4]
+            mask.pixels.foreach_set(values.ravel())
+            mask.pack()
+            mask_node = nodes.new('ShaderNodeTexImage')
+            mask_node.image = mask
+            vector_link = next((l for l in copy.node_tree.links if l.to_node == tex and l.to_socket.name == 'Vector'),None)
+            if vector_link: copy.node_tree.links.new(vector_link.from_socket,mask_node.inputs['Vector'])
+            copy.node_tree.links.new(mask_node.outputs['Color'],principal.inputs['Transmission Weight'])
         base = np.array(mix.inputs[1].default_value[:3])
         base = np.where(base <= .0031308, base*12.92, 1.055*np.power(base, 1/2.4)-.055)
         alpha = pixels[:, :, 3:4]
@@ -169,13 +189,16 @@ try:
     bpy.context.window.scene = web
     with bpy.context.temp_override(scene=web, view_layer=web.view_layers[0]):
         web.frame_set(1)
-        bpy.ops.export_scene.gltf(filepath=str(OUT/'keyboard-exploded.glb'), export_format='GLB',
+        bpy.ops.export_scene.gltf(filepath=str(EXPORT_FILE), export_format='GLB',
             use_active_scene=True, export_extras=True, export_animations=True,
             export_animation_mode='SCENE', export_frame_range=True, export_force_sampling=True,
             export_optimize_animation_size=True, export_cameras=False, export_lights=False,
+            export_draco_mesh_compression_enable=True, export_draco_mesh_compression_level=6,
+            export_draco_position_quantization=16, export_draco_normal_quantization=10,
+            export_draco_texcoord_quantization=12,
             export_yup=True, export_image_format='AUTO')
     # Blender emits one clip per object; combine their synchronized channels losslessly.
-    path = OUT/'keyboard-exploded.glb'
+    path = EXPORT_FILE
     binary = path.read_bytes()
     json_length = struct.unpack_from('<I', binary, 12)[0]
     document = json.loads(binary[20:20+json_length])
@@ -192,6 +215,7 @@ try:
     tail = binary[20+json_length:]
     path.write_bytes(struct.pack('<III',0x46546C67,2,20+len(encoded)+len(tail)) +
                      struct.pack('<II',len(encoded),0x4E4F534A) + encoded + tail)
+    shutil.copyfile(path, OUT/'keyboard-exploded.glb')
     bpy.context.window.scene = source
     # Print meshes come from the actual supplied model, in millimetres, without ink geometry.
     def stl(obj_name, filename):
@@ -217,20 +241,22 @@ try:
         stl(f'SW{num:02d}_Cap', filename)
         caps.append(filename)
     stl('AA_CoverPanel', 'acid-alloy-panel.stl')
-    stl('keyboardRotator_SourceMesh', 'acid-alloy-knob.stl')
-    stl('keyboardJoystickCap_SourceMesh', 'acid-alloy-joystick-cap.stl')
-    readme = 'Units: millimetres. Exported from keyboard_AcidAlloy.blend, evaluated mesh at rest.\n13 keycaps SW03-SW15. STL contains geometry only, without printed graphics or colours.\nThese are source model exports. Check slicing, wall thickness and fit before printing.\n'
+    # Renaming the .blend file does not rename its internal source mesh IDs.
+    stl('OpenMicroRotator_SourceMesh', 'acid-alloy-knob.stl')
+    stl('OpenMicroJoystickCap_SourceMesh', 'acid-alloy-joystick-cap.stl')
+    readme = 'Units: millimetres. Exported from MacroPad_AcidAlloy.blend, evaluated mesh at rest.\n13 keycaps SW03-SW15. STL contains geometry only, without printed graphics or colours.\nThese are source model exports. Check slicing, wall thickness and fit before printing.\n'
     with zipfile.ZipFile(DOWNLOADS/'acid-alloy-keycaps.zip','w',zipfile.ZIP_DEFLATED) as z:
         for filename in caps: z.write(DOWNLOADS/filename, filename)
         z.writestr('README.txt', readme)
-    fab = BASE/'keyboard-review/hw/v1/fab'
+        z.write(DOWNLOADS/'LICENSE.txt', 'LICENSE.txt')
+    fab = BASE/'device/hw/v1/fab'
     for name in ['keyboard-gerbers.zip','keyboard-bom.csv','keyboard-smt.csv']:
         shutil.copyfile(fab/name, DOWNLOADS/name)
-    shutil.copyfile(BASE/'keyboard-review/hw/v1/mechanical/keyboardKbkCase.3mf', DOWNLOADS/'keyboardKbkCase.3mf')
+    shutil.copyfile(BASE/'device/hw/v1/mechanical/keyboardKbkCase.3mf', DOWNLOADS/'keyboardKbkCase.3mf')
     with zipfile.ZipFile(DOWNLOADS/'keyboard-pcb-fabrication.zip','w',zipfile.ZIP_DEFLATED) as z:
         for name in ['keyboard-gerbers.zip','keyboard-bom.csv','keyboard-smt.csv','README.md']:
             z.write(fab/name, name)
-    report = {'source':bpy.data.filepath, 'animation_source':'DEMO_OMK_ROOT_CTRL, frames 240..285',
+    report = {'source':Path(bpy.data.filepath).relative_to(BASE).as_posix(), 'animation_source':'DEMO_OMK_ROOT_CTRL, frames 240..285',
               'clip':'HardwareExplode', 'frames':46, 'source_objects':len(objects), 'groups':report_groups,
               'samples':[{'frame':f, 'explode':a} for f,a,_ in samples],
               'glb_bytes':(OUT/'keyboard-exploded.glb').stat().st_size,

@@ -1,9 +1,9 @@
 {
-  "source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\modeling\\assets\\keyboard_AcidAlloy.blend",
+  "source": "modeling/assets/MacroPad_AcidAlloy.blend",
   "animation_source": "DEMO_OMK_ROOT_CTRL, frames 240..285",
   "clip": "HardwareExplode",
   "frames": 46,
-  "source_objects": 1026,
+  "source_objects": 984,
   "groups": [
     {
       "name": "enclosure",
@@ -184,8 +184,8 @@
     {
       "name": "keycap_SW03",
       "part": "keycaps",
-      "sources": 2,
-      "vertices": 550,
+      "sources": 1,
+      "vertices": 450,
       "delta_mm": [
         0.0,
         0.0,
@@ -195,8 +195,8 @@
     {
       "name": "keycap_SW04",
       "part": "keycaps",
-      "sources": 5,
-      "vertices": 890,
+      "sources": 1,
+      "vertices": 450,
       "delta_mm": [
         0.0,
         0.0,
@@ -206,8 +206,8 @@
     {
       "name": "keycap_SW05",
       "part": "keycaps",
-      "sources": 4,
-      "vertices": 626,
+      "sources": 1,
+      "vertices": 450,
       "delta_mm": [
         0.0,
         0.0,
@@ -217,8 +217,8 @@
     {
       "name": "keycap_SW06",
       "part": "keycaps",
-      "sources": 17,
-      "vertices": 682,
+      "sources": 1,
+      "vertices": 450,
       "delta_mm": [
         0.0,
         0.0,
@@ -228,8 +228,8 @@
     {
       "name": "keycap_SW07",
       "part": "keycaps",
-      "sources": 9,
-      "vertices": 618,
+      "sources": 1,
+      "vertices": 450,
       "delta_mm": [
         0.0,
         0.0,
@@ -283,8 +283,8 @@
     {
       "name": "keycap_SW12",
       "part": "keycaps",
-      "sources": 5,
-      "vertices": 578,
+      "sources": 1,
+      "vertices": 450,
       "delta_mm": [
         0.0,
         0.0,
@@ -294,8 +294,8 @@
     {
       "name": "keycap_SW13",
       "part": "keycaps",
-      "sources": 2,
-      "vertices": 474,
+      "sources": 1,
+      "vertices": 450,
       "delta_mm": [
         0.0,
         0.0,
@@ -305,8 +305,8 @@
     {
       "name": "keycap_SW14",
       "part": "keycaps",
-      "sources": 3,
-      "vertices": 482,
+      "sources": 1,
+      "vertices": 450,
       "delta_mm": [
         0.0,
         0.0,
@@ -316,8 +316,8 @@
     {
       "name": "keycap_SW15",
       "part": "keycaps",
-      "sources": 4,
-      "vertices": 540,
+      "sources": 1,
+      "vertices": 450,
       "delta_mm": [
         0.0,
         0.0,
@@ -610,8 +610,9 @@
       "explode": 1.0
     }
   ],
-  "glb_bytes": 18040956,
+  "glb_bytes": 2860284,
   "downloads": [
+    "LICENSE.txt",
     "acid-alloy-joystick-cap.stl",
     "acid-alloy-keycap-SW03.stl",
     "acid-alloy-keycap-SW04.stl",
@@ -630,6 +631,7 @@
     "acid-alloy-knob.stl",
     "acid-alloy-panel.stl",
     "keyboard-bom.csv",
+    "keyboard-fw-0.10.1.hex",
     "keyboard-gerbers.zip",
     "keyboard-pcb-fabrication.zip",
     "keyboard-smt.csv",

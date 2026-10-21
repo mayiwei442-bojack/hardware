@@ -1,0 +1,37 @@
+{
+  "model_bytes": 2860284,
+  "nodes": 38,
+  "moving_channels": 37,
+  "keycaps": 13,
+  "clip": "HardwareExplode",
+  "vertical_deltas": {
+    "keycap_SW03": [
+      0.0,
+      1.9,
+      0.0
+    ],
+    "panel": [
+      0.0,
+      1.04,
+      0.0
+    ],
+    "pcb": [
+      0.0,
+      0.76,
+      0.0
+    ]
+  },
+  "stl_files": 16,
+  "fabrication_source_match": true,
+  "source_sha256": "ae500c1fa74f7abde4de2db519057b5dc288c3ad983f2836dbe79804b1bd3d83",
+  "source_file": "modeling/assets/MacroPad_AcidAlloy.blend",
+  "merge_verification": {
+    "download_routes": 9,
+    "stl_files": 16,
+    "keycaps_in_zip": 13,
+    "manufacturing_files_match_latest_main": true,
+    "renamed_source_hash_unchanged": true,
+    "glb_bytes": 2860284
+  },
+  "pcb_package_sha256": "dbc3676717180a243b6b2fd5ec68a86fc7521454728b4ec5e1377549deafe509"
+}
