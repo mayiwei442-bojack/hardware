@@ -1,6 +1,5 @@
 # ACID ALLOY / 酸性合金
 
-维护者：[@mayiwei442-bojack](https://github.com/mayiwei442-bojack)
 
 多输入桌面控制器的外观设计、Blender 装配模型与交互展示网站。包含 13 个机械按键、旋钮、摇杆、触摸输入和 RGB 灯光的结构与展示资料。
 
