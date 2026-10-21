@@ -1,0 +1,2273 @@
+//! Persisted app configuration: profiles, per-input actions, defaults,
+//! migration and import/export.
+//!
+//! The firmware emits a fixed, remappable HID usage per input slot (the
+//! `Slot` array synced over the vendor-HID protocol, see device.rs); what a
+//! slot *means* on the host — its `Action` — lives here, per machine. Stored
+//! as JSON under the OS config dir (e.g. ~/Library/Application
+//! Support/OpenMicro/config.json), the same path the pre-profile app used, so
+//! `load()` transparently migrates the old `{ bindings: [...] }` schema.
+
+use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
+
+// ---------------------------------------------------------------------------
+// Slot layout — shared contract, imported by every other module.
+// ---------------------------------------------------------------------------
+
+pub const SLOT_COUNT: usize = 24;
+pub const KEY_SLOTS: usize = 13; // slots 0..=12 are the 13 physical keys
+pub const SLOT_ENC_CW: usize = 13;
+pub const SLOT_ENC_CCW: usize = 14;
+pub const SLOT_ENC_PRESS: usize = 15;
+pub const SLOT_JOY_UP: usize = 16;
+pub const SLOT_JOY_DOWN: usize = 17;
+pub const SLOT_JOY_LEFT: usize = 18;
+pub const SLOT_JOY_RIGHT: usize = 19;
+pub const SLOT_JOY_PRESS: usize = 20;
+pub const SLOT_TOUCH_TAP: usize = 21;
+pub const SLOT_TOUCH_SWIPE_L: usize = 22; // no hardware support yet (single-zone pad); config carries it
+pub const SLOT_TOUCH_SWIPE_R: usize = 23;
+
+/// Display name of each slot, indexed by slot number. Key names carry the
+/// physical grid position (2 + 4 + 4 + 3 keys, top to bottom).
+pub const SLOT_NAMES: [&'static str; SLOT_COUNT] = [
+    "Key 1 · row 1",
+    "Key 2 · row 1",
+    "Key 3 · row 2",
+    "Key 4 · row 2",
+    "Key 5 · row 2",
+    "Key 6 · row 2",
+    "Key 7 · row 3",
+    "Key 8 · row 3",
+    "Key 9 · row 3",
+    "Key 10 · row 3",
+    "Key 11 · row 4",
+    "Key 12 · row 4",
+    "Key 13 · row 4",
+    "Encoder · clockwise",
+    "Encoder · counter-clockwise",
+    "Encoder · press",
+    "Joystick · up",
+    "Joystick · down",
+    "Joystick · left",
+    "Joystick · right",
+    "Joystick · press",
+    "Touch pad · tap",
+    "Touch pad · swipe left",
+    "Touch pad · swipe right",
+];
+
+// ---------------------------------------------------------------------------
+// What the device emits (wire-format mirror).
+// ---------------------------------------------------------------------------
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum SlotKind {
+    #[default]
+    None,
+    Keyboard,
+    Consumer,
+}
+
+/// What the firmware emits for one input. Mirrors the wire format (4 bytes:
+/// kind, mods, code LE). mods = HID modifier bitmask (bit0 LCtrl, bit1 LShift,
+/// bit2 LAlt, bit3 LGui); code = HID keyboard usage (kind=Keyboard) or
+/// consumer usage (kind=Consumer).
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Default)]
+pub struct Slot {
+    pub kind: SlotKind,
+    pub mods: u8,
+    pub code: u16,
+}
+
+// ---------------------------------------------------------------------------
+// What the host does when a slot fires.
+// ---------------------------------------------------------------------------
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum MediaOp {
+    VolumeUp,
+    VolumeDown,
+    Mute,
+    PlayPause,
+    NextTrack,
+    PrevTrack,
+    BrightnessUp,
+    BrightnessDown,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum MacroStep {
+    Keystroke { mods: u8, key: u16 },
+    Delay { ms: u64 },
+    Run { command: String },
+    Open { target: String },
+    Media { op: MediaOp },
+}
+
+fn default_true() -> bool {
+    true
+}
+
+/// One macro step plus its enabled flag (the PRD's per-step disable). The
+/// flatten + default keep step JSON from before the flag loading unchanged.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct MacroStepEntry {
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    #[serde(flatten)]
+    pub step: MacroStep,
+}
+
+impl From<MacroStep> for MacroStepEntry {
+    fn from(step: MacroStep) -> Self {
+        MacroStepEntry {
+            enabled: true,
+            step,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum Action {
+    #[default]
+    None,
+    Keystroke {
+        mods: u8,
+        key: u16,
+    },
+    Macro {
+        steps: Vec<MacroStepEntry>,
+    },
+    Run {
+        command: String,
+    },
+    Open {
+        target: String,
+    },
+    Media {
+        op: MediaOp,
+    },
+    AppSettings, // open this app's settings sheet (the SETUP key default)
+}
+
+/// The user-facing meaning of a key or touch-pad tap.
+///
+/// `emitted` and `action` remain the execution representation used by the
+/// device and host. This semantic value lets the editor present one coherent
+/// behavior without exposing that implementation split. It is optional so
+/// configurations written by older versions keep working unchanged.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum ControlBehavior {
+    ApplicationShortcut {
+        application: String,
+        shortcut: String,
+    },
+    MacOs {
+        command: MacOsControl,
+    },
+    Keystroke,
+    App {
+        target: String,
+    },
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum MacOsControl {
+    BrightnessUp,
+    BrightnessDown,
+    MissionControl,
+    Applications,
+    Search,
+    Dictation,
+    Globe,
+    LockScreen,
+    Sleep,
+    VolumeUp,
+    VolumeDown,
+    Mute,
+    PlayPause,
+    NextTrack,
+    PreviousTrack,
+    EmojiPicker,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct InputConfig {
+    pub label: String,
+    pub icon: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub behavior: Option<ControlBehavior>,
+    pub emitted: Slot,
+    pub action: Action,
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ProfileMode {
+    #[default]
+    OpenMicro,
+    CodexMicro,
+}
+
+/// What the firmware does with joystick deflection: hold the direction key
+/// slots, move the HID mouse pointer (push switch = left click), or drag —
+/// grade mode moves the pointer on a squared speed curve with the left
+/// button auto-held while deflected, so the stick works a DaVinci Resolve
+/// colour wheel like a panel trackball. Mirrors the wire values (0 keys,
+/// 1 mouse, 2 grade).
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum JoyMode {
+    #[default]
+    Keys,
+    Mouse,
+    Grade,
+}
+
+impl JoyMode {
+    pub fn to_wire(self) -> u8 {
+        match self {
+            JoyMode::Keys => 0,
+            JoyMode::Mouse => 1,
+            JoyMode::Grade => 2,
+        }
+    }
+
+    pub fn from_wire(byte: u8) -> Self {
+        match byte {
+            1 => JoyMode::Mouse,
+            2 => JoyMode::Grade,
+            _ => JoyMode::Keys,
+        }
+    }
+}
+
+pub const DEFAULT_JOY_MOUSE_SPEED: u8 = 5;
+
+fn default_joy_mouse_speed() -> u8 {
+    DEFAULT_JOY_MOUSE_SPEED
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
+pub struct AnalogTuning {
+    pub joy_threshold: u16, // ADC deviation from centre 2048; default 1024
+    #[serde(default)]
+    pub joy_mode: JoyMode,
+    #[serde(default = "default_joy_mouse_speed")]
+    pub joy_mouse_speed: u8, // pointer speed 1..=10; only meaningful in Mouse
+}
+
+impl Default for AnalogTuning {
+    fn default() -> Self {
+        AnalogTuning {
+            joy_threshold: 1024,
+            joy_mode: JoyMode::Keys,
+            joy_mouse_speed: DEFAULT_JOY_MOUSE_SPEED,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct Profile {
+    pub name: String,
+    #[serde(default)]
+    pub mode: ProfileMode,
+    pub inputs: Vec<InputConfig>,
+    pub analog: AnalogTuning,
+    /// Physical inputs that explicitly replace their native binding while
+    /// the device is running with the Codex Micro identity.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub codex_overrides: Vec<usize>,
+}
+// invariant: inputs.len() == SLOT_COUNT, index = slot index
+
+impl Profile {
+    /// The emitted-code array for device sync, indexed by slot. Slots beyond
+    /// `inputs` (only possible pre-sanitize) come back as `SlotKind::None`.
+    pub fn slots(&self) -> [Slot; SLOT_COUNT] {
+        let mut out = [Slot::default(); SLOT_COUNT];
+        for (i, slot) in out.iter_mut().enumerate() {
+            if let Some(input) = self.inputs.get(i) {
+                *slot = input.emitted;
+            }
+        }
+        out
+    }
+}
+
+/// The paired hardware behaviours offered for the rotary encoder.
+///
+/// The device protocol still stores clockwise and counter-clockwise as two
+/// independent slots. This semantic layer deliberately treats them as one
+/// setting so the UI cannot accidentally configure a one-sided rotation.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum RotatorRotationPreset {
+    Volume,
+    Brightness,
+    Tracks,
+    VerticalArrows,
+    HorizontalArrows,
+}
+
+impl RotatorRotationPreset {
+    pub const ALL: [Self; 5] = [
+        Self::Volume,
+        Self::Brightness,
+        Self::Tracks,
+        Self::VerticalArrows,
+        Self::HorizontalArrows,
+    ];
+
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::Volume => "Volume",
+            Self::Brightness => "Screen brightness",
+            Self::Tracks => "Track selection",
+            Self::VerticalArrows => "Arrow keys · up / down",
+            Self::HorizontalArrows => "Arrow keys · left / right",
+        }
+    }
+
+    pub const fn detail(self) -> &'static str {
+        match self {
+            Self::Volume => "Clockwise raises · counter-clockwise lowers",
+            Self::Brightness => "Clockwise brightens · counter-clockwise dims",
+            Self::Tracks => "Clockwise next · counter-clockwise previous",
+            Self::VerticalArrows => "Clockwise down · counter-clockwise up",
+            Self::HorizontalArrows => "Clockwise right · counter-clockwise left",
+        }
+    }
+
+    const fn slots(self) -> (Slot, Slot) {
+        match self {
+            Self::Volume => (
+                Slot {
+                    kind: SlotKind::Consumer,
+                    mods: 0,
+                    code: 0xE9,
+                },
+                Slot {
+                    kind: SlotKind::Consumer,
+                    mods: 0,
+                    code: 0xEA,
+                },
+            ),
+            Self::Brightness => (
+                Slot {
+                    kind: SlotKind::Consumer,
+                    mods: 0,
+                    code: 0x6F,
+                },
+                Slot {
+                    kind: SlotKind::Consumer,
+                    mods: 0,
+                    code: 0x70,
+                },
+            ),
+            Self::Tracks => (
+                Slot {
+                    kind: SlotKind::Consumer,
+                    mods: 0,
+                    code: 0xB5,
+                },
+                Slot {
+                    kind: SlotKind::Consumer,
+                    mods: 0,
+                    code: 0xB6,
+                },
+            ),
+            Self::VerticalArrows => (
+                Slot {
+                    kind: SlotKind::Keyboard,
+                    mods: 0,
+                    code: 0x51,
+                },
+                Slot {
+                    kind: SlotKind::Keyboard,
+                    mods: 0,
+                    code: 0x52,
+                },
+            ),
+            Self::HorizontalArrows => (
+                Slot {
+                    kind: SlotKind::Keyboard,
+                    mods: 0,
+                    code: 0x4F,
+                },
+                Slot {
+                    kind: SlotKind::Keyboard,
+                    mods: 0,
+                    code: 0x50,
+                },
+            ),
+        }
+    }
+
+    /// Recognise only the complete preset: both emitted usages and both
+    /// no-host-action states must match. Imported/custom pairs remain custom.
+    pub fn infer(profile: &Profile) -> Option<Self> {
+        let cw = profile.inputs.get(SLOT_ENC_CW)?;
+        let ccw = profile.inputs.get(SLOT_ENC_CCW)?;
+        Self::ALL.into_iter().find(|preset| {
+            let (cw_slot, ccw_slot) = preset.slots();
+            is_direct_slot(cw, cw_slot) && is_direct_slot(ccw, ccw_slot)
+        })
+    }
+
+    /// Apply the paired preset atomically at the profile level. No other
+    /// rotator input (notably its press slot) is touched.
+    pub fn apply_to(self, profile: &mut Profile) {
+        if profile.inputs.len() <= SLOT_ENC_CCW {
+            return;
+        }
+        let (cw, ccw) = match self {
+            Self::Volume => (
+                consumer_input("Vol +", "volume-2", 0xE9),
+                consumer_input("Vol −", "volume-1", 0xEA),
+            ),
+            Self::Brightness => (
+                consumer_input("Bright +", "sun", 0x6F),
+                consumer_input("Bright −", "sun", 0x70),
+            ),
+            Self::Tracks => (
+                consumer_input("Next", "skip-forward", 0xB5),
+                consumer_input("Previous", "skip-back", 0xB6),
+            ),
+            Self::VerticalArrows => (
+                keyboard_input("Down", "arrow-down", 0, 0x51),
+                keyboard_input("Up", "arrow-up", 0, 0x52),
+            ),
+            Self::HorizontalArrows => (
+                keyboard_input("Right", "arrow-right", 0, 0x4F),
+                keyboard_input("Left", "arrow-left", 0, 0x50),
+            ),
+        };
+        profile.inputs[SLOT_ENC_CW] = cw;
+        profile.inputs[SLOT_ENC_CCW] = ccw;
+    }
+}
+
+/// The hardware behaviour offered for pressing the rotary encoder.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum RotatorPressPreset {
+    Mute,
+    LockScreen,
+    Play,
+    Enter,
+}
+
+impl RotatorPressPreset {
+    pub const ALL: [Self; 4] = [Self::Mute, Self::LockScreen, Self::Play, Self::Enter];
+
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::Mute => "Mute",
+            Self::LockScreen => "Lock screen",
+            Self::Play => "Play",
+            Self::Enter => "Enter",
+        }
+    }
+
+    pub const fn detail(self) -> &'static str {
+        match self {
+            Self::Mute => "Toggle system audio mute",
+            Self::LockScreen => "Lock the computer or start its screen saver",
+            Self::Play => "Start media playback",
+            Self::Enter => "Send the Enter key",
+        }
+    }
+
+    const fn slot(self) -> Slot {
+        match self {
+            Self::Mute => Slot {
+                kind: SlotKind::Consumer,
+                mods: 0,
+                code: 0xE2,
+            },
+            // USB HID Consumer page: AL Terminal Lock/Screensaver.
+            Self::LockScreen => Slot {
+                kind: SlotKind::Consumer,
+                mods: 0,
+                code: 0x019E,
+            },
+            // Literal Play, rather than the separate Play/Pause toggle (0xCD).
+            Self::Play => Slot {
+                kind: SlotKind::Consumer,
+                mods: 0,
+                code: 0xB0,
+            },
+            Self::Enter => Slot {
+                kind: SlotKind::Keyboard,
+                mods: 0,
+                code: 0x28,
+            },
+        }
+    }
+
+    /// Recognise only a direct device usage with no stale host action.
+    pub fn infer(profile: &Profile) -> Option<Self> {
+        let press = profile.inputs.get(SLOT_ENC_PRESS)?;
+        Self::ALL
+            .into_iter()
+            .find(|preset| is_direct_slot(press, preset.slot()))
+    }
+
+    /// Apply only the encoder press preset; the rotation pair is untouched.
+    pub fn apply_to(self, profile: &mut Profile) {
+        let Some(press) = profile.inputs.get_mut(SLOT_ENC_PRESS) else {
+            return;
+        };
+        *press = match self {
+            Self::Mute => consumer_input("Mute", "volume-x", 0xE2),
+            Self::LockScreen => consumer_input("Lock", "lock", 0x019E),
+            Self::Play => consumer_input("Play", "play", 0xB0),
+            Self::Enter => keyboard_input("Enter", "corner-down-left", 0, 0x28),
+        };
+    }
+}
+
+fn is_direct_slot(input: &InputConfig, emitted: Slot) -> bool {
+    input.emitted == emitted && input.action == Action::None
+}
+
+// ---------------------------------------------------------------------------
+// Joystick modes.
+// ---------------------------------------------------------------------------
+
+/// HID arrow usages in direction-slot order (up, down, left, right).
+pub const ARROW_CODES: [u16; 4] = [0x52, 0x51, 0x50, 0x4F];
+
+/// The three joystick behaviors the editor offers.
+///
+/// Like the rotator presets this is a semantic layer over profile state, not
+/// stored state: `Mouse` is the profile's `joy_mode`; `Arrows` is recognised
+/// from the four direction slots being exactly the arrow keys under one
+/// shared modifier mask with no host actions; anything else is `Custom`.
+/// Direction and press slots survive a stay in Mouse mode untouched, so
+/// switching back restores what the user had.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum JoystickMode {
+    Mouse,
+    Grade,
+    Arrows,
+    Custom,
+}
+
+impl JoystickMode {
+    pub const ALL: [Self; 4] = [Self::Mouse, Self::Grade, Self::Arrows, Self::Custom];
+
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::Mouse => "Mouse pointer",
+            Self::Grade => "Color grading",
+            Self::Arrows => "Arrow keys",
+            Self::Custom => "Custom keys",
+        }
+    }
+
+    pub const fn detail(self) -> &'static str {
+        match self {
+            Self::Mouse => "Deflection moves the pointer · push is left click",
+            Self::Grade => "Deflection drags slowly · for Resolve color wheels",
+            Self::Arrows => "Deflection sends arrow keys · push is configurable",
+            Self::Custom => "Every direction and the push are configurable",
+        }
+    }
+
+    /// The uniform modifier mask across the four direction slots, if the
+    /// profile is in the recognisable arrows shape (mode aside).
+    pub fn arrow_mods(profile: &Profile) -> Option<u8> {
+        let first = profile.inputs.get(SLOT_JOY_UP)?;
+        let mods = first.emitted.mods;
+        for (i, code) in ARROW_CODES.iter().enumerate() {
+            let input = profile.inputs.get(SLOT_JOY_UP + i)?;
+            let expected = Slot {
+                kind: SlotKind::Keyboard,
+                mods,
+                code: *code,
+            };
+            if !is_direct_slot(input, expected) {
+                return None;
+            }
+        }
+        Some(mods)
+    }
+
+    pub fn infer(profile: &Profile) -> Self {
+        match profile.analog.joy_mode {
+            JoyMode::Mouse => return Self::Mouse,
+            JoyMode::Grade => return Self::Grade,
+            JoyMode::Keys => {}
+        }
+        if Self::arrow_mods(profile).is_some() {
+            return Self::Arrows;
+        }
+        Self::Custom
+    }
+
+    /// Move the profile into this mode. `Mouse`, `Grade` and `Custom` only
+    /// flip `joy_mode` — slots keep whatever they held. `Arrows` also
+    /// rewrites the four direction slots as plain arrows (press untouched);
+    /// modifiers are then edited via `set_arrow_mods`.
+    pub fn apply_to(self, profile: &mut Profile) {
+        profile.analog.joy_mode = match self {
+            Self::Mouse => JoyMode::Mouse,
+            Self::Grade => JoyMode::Grade,
+            Self::Arrows | Self::Custom => JoyMode::Keys,
+        };
+        if self == Self::Arrows && JoystickMode::arrow_mods(profile).is_none() {
+            Self::set_arrow_mods(profile, 0);
+        }
+    }
+
+    /// Write the four direction slots as arrow keys under one modifier mask.
+    pub fn set_arrow_mods(profile: &mut Profile, mods: u8) {
+        if profile.inputs.len() <= SLOT_JOY_RIGHT {
+            return;
+        }
+        const ARROWS: [(&str, &str); 4] = [
+            ("Up", "arrow-up"),
+            ("Down", "arrow-down"),
+            ("Left", "arrow-left"),
+            ("Right", "arrow-right"),
+        ];
+        for (i, ((label, icon), code)) in ARROWS.iter().zip(ARROW_CODES).enumerate() {
+            profile.inputs[SLOT_JOY_UP + i] = keyboard_input(label, icon, mods, code);
+        }
+    }
+}
+
+pub const DEFAULT_LED_BRIGHTNESS: u8 = 255;
+
+fn default_led_brightness() -> u8 {
+    DEFAULT_LED_BRIGHTNESS
+}
+
+/// One LED chain's idle pattern. `White` is presentation sugar over a
+/// solid white — kept distinct so the picker can say what it means.
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[serde(tag = "mode", rename_all = "snake_case")]
+pub enum LedPattern {
+    #[default]
+    Rainbow,
+    White,
+    Solid {
+        r: u8,
+        g: u8,
+        b: u8,
+    },
+}
+
+impl LedPattern {
+    /// Wire form: [mode, r, g, b] with mode 0 rainbow / 1 solid.
+    pub fn to_wire(self) -> [u8; 4] {
+        match self {
+            LedPattern::Rainbow => [0, 0, 0, 0],
+            LedPattern::White => [1, 255, 255, 255],
+            LedPattern::Solid { r, g, b } => [1, r, g, b],
+        }
+    }
+
+    pub fn from_wire(bytes: [u8; 4]) -> Self {
+        match bytes {
+            [1, 255, 255, 255] => LedPattern::White,
+            [1, r, g, b] => LedPattern::Solid { r, g, b },
+            _ => LedPattern::Rainbow,
+        }
+    }
+
+    /// Derive a lower-intensity ambient-ring colour for a transient status.
+    /// The status colour picker controls the bright per-key colour while the
+    /// ring stays visually subordinate. Non-solid patterns are kept intact so
+    /// imported configurations remain lossless.
+    pub fn dimmed_for_status(self) -> Self {
+        match self {
+            LedPattern::Solid { r, g, b } => LedPattern::Solid {
+                r: ((r as u16 * 28) / 100) as u8,
+                g: ((g as u16 * 28) / 100) as u8,
+                b: ((b as u16 * 28) / 100) as u8,
+            },
+            other => other,
+        }
+    }
+}
+
+/// Colours used by local coding-agent activity integrations. These are
+/// separate from the persisted idle backlight patterns: an active agent can
+/// temporarily override the LEDs, then the configured idle patterns return.
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+pub struct ActivityStatusColors {
+    pub working: LedPattern,
+    pub attention: LedPattern,
+    pub success: LedPattern,
+    pub error: LedPattern,
+}
+
+impl Default for ActivityStatusColors {
+    fn default() -> Self {
+        Self {
+            working: LedPattern::Solid {
+                r: 0,
+                g: 96,
+                b: 255,
+            },
+            attention: LedPattern::Solid {
+                r: 255,
+                g: 150,
+                b: 0,
+            },
+            success: LedPattern::Solid {
+                r: 0,
+                g: 210,
+                b: 90,
+            },
+            error: LedPattern::Solid {
+                r: 255,
+                g: 30,
+                b: 50,
+            },
+        }
+    }
+}
+
+impl ActivityStatusColors {
+    pub fn get(self, status: crate::status::ActivityStatus) -> LedPattern {
+        match status {
+            crate::status::ActivityStatus::Working => self.working,
+            crate::status::ActivityStatus::Attention => self.attention,
+            crate::status::ActivityStatus::Success => self.success,
+            crate::status::ActivityStatus::Error => self.error,
+            crate::status::ActivityStatus::Idle => LedPattern::Rainbow,
+        }
+    }
+
+    pub fn set(&mut self, status: crate::status::ActivityStatus, pattern: LedPattern) {
+        match status {
+            crate::status::ActivityStatus::Working => self.working = pattern,
+            crate::status::ActivityStatus::Attention => self.attention = pattern,
+            crate::status::ActivityStatus::Success => self.success = pattern,
+            crate::status::ActivityStatus::Error => self.error = pattern,
+            crate::status::ActivityStatus::Idle => {}
+        }
+    }
+}
+
+/// UI language: follow the OS or pin one of the supported languages.
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum LanguageSetting {
+    #[default]
+    Auto,
+    En,
+    ZhHans,
+    ZhHant,
+    Ja,
+}
+
+/// App appearance: follow the operating system or pin a palette explicitly.
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum ThemeSetting {
+    #[default]
+    System,
+    Light,
+    Dark,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct AppConfig {
+    pub active_profile: usize,
+    #[serde(default)]
+    pub active_openmicro_profile: Option<usize>,
+    #[serde(default)]
+    pub active_codex_profile: Option<usize>,
+    pub profiles: Vec<Profile>,
+    pub launch_at_login: bool, // default true
+    pub show_menubar: bool,    // default true
+    #[serde(default = "default_true")]
+    pub show_dock: bool,
+    /// Pad backlight, 0..=255 (both LED chains; 255 = the power-budget cap).
+    /// Device-level rather than per-profile: brightness is a hardware
+    /// comfort setting, not part of a workflow mapping.
+    #[serde(default = "default_led_brightness")]
+    pub led_brightness: u8,
+    #[serde(default)]
+    pub language: LanguageSetting,
+    #[serde(default)]
+    pub theme: ThemeSetting,
+    /// Idle pattern of the per-key backlight (device-level, like brightness).
+    #[serde(default)]
+    pub led_key_pattern: LedPattern,
+    /// Idle pattern of the underglow ring.
+    #[serde(default)]
+    pub led_ambient_pattern: LedPattern,
+    /// Per-status colours for local coding-agent activity. The alias keeps
+    /// configs written by the original Codex-only integration compatible.
+    #[serde(default, alias = "codex_status_colors")]
+    pub activity_status_colors: ActivityStatusColors,
+}
+
+impl Default for AppConfig {
+    fn default() -> Self {
+        AppConfig {
+            active_profile: 0,
+            active_openmicro_profile: Some(0),
+            active_codex_profile: None,
+            profiles: vec![default_codex_profile()],
+            launch_at_login: true,
+            show_menubar: true,
+            show_dock: true,
+            led_brightness: DEFAULT_LED_BRIGHTNESS,
+            language: LanguageSetting::Auto,
+            theme: ThemeSetting::System,
+            led_key_pattern: LedPattern::Rainbow,
+            led_ambient_pattern: LedPattern::Rainbow,
+            activity_status_colors: ActivityStatusColors::default(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Default "Codex" profile.
+// ---------------------------------------------------------------------------
+
+fn keyboard_input(label: &str, icon: &str, mods: u8, code: u16) -> InputConfig {
+    InputConfig {
+        label: label.to_string(),
+        icon: icon.to_string(),
+        behavior: None,
+        emitted: Slot {
+            kind: SlotKind::Keyboard,
+            mods,
+            code,
+        },
+        action: Action::None,
+    }
+}
+
+fn consumer_input(label: &str, icon: &str, code: u16) -> InputConfig {
+    InputConfig {
+        label: label.to_string(),
+        icon: icon.to_string(),
+        behavior: None,
+        emitted: Slot {
+            kind: SlotKind::Consumer,
+            mods: 0,
+            code,
+        },
+        action: Action::None,
+    }
+}
+
+fn unbound_input() -> InputConfig {
+    InputConfig {
+        label: String::new(),
+        icon: String::new(),
+        behavior: None,
+        emitted: Slot::default(),
+        action: Action::None,
+    }
+}
+
+/// The out-of-the-box profile, mirroring the printed Codex keycaps. Bare icon
+/// names are Lucide glyphs; Simple Icons use the `simple:<slug>` namespace.
+pub fn default_codex_profile() -> Profile {
+    // Physical keys p0..p12, top-left to bottom-right. p10 and p11 sit under
+    // the shared 2U MIC keycap but are separate switches, so both get MIC.
+    const KEYS: [(&str, &str); KEY_SLOTS] = [
+        ("FAST", "zap"),
+        ("APPR", "check"),
+        ("REJ", "x"),
+        ("SPLIT", "split"),
+        ("NEW", "message-square-plus"),
+        ("TERM", "square-terminal"),
+        ("PLAY", "play"),
+        ("GIT", "folder-git-2"),
+        ("PR", "git-pull-request-create-arrow"),
+        ("DIFF", "git-compare-arrows"),
+        ("MIC", "mic"),
+        ("MIC", "mic"),
+        ("SETUP", "settings"),
+    ];
+
+    let mut inputs: Vec<InputConfig> = KEYS
+        .iter()
+        .enumerate()
+        .map(|(i, &(label, icon))| {
+            // p0..p7 emit plain F13..F20 (0x68..0x6F); p8..p12 wrap back to
+            // F13..F17 with LShift held. Shifted or not, F13+ never types
+            // visible text and can be grabbed by a global hotkey on macOS,
+            // Windows and Linux — every key is interceptable by construction.
+            let (mods, code) = if i < 8 {
+                (0x00, 0x68 + i as u16)
+            } else {
+                (0x02, 0x68 + (i as u16 - 8))
+            };
+            keyboard_input(label, icon, mods, code)
+        })
+        .collect();
+    for input in inputs.iter_mut().take(12) {
+        input.behavior = Some(ControlBehavior::Keystroke);
+    }
+    // SETUP opens this app's settings sheet (the PRD's one hardwired action).
+    inputs[12].action = Action::AppSettings;
+    push_default_controls(&mut inputs);
+
+    debug_assert_eq!(inputs.len(), SLOT_COUNT);
+    Profile {
+        name: "Codex".to_string(),
+        mode: ProfileMode::OpenMicro,
+        inputs,
+        analog: AnalogTuning::default(),
+        codex_overrides: Vec::new(),
+    }
+}
+
+pub fn default_codex_micro_profile() -> Profile {
+    let mut profile = default_codex_profile();
+    profile.name = "Codex Default".to_string();
+    profile.mode = ProfileMode::CodexMicro;
+    profile.codex_overrides.clear();
+    for input in &mut profile.inputs {
+        input.behavior = None;
+        input.action = Action::None;
+    }
+    profile
+}
+
+/// The OS-level controls every template starts from: encoder = system
+/// volume, joystick = arrow keys + Enter, touch pad = play/pause. Consumer
+/// usages are handled OS-side, so they work with the app closed.
+fn push_default_controls(inputs: &mut Vec<InputConfig>) {
+    inputs.push(consumer_input("Vol +", "volume-2", 0xE9));
+    inputs.push(consumer_input("Vol −", "volume-2", 0xEA));
+    inputs.push(consumer_input("Mute", "volume-2", 0xE2));
+    // Joystick: arrow keys + Enter, so it navigates anything focusable.
+    inputs.push(keyboard_input("Up", "gamepad-2", 0, 0x52));
+    inputs.push(keyboard_input("Down", "gamepad-2", 0, 0x51));
+    inputs.push(keyboard_input("Left", "gamepad-2", 0, 0x50));
+    inputs.push(keyboard_input("Right", "gamepad-2", 0, 0x4F));
+    inputs.push(keyboard_input("Enter", "gamepad-2", 0, 0x28));
+    // Touch pad: tap toggles playback. Swipe slots exist so configs stay
+    // stable when multi-zone hardware lands; unbound until then.
+    let mut touch = consumer_input("Play/Pause", "play", 0xCD);
+    touch.behavior = Some(ControlBehavior::MacOs {
+        command: MacOsControl::PlayPause,
+    });
+    inputs.push(touch);
+    inputs.push(unbound_input());
+    inputs.push(unbound_input());
+}
+
+// ---------------------------------------------------------------------------
+// Profile templates — what the header's "+" menu offers.
+// ---------------------------------------------------------------------------
+
+/// A starting point for a new profile.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ProfileTemplate {
+    /// Every slot unbound: a blank slate.
+    Empty,
+    /// The stock keycaps wired to the Codex CLI.
+    Codex,
+    /// The stock keycaps wired to Claude Code.
+    ClaudeCode,
+}
+
+impl ProfileTemplate {
+    /// The agent templates, in menu order.
+    pub const AGENTS: [ProfileTemplate; 2] = [ProfileTemplate::Codex, ProfileTemplate::ClaudeCode];
+
+    /// Menu label. Product names stay untranslated.
+    pub fn name(self) -> &'static str {
+        match self {
+            ProfileTemplate::Empty => "Profile",
+            ProfileTemplate::Codex => "Codex",
+            ProfileTemplate::ClaudeCode => "Claude Code",
+        }
+    }
+
+    /// Build the profile, named so it does not collide with `existing`.
+    pub fn profile(self, existing: &[Profile]) -> Profile {
+        let mut profile = match self {
+            ProfileTemplate::Empty => empty_profile(),
+            ProfileTemplate::Codex => stock_keycap_profile(self.name(), &CODEX_KEYS),
+            ProfileTemplate::ClaudeCode => stock_keycap_profile(self.name(), &CLAUDE_CODE_KEYS),
+        };
+        let base = match self {
+            // Numbered the way the plain "+" button always named them.
+            ProfileTemplate::Empty => format!("Profile {}", existing.len() + 1),
+            _ => self.name().to_string(),
+        };
+        profile.name = fresh_name(existing, &base);
+        profile
+    }
+}
+
+/// `base` if no profile uses it, else "base 2", "base 3", … Imports keep
+/// their own "(imported)" scheme so a template never looks like one.
+fn fresh_name(existing: &[Profile], base: &str) -> String {
+    let taken = |name: &str| existing.iter().any(|p| p.name == name);
+    if !taken(base) {
+        return base.to_string();
+    }
+    let mut n = 2u32;
+    loop {
+        let candidate = format!("{base} {n}");
+        if !taken(&candidate) {
+            return candidate;
+        }
+        n += 1;
+    }
+}
+
+/// Nothing bound anywhere: no labels, no icons, and the pad emits nothing
+/// until the user assigns a behavior.
+pub fn empty_profile() -> Profile {
+    Profile {
+        name: ProfileTemplate::Empty.name().to_string(),
+        mode: ProfileMode::OpenMicro,
+        inputs: (0..SLOT_COUNT).map(|_| unbound_input()).collect(),
+        analog: AnalogTuning::default(),
+        codex_overrides: Vec::new(),
+    }
+}
+
+/// One printed key of a stock-keycap template: the on-screen label and
+/// Lucide icon matching the cap, and the chord the pad emits for it. The
+/// chord is stored on the pad as a plain keystroke, so the template works
+/// with the app closed and needs no Accessibility permission. A `code` of 0
+/// leaves the key free (icon kept, so the map still mirrors the cap).
+struct TemplateKey {
+    label: &'static str,
+    icon: &'static str,
+    mods: u8,
+    /// Also hold the platform's primary modifier: ⌘ on macOS, Ctrl on
+    /// Windows and Linux (Electron's "CmdOrCtrl").
+    primary: bool,
+    code: u16,
+}
+
+const fn template_key(label: &'static str, icon: &'static str, mods: u8, code: u16) -> TemplateKey {
+    TemplateKey {
+        label,
+        icon,
+        mods,
+        primary: false,
+        code,
+    }
+}
+
+/// A chord under the platform's primary modifier, plus `mods`.
+const fn primary_key(label: &'static str, icon: &'static str, mods: u8, code: u16) -> TemplateKey {
+    TemplateKey {
+        label,
+        icon,
+        mods,
+        primary: true,
+        code,
+    }
+}
+
+/// HID bit of the primary modifier: Left GUI (⌘) on macOS, Left Ctrl
+/// elsewhere.
+const fn primary_modifier(macos: bool) -> u8 {
+    if macos {
+        MOD_GUI
+    } else {
+        MOD_CTRL
+    }
+}
+
+// HID modifier bits and usages the templates use. `MOD_ALT` is Option on
+// macOS.
+const MOD_CTRL: u8 = 0x01;
+const MOD_SHIFT: u8 = 0x02;
+const MOD_ALT: u8 = 0x04;
+const MOD_GUI: u8 = 0x08;
+const KEY_ENTER: u16 = 0x28;
+const KEY_ESCAPE: u16 = 0x29;
+const KEY_TAB: u16 = 0x2B;
+const KEY_SPACE: u16 = 0x2C;
+const KEY_GRAVE: u16 = 0x35;
+
+/// Keyboard usage of a lowercase letter (`a` = 0x04).
+const fn letter(c: u8) -> u16 {
+    (c - b'a') as u16 + 0x04
+}
+
+/// Keyboard usage of a digit key on the main row (`1` = 0x1E).
+const fn digit(d: u8) -> u16 {
+    (d - b'1') as u16 + 0x1E
+}
+
+/// The stock keycap set, top-left to bottom-right: ★, the crowned mascot,
+/// four clear caps over the agent activity LEDs, a 2×2 grid, ✓, ✗, a
+/// terminal prompt, a microphone, a party popper, and a robot.
+fn stock_keycap_profile(name: &str, keys: &[TemplateKey; KEY_SLOTS]) -> Profile {
+    let mut inputs: Vec<InputConfig> = keys
+        .iter()
+        .map(|key| {
+            if key.code == 0 {
+                let mut input = unbound_input();
+                input.icon = key.icon.to_string();
+                return input;
+            }
+            let mut mods = key.mods;
+            if key.primary {
+                mods |= primary_modifier(cfg!(target_os = "macos"));
+            }
+            let mut input = keyboard_input(key.label, key.icon, mods, key.code);
+            input.behavior = Some(ControlBehavior::Keystroke);
+            input
+        })
+        .collect();
+    push_default_controls(&mut inputs);
+    debug_assert_eq!(inputs.len(), SLOT_COUNT);
+    Profile {
+        name: name.to_string(),
+        mode: ProfileMode::OpenMicro,
+        inputs,
+        analog: AnalogTuning::default(),
+        codex_overrides: Vec::new(),
+    }
+}
+
+/// Stock keycaps → Codex in the ChatGPT desktop app (macOS, Windows, Linux
+/// preview), following the Codex Micro's own
+/// layout: the clear second row is the session selector (the app's recent
+/// chats 1–4, the slots its agent keys use), ✓ and ✗ answer approval
+/// prompts, and the rest follow their pictures. Every chord is the app's
+/// default keybinding; `primary_key` is ⌘ on macOS and Ctrl elsewhere,
+/// exactly as the app resolves "CmdOrCtrl". Fast mode, Fork and Send have
+/// no keyboard chord in the app (the Micro reaches them natively), so they
+/// are not here.
+const CODEX_KEYS: [TemplateKey; KEY_SLOTS] = [
+    primary_key("ATTN", "star", MOD_ALT, letter(b'a')), // next chat needing attention
+    primary_key("NEW", "crown", 0, letter(b'n')),       // new chat
+    primary_key("CHAT 1", "message-square", MOD_ALT, digit(b'1')), // recent chat 1
+    primary_key("CHAT 2", "message-square", MOD_ALT, digit(b'2')), // recent chat 2
+    primary_key("CHAT 3", "message-square", MOD_ALT, digit(b'3')), // recent chat 3
+    primary_key("CHAT 4", "message-square", MOD_ALT, digit(b'4')), // recent chat 4
+    primary_key("MENU", "grid-2x2", 0, letter(b'k')),   // command menu
+    template_key("APPR", "check", 0, KEY_ENTER),        // approve request
+    template_key("REJ", "x", 0, KEY_ESCAPE),            // decline request
+    template_key("TERM", "square-terminal", MOD_CTRL, KEY_GRAVE), // open terminal (Ctrl on every OS)
+    template_key("MIC", "mic", MOD_CTRL | MOD_SHIFT, letter(b'd')), // start dictation (Ctrl on every OS)
+    primary_key("SIDE", "party-popper", MOD_ALT, letter(b's')),     // open side chat
+    template_key("MODEL", "bot", MOD_CTRL | MOD_SHIFT, letter(b'm')), // model picker (Ctrl on every OS)
+];
+
+/// Stock keycaps → Claude Code's documented interactive-mode shortcuts.
+/// The four clear caps carry the quiet utilities; the printed ones follow
+/// their pictures. Option+P and Option+O need "Option as Meta" in the
+/// terminal on macOS; Claude Code handles Option+T itself.
+const CLAUDE_CODE_KEYS: [TemplateKey; KEY_SLOTS] = [
+    template_key("THINK", "star", MOD_ALT, letter(b't')), // toggle extended thinking
+    template_key("MODE", "crown", MOD_SHIFT, KEY_TAB),    // cycle permission modes
+    template_key("BG", "layers", MOD_CTRL, letter(b'b')), // background the running task
+    template_key("STASH", "archive", MOD_CTRL, letter(b's')), // stash / restore the prompt
+    template_key("HIST", "history", MOD_CTRL, letter(b'r')), // reverse-search history
+    template_key("EDIT", "square-pen", MOD_CTRL, letter(b'g')), // prompt in external editor
+    template_key("TASKS", "grid-2x2", MOD_CTRL, letter(b't')), // toggle the task checklist
+    template_key("YES", "check", 0, KEY_ENTER),           // confirm a prompt (Enter also sends)
+    template_key("STOP", "x", 0, KEY_ESCAPE),             // interrupt, or decline a prompt
+    template_key("LOG", "square-terminal", MOD_CTRL, letter(b'o')), // transcript viewer
+    template_key("VOICE", "mic", 0, KEY_SPACE),           // push-to-talk once /voice is on
+    template_key("FAST", "party-popper", MOD_ALT, letter(b'o')), // toggle fast mode
+    template_key("MODEL", "bot", MOD_ALT, letter(b'p')),  // switch model
+];
+
+// ---------------------------------------------------------------------------
+// Sanitizing — every AppConfig that enters the app goes through here.
+// ---------------------------------------------------------------------------
+
+/// Enforce the invariants the rest of the app relies on: at least one
+/// profile, exactly SLOT_COUNT inputs per profile (missing slots filled from
+/// the Codex defaults so labels stay sensible), active_profile in range.
+fn sanitize(cfg: &mut AppConfig) {
+    if cfg.profiles.is_empty() {
+        cfg.profiles.push(default_codex_profile());
+    }
+    for profile in &mut cfg.profiles {
+        profile.codex_overrides.retain(|slot| *slot < SLOT_COUNT);
+        profile.codex_overrides.sort_unstable();
+        profile.codex_overrides.dedup();
+        profile.inputs.truncate(SLOT_COUNT);
+        if profile.inputs.len() < SLOT_COUNT {
+            let defaults = default_codex_profile();
+            while profile.inputs.len() < SLOT_COUNT {
+                profile
+                    .inputs
+                    .push(defaults.inputs[profile.inputs.len()].clone());
+            }
+        }
+        // The firmware clamps SET_ANALOG to this range; clamping here keeps
+        // app truth and device truth from fighting (an out-of-range value
+        // would re-sync forever because the device reads back different).
+        profile.analog.joy_threshold = profile.analog.joy_threshold.clamp(200, 1900);
+        // Same story for SET_JOYMODE's speed byte.
+        profile.analog.joy_mouse_speed = profile.analog.joy_mouse_speed.clamp(1, 10);
+
+        // Add semantic metadata to older key/touch configurations without
+        // changing the compiled slot or action that already works. Ambiguous
+        // host automations deliberately remain `None` and appear as an
+        // existing setup until the user replaces them.
+        for slot in (0..KEY_SLOTS).chain(std::iter::once(SLOT_TOUCH_TAP)) {
+            let Some(input) = profile.inputs.get_mut(slot) else {
+                continue;
+            };
+            if input.behavior.is_none() {
+                input.behavior = infer_legacy_behavior(input);
+            }
+        }
+    }
+    if cfg.active_profile >= cfg.profiles.len() {
+        cfg.active_profile = cfg.profiles.len() - 1;
+    }
+}
+
+fn infer_legacy_behavior(input: &InputConfig) -> Option<ControlBehavior> {
+    match (&input.action, input.emitted.kind) {
+        (Action::None, SlotKind::Keyboard) => Some(ControlBehavior::Keystroke),
+        (Action::None, SlotKind::Consumer) => {
+            let command = match input.emitted.code {
+                0x006F => MacOsControl::BrightnessUp,
+                0x0070 => MacOsControl::BrightnessDown,
+                0x029F => MacOsControl::MissionControl,
+                0x02A2 => MacOsControl::Applications,
+                0x0221 => MacOsControl::Search,
+                0x00D8 => MacOsControl::Dictation,
+                0x029D => MacOsControl::Globe,
+                0x00E9 => MacOsControl::VolumeUp,
+                0x00EA => MacOsControl::VolumeDown,
+                0x00E2 => MacOsControl::Mute,
+                0x00CD => MacOsControl::PlayPause,
+                0x00B5 => MacOsControl::NextTrack,
+                0x00B6 => MacOsControl::PreviousTrack,
+                0x00D9 => MacOsControl::EmojiPicker,
+                _ => return None,
+            };
+            Some(ControlBehavior::MacOs { command })
+        }
+        (Action::Open { target }, SlotKind::Keyboard)
+            if Path::new(target)
+                .extension()
+                .and_then(|value| value.to_str())
+                .is_some_and(|extension| extension.eq_ignore_ascii_case("app")) =>
+        {
+            Some(ControlBehavior::App {
+                target: target.clone(),
+            })
+        }
+        _ => None,
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Legacy schema (pre-profiles) and its migration.
+// ---------------------------------------------------------------------------
+
+/// The old on-disk schema: 12 `{kind, arg}` bindings indexed by emitted
+/// usage F13..F24 — the 2U pair was one entry (10) and the far-right key
+/// was entry 11. Kept only so `load()` can migrate existing installs.
+#[derive(Deserialize)]
+struct LegacyConfig {
+    bindings: Vec<LegacyBinding>,
+}
+
+#[derive(Deserialize, Default)]
+#[serde(default)]
+struct LegacyBinding {
+    kind: LegacyKind,
+    arg: String,
+}
+
+#[derive(Deserialize, Clone, Copy, Default)]
+#[serde(rename_all = "snake_case")]
+enum LegacyKind {
+    #[default]
+    None,
+    Run,
+    Open,
+}
+
+fn migrate_legacy(legacy: LegacyConfig) -> AppConfig {
+    let mut profile = default_codex_profile();
+    for slot in 0..KEY_SLOTS {
+        // Old index: 0..=9 map 1:1; entry 10 drove both switches under the
+        // 2U keycap (today's slots 10 and 11); entry 11 was the far-right
+        // key, now slot 12.
+        let old_index = match slot {
+            0..=9 => slot,
+            10 | 11 => 10,
+            _ => 11,
+        };
+        let Some(binding) = legacy.bindings.get(old_index) else {
+            continue;
+        };
+        profile.inputs[slot].action = match binding.kind {
+            // No old binding: keep the Codex default (notably AppSettings on
+            // the SETUP key), which the old app hardwired outside the config.
+            LegacyKind::None => continue,
+            LegacyKind::Run => Action::Run {
+                command: binding.arg.clone(),
+            },
+            LegacyKind::Open => Action::Open {
+                target: binding.arg.clone(),
+            },
+        };
+    }
+    AppConfig {
+        active_profile: 0,
+        active_openmicro_profile: Some(0),
+        active_codex_profile: None,
+        profiles: vec![profile],
+        launch_at_login: true,
+        show_menubar: true,
+        show_dock: true,
+        led_brightness: DEFAULT_LED_BRIGHTNESS,
+        language: LanguageSetting::Auto,
+        theme: ThemeSetting::System,
+        led_key_pattern: LedPattern::Rainbow,
+        led_ambient_pattern: LedPattern::Rainbow,
+        activity_status_colors: ActivityStatusColors::default(),
+    }
+}
+
+/// Parse either schema: current first, then legacy (its required `bindings`
+/// field means a current-schema file can never false-positive as legacy).
+fn parse_any(text: &str) -> Option<AppConfig> {
+    if let Ok(cfg) = serde_json::from_str::<AppConfig>(text) {
+        return Some(cfg);
+    }
+    let legacy: LegacyConfig = serde_json::from_str(text).ok()?;
+    Some(migrate_legacy(legacy))
+}
+
+// ---------------------------------------------------------------------------
+// Load / save.
+// ---------------------------------------------------------------------------
+
+fn config_path() -> Option<PathBuf> {
+    Some(dirs::config_dir()?.join("OpenMicro").join("config.json"))
+}
+
+/// Load the config, migrating the legacy schema if that's what's on disk.
+/// Never fails — but a file that EXISTS and cannot be parsed is first copied
+/// aside to `config.json.invalid` before defaults take over, because the app
+/// saves on every edit and on quit: without the backup, one corrupt read
+/// would silently overwrite whatever the user had.
+pub fn load() -> AppConfig {
+    let mut cfg = AppConfig::default();
+    if let Some(path) = config_path() {
+        if let Ok(text) = std::fs::read_to_string(&path) {
+            match parse_any(&text) {
+                Some(parsed) => cfg = parsed,
+                None => {
+                    let backup = path.with_extension("json.invalid");
+                    match std::fs::write(&backup, &text) {
+                        Ok(()) => eprintln!(
+                            "config: {} is unreadable — preserved at {}, using defaults",
+                            path.display(),
+                            backup.display()
+                        ),
+                        Err(e) => eprintln!(
+                            "config: {} is unreadable AND could not be backed up ({e}) — using defaults",
+                            path.display()
+                        ),
+                    }
+                }
+            }
+        }
+    }
+    sanitize(&mut cfg);
+    cfg
+}
+
+pub fn save(cfg: &AppConfig) -> Result<(), String> {
+    let path = config_path().ok_or("no config dir on this platform")?;
+    if let Some(dir) = path.parent() {
+        std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    }
+    let text = serde_json::to_string_pretty(cfg).map_err(|e| e.to_string())?;
+    std::fs::write(&path, text).map_err(|e| e.to_string())
+}
+
+// ---------------------------------------------------------------------------
+// Export / import / reset.
+// ---------------------------------------------------------------------------
+
+/// Write the whole config as pretty JSON — the same shape `import_from`
+/// (and `load`) accept.
+pub fn export_to(path: &Path, cfg: &AppConfig) -> Result<(), String> {
+    let text = serde_json::to_string_pretty(cfg).map_err(|e| e.to_string())?;
+    std::fs::write(path, text).map_err(|e| format!("write {}: {e}", path.display()))
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ImportMode {
+    Replace,
+    Merge,
+}
+
+/// Import a config file. `Replace` swaps in the file wholesale; `Merge`
+/// appends its profiles (renamed on name collision) and keeps the current
+/// active profile. Returns a one-line human summary for the UI.
+pub fn import_from(path: &Path, mode: ImportMode, into: &mut AppConfig) -> Result<String, String> {
+    let text =
+        std::fs::read_to_string(path).map_err(|e| format!("read {}: {e}", path.display()))?;
+    let mut imported = parse_any(&text)
+        .ok_or_else(|| format!("{} is not an OpenMicro config file", path.display()))?;
+    sanitize(&mut imported);
+
+    match mode {
+        ImportMode::Replace => {
+            let n = imported.profiles.len();
+            *into = imported;
+            Ok(format!("Replaced configuration ({n} profile{})", plural(n)))
+        }
+        ImportMode::Merge => {
+            let n = imported.profiles.len();
+            let mut renamed = 0;
+            for mut profile in imported.profiles {
+                if into.profiles.iter().any(|p| p.name == profile.name) {
+                    profile.name = unique_name(&into.profiles, &profile.name);
+                    renamed += 1;
+                }
+                into.profiles.push(profile);
+            }
+            let mut summary = format!("Added {n} profile{}", plural(n));
+            if renamed > 0 {
+                summary.push_str(&format!(" ({renamed} renamed to avoid a name clash)"));
+            }
+            Ok(summary)
+        }
+    }
+}
+
+/// First free variant of `base`: "base (imported)", then "base (imported 2)"…
+/// Checked against `existing` each time, so batch imports can't collide.
+fn unique_name(existing: &[Profile], base: &str) -> String {
+    let taken = |name: &str| existing.iter().any(|p| p.name == name);
+    let candidate = format!("{base} (imported)");
+    if !taken(&candidate) {
+        return candidate;
+    }
+    let mut n = 2u32;
+    loop {
+        let candidate = format!("{base} (imported {n})");
+        if !taken(&candidate) {
+            return candidate;
+        }
+        n += 1;
+    }
+}
+
+fn plural(n: usize) -> &'static str {
+    if n == 1 {
+        ""
+    } else {
+        "s"
+    }
+}
+
+/// Discard everything and return to the out-of-the-box config. The caller
+/// decides when to `save()` and when to re-sync the device.
+pub fn factory_reset(cfg: &mut AppConfig) {
+    *cfg = AppConfig::default();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn empty_template_binds_nothing() {
+        let p = ProfileTemplate::Empty.profile(&[]);
+        assert_eq!(p.name, "Profile 1");
+        assert_eq!(p.inputs.len(), SLOT_COUNT);
+        for input in &p.inputs {
+            assert_eq!(input.emitted, Slot::default());
+            assert_eq!(input.action, Action::None);
+            assert_eq!(input.behavior, None);
+            assert!(input.label.is_empty() && input.icon.is_empty());
+        }
+        assert_eq!(p.analog, AnalogTuning::default());
+    }
+
+    #[test]
+    fn agent_templates_emit_pad_side_keystrokes() {
+        for template in ProfileTemplate::AGENTS {
+            let p = template.profile(&[]);
+            assert_eq!(p.name, template.name());
+            assert_eq!(p.inputs.len(), SLOT_COUNT);
+            let mut bound = Vec::new();
+            for (i, input) in p.inputs.iter().take(KEY_SLOTS).enumerate() {
+                // Every key shows the icon printed on its cap.
+                assert!(
+                    crate::lucide::icon_char(&input.icon).is_some(),
+                    "{template:?} key {i} icon {:?}",
+                    input.icon
+                );
+                assert_eq!(input.action, Action::None);
+                if input.emitted.kind == SlotKind::None {
+                    // A deliberately free key (Codex has no voice input).
+                    assert!(input.label.is_empty() && input.behavior.is_none());
+                    continue;
+                }
+                // Bound keys are pad-side keystrokes with a legend: nothing
+                // host-side to depend on.
+                assert_eq!(
+                    input.emitted.kind,
+                    SlotKind::Keyboard,
+                    "{template:?} key {i}"
+                );
+                assert_eq!(input.behavior, Some(ControlBehavior::Keystroke));
+                assert!(!input.label.is_empty(), "{template:?} key {i} label");
+                bound.push(input.emitted);
+            }
+            assert!(
+                bound.len() >= KEY_SLOTS - 1,
+                "{template:?} leaves too many keys free"
+            );
+            // Distinct chords, so one press never means two things.
+            for a in 0..bound.len() {
+                for b in a + 1..bound.len() {
+                    assert_ne!(bound[a], bound[b], "{template:?} chords {a}/{b}");
+                }
+            }
+            // Controls match the out-of-the-box profile.
+            let codex = default_codex_profile();
+            assert_eq!(p.inputs[KEY_SLOTS..], codex.inputs[KEY_SLOTS..]);
+        }
+    }
+
+    #[test]
+    fn codex_template_uses_the_platform_primary_modifier() {
+        assert_eq!(primary_modifier(true), MOD_GUI);
+        assert_eq!(primary_modifier(false), MOD_CTRL);
+        let p = ProfileTemplate::Codex.profile(&[]);
+        let primary = primary_modifier(cfg!(target_os = "macos"));
+        // NEW = CmdOrCtrl+N; the second row = CmdOrCtrl+Alt+1..4.
+        assert_eq!(
+            p.inputs[1].emitted,
+            Slot {
+                kind: SlotKind::Keyboard,
+                mods: primary,
+                code: 0x11
+            }
+        );
+        for (i, slot) in (2..6).enumerate() {
+            assert_eq!(
+                p.inputs[slot].emitted,
+                Slot {
+                    kind: SlotKind::Keyboard,
+                    mods: primary | MOD_ALT,
+                    code: 0x1E + i as u16
+                },
+                "session key {slot}"
+            );
+        }
+        // Chords the app binds with a literal Ctrl stay Ctrl everywhere.
+        assert_eq!(p.inputs[9].emitted.mods, MOD_CTRL);
+        assert_eq!(p.inputs[10].emitted.mods, MOD_CTRL | MOD_SHIFT);
+    }
+
+    #[test]
+    fn template_names_avoid_collisions() {
+        let mut existing = vec![ProfileTemplate::Codex.profile(&[])];
+        assert_eq!(existing[0].name, "Codex");
+        existing.push(ProfileTemplate::Codex.profile(&existing));
+        assert_eq!(existing[1].name, "Codex 2");
+        existing.push(ProfileTemplate::Codex.profile(&existing));
+        assert_eq!(existing[2].name, "Codex 3");
+        // Empty profiles count from the slot they land in, then step past
+        // anything already using that name.
+        existing.push(ProfileTemplate::Empty.profile(&existing));
+        assert_eq!(existing[3].name, "Profile 4");
+        existing.push(ProfileTemplate::Empty.profile(&existing));
+        assert_eq!(existing[4].name, "Profile 5");
+        let mut clash = ProfileTemplate::Empty.profile(&existing);
+        clash.name = "Profile 7".into();
+        existing.push(clash);
+        assert_eq!(
+            ProfileTemplate::Empty.profile(&existing).name,
+            "Profile 7 2"
+        );
+    }
+
+    #[test]
+    fn default_profile_shape() {
+        let p = default_codex_profile();
+        assert_eq!(p.inputs.len(), SLOT_COUNT);
+        assert_eq!(p.name, "Codex");
+        // p0 = FAST/F13 plain, p8 = PR/F13 shifted, p12 = SETUP -> AppSettings.
+        assert_eq!(
+            p.inputs[0].emitted,
+            Slot {
+                kind: SlotKind::Keyboard,
+                mods: 0,
+                code: 0x68
+            }
+        );
+        assert_eq!(
+            p.inputs[8].emitted,
+            Slot {
+                kind: SlotKind::Keyboard,
+                mods: 0x02,
+                code: 0x68
+            }
+        );
+        assert_eq!(p.inputs[12].action, Action::AppSettings);
+        // All 13 key slots emit distinct (mods, code) pairs — even the two
+        // switches under the 2U MIC keycap, so the host can tell them apart.
+        for a in 0..KEY_SLOTS {
+            for b in a + 1..KEY_SLOTS {
+                assert_ne!(p.inputs[a].emitted, p.inputs[b].emitted, "slots {a}/{b}");
+            }
+        }
+        assert_eq!(p.inputs[SLOT_TOUCH_TAP].emitted.code, 0xCD);
+        assert_eq!(p.inputs[SLOT_TOUCH_SWIPE_L].emitted.kind, SlotKind::None);
+        assert_eq!(p.analog.joy_threshold, 1024);
+        assert_eq!(
+            p.slots()[SLOT_ENC_CW],
+            Slot {
+                kind: SlotKind::Consumer,
+                mods: 0,
+                code: 0xE9
+            }
+        );
+    }
+
+    #[test]
+    fn all_rotation_presets_apply_as_exact_hid_pairs() {
+        assert_eq!(
+            RotatorRotationPreset::VerticalArrows.label(),
+            "Arrow keys · up / down"
+        );
+        assert_eq!(
+            RotatorRotationPreset::HorizontalArrows.label(),
+            "Arrow keys · left / right"
+        );
+        let cases = [
+            (
+                RotatorRotationPreset::Volume,
+                (SlotKind::Consumer, 0xE9, "Vol +", "volume-2"),
+                (SlotKind::Consumer, 0xEA, "Vol −", "volume-1"),
+            ),
+            (
+                RotatorRotationPreset::Brightness,
+                (SlotKind::Consumer, 0x6F, "Bright +", "sun"),
+                (SlotKind::Consumer, 0x70, "Bright −", "sun"),
+            ),
+            (
+                RotatorRotationPreset::Tracks,
+                (SlotKind::Consumer, 0xB5, "Next", "skip-forward"),
+                (SlotKind::Consumer, 0xB6, "Previous", "skip-back"),
+            ),
+            (
+                RotatorRotationPreset::VerticalArrows,
+                (SlotKind::Keyboard, 0x51, "Down", "arrow-down"),
+                (SlotKind::Keyboard, 0x52, "Up", "arrow-up"),
+            ),
+            (
+                RotatorRotationPreset::HorizontalArrows,
+                (SlotKind::Keyboard, 0x4F, "Right", "arrow-right"),
+                (SlotKind::Keyboard, 0x50, "Left", "arrow-left"),
+            ),
+        ];
+        for (preset, cw_expected, ccw_expected) in cases {
+            let mut profile = default_codex_profile();
+            let press_before = profile.inputs[SLOT_ENC_PRESS].clone();
+            // Applying a preset must replace stale presentation and host action
+            // state, not merely swap the emitted usage.
+            profile.inputs[SLOT_ENC_CW].label = "custom cw".into();
+            profile.inputs[SLOT_ENC_CW].action = Action::Run {
+                command: "old".into(),
+            };
+            profile.inputs[SLOT_ENC_CCW].icon = "custom-icon".into();
+            profile.inputs[SLOT_ENC_CCW].action = Action::Media { op: MediaOp::Mute };
+
+            preset.apply_to(&mut profile);
+
+            let cw = &profile.inputs[SLOT_ENC_CW];
+            let ccw = &profile.inputs[SLOT_ENC_CCW];
+            assert_eq!(
+                cw.emitted,
+                Slot {
+                    kind: cw_expected.0,
+                    mods: 0,
+                    code: cw_expected.1
+                }
+            );
+            assert_eq!(
+                ccw.emitted,
+                Slot {
+                    kind: ccw_expected.0,
+                    mods: 0,
+                    code: ccw_expected.1
+                }
+            );
+            assert_eq!((&*cw.label, &*cw.icon), (cw_expected.2, cw_expected.3));
+            assert_eq!((&*ccw.label, &*ccw.icon), (ccw_expected.2, ccw_expected.3));
+            assert_eq!(cw.action, Action::None);
+            assert_eq!(ccw.action, Action::None);
+            assert_eq!(profile.inputs[SLOT_ENC_PRESS], press_before);
+            assert_eq!(RotatorRotationPreset::infer(&profile), Some(preset));
+        }
+    }
+
+    #[test]
+    fn all_press_presets_apply_as_exact_hid_usages() {
+        assert_eq!(
+            RotatorPressPreset::ALL,
+            [
+                RotatorPressPreset::Mute,
+                RotatorPressPreset::LockScreen,
+                RotatorPressPreset::Play,
+                RotatorPressPreset::Enter,
+            ]
+        );
+        assert_eq!(RotatorPressPreset::Enter.label(), "Enter");
+        assert_eq!(RotatorPressPreset::Enter.detail(), "Send the Enter key");
+        let cases = [
+            (
+                RotatorPressPreset::Mute,
+                SlotKind::Consumer,
+                0xE2,
+                "Mute",
+                "volume-x",
+            ),
+            (
+                RotatorPressPreset::LockScreen,
+                SlotKind::Consumer,
+                0x019E,
+                "Lock",
+                "lock",
+            ),
+            (
+                RotatorPressPreset::Play,
+                SlotKind::Consumer,
+                0xB0,
+                "Play",
+                "play",
+            ),
+            (
+                RotatorPressPreset::Enter,
+                SlotKind::Keyboard,
+                0x28,
+                "Enter",
+                "corner-down-left",
+            ),
+        ];
+        for (preset, kind, code, label, icon) in cases {
+            let mut profile = default_codex_profile();
+            let rotation_before = [
+                profile.inputs[SLOT_ENC_CW].clone(),
+                profile.inputs[SLOT_ENC_CCW].clone(),
+            ];
+            profile.inputs[SLOT_ENC_PRESS].label = "custom press".into();
+            profile.inputs[SLOT_ENC_PRESS].action = Action::Open {
+                target: "old".into(),
+            };
+
+            preset.apply_to(&mut profile);
+
+            let press = &profile.inputs[SLOT_ENC_PRESS];
+            assert_eq!(
+                press.emitted,
+                Slot {
+                    kind,
+                    mods: 0,
+                    code
+                }
+            );
+            assert_eq!((&*press.label, &*press.icon), (label, icon));
+            assert_eq!(press.action, Action::None);
+            assert_eq!(
+                [
+                    profile.inputs[SLOT_ENC_CW].clone(),
+                    profile.inputs[SLOT_ENC_CCW].clone(),
+                ],
+                rotation_before
+            );
+            assert_eq!(RotatorPressPreset::infer(&profile), Some(preset));
+        }
+    }
+
+    #[test]
+    fn custom_rotator_mappings_are_preserved_until_a_preset_is_applied() {
+        let mut profile = default_codex_profile();
+        // One stale action makes an otherwise familiar pair custom.
+        profile.inputs[SLOT_ENC_CCW].action = Action::Run {
+            command: "custom".into(),
+        };
+        // A different emitted kind makes the press custom too.
+        profile.inputs[SLOT_ENC_PRESS] = keyboard_input("Custom", "keyboard", 0x08, 0x0F);
+        let before_inference = profile.clone();
+
+        assert_eq!(RotatorRotationPreset::infer(&profile), None);
+        assert_eq!(RotatorPressPreset::infer(&profile), None);
+        assert_eq!(
+            profile, before_inference,
+            "inference must never normalise custom data"
+        );
+
+        let custom_press = profile.inputs[SLOT_ENC_PRESS].clone();
+        RotatorRotationPreset::Brightness.apply_to(&mut profile);
+        assert_eq!(profile.inputs[SLOT_ENC_PRESS], custom_press);
+        assert_eq!(
+            RotatorRotationPreset::infer(&profile),
+            Some(RotatorRotationPreset::Brightness)
+        );
+
+        let custom_rotation = [
+            profile.inputs[SLOT_ENC_CW].clone(),
+            profile.inputs[SLOT_ENC_CCW].clone(),
+        ];
+        RotatorPressPreset::LockScreen.apply_to(&mut profile);
+        assert_eq!(
+            [
+                profile.inputs[SLOT_ENC_CW].clone(),
+                profile.inputs[SLOT_ENC_CCW].clone(),
+            ],
+            custom_rotation
+        );
+        assert_eq!(
+            RotatorPressPreset::infer(&profile),
+            Some(RotatorPressPreset::LockScreen)
+        );
+
+        RotatorRotationPreset::VerticalArrows.apply_to(&mut profile);
+        profile.inputs[SLOT_ENC_CW].action = Action::Media { op: MediaOp::Mute };
+        assert_eq!(
+            RotatorRotationPreset::infer(&profile),
+            None,
+            "a host action makes even an exact keyboard pair custom"
+        );
+        assert_eq!(profile.inputs[SLOT_ENC_CW].emitted.kind, SlotKind::Keyboard);
+        assert_eq!(profile.inputs[SLOT_ENC_CW].emitted.code, 0x51);
+        assert_eq!(profile.inputs[SLOT_ENC_CCW].emitted.code, 0x52);
+
+        RotatorPressPreset::Enter.apply_to(&mut profile);
+        profile.inputs[SLOT_ENC_PRESS].action = Action::Run {
+            command: "custom enter".into(),
+        };
+        assert_eq!(
+            RotatorPressPreset::infer(&profile),
+            None,
+            "a stale host action makes the exact Enter usage custom"
+        );
+        assert_eq!(
+            profile.inputs[SLOT_ENC_PRESS].emitted.kind,
+            SlotKind::Keyboard
+        );
+        assert_eq!(profile.inputs[SLOT_ENC_PRESS].emitted.code, 0x28);
+    }
+
+    #[test]
+    fn joystick_mode_inference_and_application() {
+        // Factory defaults are plain arrows + Enter: Arrows, no modifiers.
+        let mut profile = default_codex_profile();
+        assert_eq!(JoystickMode::infer(&profile), JoystickMode::Arrows);
+        assert_eq!(JoystickMode::arrow_mods(&profile), Some(0));
+
+        // Mouse mode flips the analog flag and leaves every slot alone.
+        let slots_before: Vec<InputConfig> = profile.inputs[SLOT_JOY_UP..=SLOT_JOY_PRESS].to_vec();
+        JoystickMode::Mouse.apply_to(&mut profile);
+        assert_eq!(JoystickMode::infer(&profile), JoystickMode::Mouse);
+        assert_eq!(profile.analog.joy_mode, JoyMode::Mouse);
+        assert_eq!(
+            &profile.inputs[SLOT_JOY_UP..=SLOT_JOY_PRESS],
+            slots_before.as_slice()
+        );
+
+        // Grade mode likewise only flips the flag; slots stay untouched so a
+        // trip through the grading mode loses nothing.
+        JoystickMode::Grade.apply_to(&mut profile);
+        assert_eq!(JoystickMode::infer(&profile), JoystickMode::Grade);
+        assert_eq!(profile.analog.joy_mode, JoyMode::Grade);
+        assert_eq!(
+            &profile.inputs[SLOT_JOY_UP..=SLOT_JOY_PRESS],
+            slots_before.as_slice()
+        );
+
+        // Leaving Grade for Arrows restores keys mode; the slots were already
+        // arrows so they must not be rewritten (press keeps its config).
+        JoystickMode::Arrows.apply_to(&mut profile);
+        assert_eq!(profile.analog.joy_mode, JoyMode::Keys);
+        assert_eq!(JoystickMode::infer(&profile), JoystickMode::Arrows);
+        assert_eq!(
+            &profile.inputs[SLOT_JOY_UP..=SLOT_JOY_PRESS],
+            slots_before.as_slice()
+        );
+
+        // A shared modifier mask keeps the arrows shape recognisable.
+        JoystickMode::set_arrow_mods(&mut profile, 0x08);
+        assert_eq!(JoystickMode::infer(&profile), JoystickMode::Arrows);
+        assert_eq!(JoystickMode::arrow_mods(&profile), Some(0x08));
+        for (i, code) in ARROW_CODES.iter().enumerate() {
+            assert_eq!(
+                profile.inputs[SLOT_JOY_UP + i].emitted,
+                Slot {
+                    kind: SlotKind::Keyboard,
+                    mods: 0x08,
+                    code: *code
+                }
+            );
+        }
+
+        // One diverging direction (or a host action) makes it Custom.
+        profile.inputs[SLOT_JOY_LEFT].emitted.code = 0x2C; // space
+        assert_eq!(JoystickMode::infer(&profile), JoystickMode::Custom);
+        assert_eq!(JoystickMode::arrow_mods(&profile), None);
+        JoystickMode::set_arrow_mods(&mut profile, 0);
+        profile.inputs[SLOT_JOY_UP].action = Action::Run {
+            command: "true".into(),
+        };
+        assert_eq!(JoystickMode::infer(&profile), JoystickMode::Custom);
+        profile.inputs[SLOT_JOY_UP].action = Action::None;
+
+        // Entering Arrows from a custom shape rewrites the four directions
+        // as plain arrows; entering Custom rewrites nothing.
+        profile.inputs[SLOT_JOY_LEFT].emitted.code = 0x2C;
+        JoystickMode::Custom.apply_to(&mut profile);
+        assert_eq!(profile.inputs[SLOT_JOY_LEFT].emitted.code, 0x2C);
+        assert_eq!(JoystickMode::infer(&profile), JoystickMode::Custom);
+        JoystickMode::Arrows.apply_to(&mut profile);
+        assert_eq!(JoystickMode::arrow_mods(&profile), Some(0));
+        assert_eq!(profile.inputs[SLOT_JOY_LEFT].emitted.code, 0x50);
+    }
+
+    #[test]
+    fn analog_tuning_defaults_migrate_and_clamp() {
+        // A pre-mode config file has no joy_mode / joy_mouse_speed fields.
+        let parsed: AnalogTuning = serde_json::from_str(r#"{"joy_threshold": 800}"#).unwrap();
+        assert_eq!(parsed.joy_mode, JoyMode::Keys);
+        assert_eq!(parsed.joy_mouse_speed, DEFAULT_JOY_MOUSE_SPEED);
+
+        let mut cfg = AppConfig::default();
+        cfg.profiles[0].analog.joy_mouse_speed = 0;
+        sanitize(&mut cfg);
+        assert_eq!(cfg.profiles[0].analog.joy_mouse_speed, 1);
+        cfg.profiles[0].analog.joy_mouse_speed = 99;
+        sanitize(&mut cfg);
+        assert_eq!(cfg.profiles[0].analog.joy_mouse_speed, 10);
+
+        assert_eq!(JoyMode::from_wire(0), JoyMode::Keys);
+        assert_eq!(JoyMode::from_wire(1), JoyMode::Mouse);
+        assert_eq!(JoyMode::from_wire(7), JoyMode::Keys);
+        assert_eq!(JoyMode::Mouse.to_wire(), 1);
+
+        // Older config files have neither led_brightness nor theme fields.
+        let mut json = serde_json::to_value(AppConfig::default()).unwrap();
+        json.as_object_mut().unwrap().remove("led_brightness");
+        json.as_object_mut().unwrap().remove("theme");
+        let parsed: AppConfig = serde_json::from_value(json).unwrap();
+        assert_eq!(parsed.led_brightness, DEFAULT_LED_BRIGHTNESS);
+        assert_eq!(parsed.theme, ThemeSetting::System);
+    }
+
+    #[test]
+    fn theme_setting_uses_stable_config_names() {
+        for (setting, name) in [
+            (ThemeSetting::System, "system"),
+            (ThemeSetting::Light, "light"),
+            (ThemeSetting::Dark, "dark"),
+        ] {
+            assert_eq!(
+                serde_json::to_string(&setting).unwrap(),
+                format!("\"{name}\"")
+            );
+            assert_eq!(
+                serde_json::from_str::<ThemeSetting>(&format!("\"{name}\"")).unwrap(),
+                setting
+            );
+        }
+    }
+
+    #[test]
+    fn legacy_migration() {
+        let old = r#"{ "bindings": [
+            {"kind":"run","arg":"echo hi"},
+            {"kind":"none","arg":""},
+            {"kind":"open","arg":"https://example.com"},
+            {"kind":"none","arg":""}, {"kind":"none","arg":""}, {"kind":"none","arg":""},
+            {"kind":"none","arg":""}, {"kind":"none","arg":""}, {"kind":"none","arg":""},
+            {"kind":"none","arg":""},
+            {"kind":"open","arg":"raycast://"},
+            {"kind":"run","arg":"say done"}
+        ]}"#;
+        let mut cfg = parse_any(old).expect("legacy parses");
+        sanitize(&mut cfg);
+        let inputs = &cfg.profiles[0].inputs;
+        assert_eq!(
+            inputs[0].action,
+            Action::Run {
+                command: "echo hi".into()
+            }
+        );
+        assert_eq!(inputs[1].action, Action::None);
+        assert_eq!(
+            inputs[2].action,
+            Action::Open {
+                target: "https://example.com".into()
+            }
+        );
+        // Old entry 10 (2U pair) lands on both slots 10 and 11; old 11 -> slot 12.
+        assert_eq!(
+            inputs[10].action,
+            Action::Open {
+                target: "raycast://".into()
+            }
+        );
+        assert_eq!(
+            inputs[11].action,
+            Action::Open {
+                target: "raycast://".into()
+            }
+        );
+        assert_eq!(
+            inputs[12].action,
+            Action::Run {
+                command: "say done".into()
+            }
+        );
+        // Emitted codes come from the new defaults, not the legacy file.
+        assert_eq!(inputs[0].emitted.code, 0x68);
+        assert!(cfg.launch_at_login && cfg.show_menubar);
+        assert_eq!(cfg.theme, ThemeSetting::System);
+    }
+
+    #[test]
+    fn legacy_none_keeps_setup_default() {
+        let old = r#"{ "bindings": [] }"#;
+        let cfg = parse_any(old).expect("legacy parses");
+        assert_eq!(cfg.profiles[0].inputs[12].action, Action::AppSettings);
+    }
+
+    #[test]
+    fn current_config_without_dock_preference_keeps_dock_visible() {
+        let mut json = serde_json::to_value(AppConfig::default()).expect("serialize config");
+        json.as_object_mut().unwrap().remove("show_dock");
+        let cfg: AppConfig = serde_json::from_value(json).expect("deserialize config");
+        assert!(cfg.show_dock);
+    }
+
+    #[test]
+    fn pre_mode_profiles_are_preserved_and_migrate_to_openmicro() {
+        let mut original = AppConfig::default();
+        original.profiles[0].name = "My existing profile".into();
+        original.profiles[0].inputs[0].label = "KEEP".into();
+        original.profiles[0].inputs[0].action = Action::Open {
+            target: "https://example.com".into(),
+        };
+        let expected_inputs = original.profiles[0].inputs.clone();
+
+        let mut json = serde_json::to_value(original).expect("serialize old config");
+        let root = json.as_object_mut().expect("config object");
+        root.remove("active_openmicro_profile");
+        root.remove("active_codex_profile");
+        for profile in root["profiles"].as_array_mut().expect("profiles") {
+            let profile = profile.as_object_mut().expect("profile object");
+            profile.remove("mode");
+            profile.remove("codex_overrides");
+        }
+
+        let mut migrated: AppConfig = serde_json::from_value(json).expect("deserialize old config");
+        sanitize(&mut migrated);
+
+        assert_eq!(migrated.profiles.len(), 1);
+        assert_eq!(migrated.profiles[0].name, "My existing profile");
+        assert_eq!(migrated.profiles[0].inputs, expected_inputs);
+        assert_eq!(migrated.profiles[0].mode, ProfileMode::OpenMicro);
+        assert!(migrated.profiles[0].codex_overrides.is_empty());
+        assert_eq!(migrated.active_profile, 0);
+        assert_eq!(migrated.active_openmicro_profile, None);
+        assert_eq!(migrated.active_codex_profile, None);
+    }
+
+    #[test]
+    fn sanitize_clamps_and_pads() {
+        let mut cfg = AppConfig {
+            active_profile: 7,
+            active_openmicro_profile: None,
+            active_codex_profile: None,
+            profiles: vec![Profile {
+                name: "short".into(),
+                mode: ProfileMode::OpenMicro,
+                inputs: vec![],
+                analog: AnalogTuning::default(),
+                codex_overrides: Vec::new(),
+            }],
+            launch_at_login: false,
+            show_menubar: false,
+            show_dock: false,
+            led_brightness: DEFAULT_LED_BRIGHTNESS,
+            language: LanguageSetting::Auto,
+            theme: ThemeSetting::System,
+            led_key_pattern: LedPattern::Rainbow,
+            led_ambient_pattern: LedPattern::Rainbow,
+            activity_status_colors: ActivityStatusColors::default(),
+        };
+        sanitize(&mut cfg);
+        assert_eq!(cfg.active_profile, 0);
+        assert_eq!(cfg.profiles[0].inputs.len(), SLOT_COUNT);
+
+        cfg.profiles.clear();
+        sanitize(&mut cfg);
+        assert_eq!(cfg.profiles.len(), 1);
+    }
+
+    #[test]
+    fn current_json_without_behavior_migrates_without_changing_execution() {
+        let original = AppConfig::default();
+        let mut json = serde_json::to_value(&original).expect("serialize");
+        for profile in json["profiles"].as_array_mut().expect("profiles") {
+            for input in profile["inputs"].as_array_mut().expect("inputs") {
+                input.as_object_mut().expect("input").remove("behavior");
+            }
+        }
+        let mut parsed: AppConfig = serde_json::from_value(json).expect("old current schema");
+        let before: Vec<(Slot, Action, String, String)> = parsed.profiles[0]
+            .inputs
+            .iter()
+            .map(|input| {
+                (
+                    input.emitted,
+                    input.action.clone(),
+                    input.label.clone(),
+                    input.icon.clone(),
+                )
+            })
+            .collect();
+
+        sanitize(&mut parsed);
+
+        let after: Vec<(Slot, Action, String, String)> = parsed.profiles[0]
+            .inputs
+            .iter()
+            .map(|input| {
+                (
+                    input.emitted,
+                    input.action.clone(),
+                    input.label.clone(),
+                    input.icon.clone(),
+                )
+            })
+            .collect();
+        assert_eq!(before, after, "migration must only add advisory metadata");
+        assert_eq!(
+            parsed.profiles[0].inputs[0].behavior,
+            Some(ControlBehavior::Keystroke)
+        );
+        assert_eq!(
+            parsed.profiles[0].inputs[SLOT_TOUCH_TAP].behavior,
+            Some(ControlBehavior::MacOs {
+                command: MacOsControl::PlayPause
+            })
+        );
+        assert_eq!(
+            parsed.profiles[0].inputs[SLOT_TOUCH_SWIPE_L],
+            original.profiles[0].inputs[SLOT_TOUCH_SWIPE_L]
+        );
+        assert_eq!(
+            parsed.profiles[0].inputs[SLOT_TOUCH_SWIPE_R],
+            original.profiles[0].inputs[SLOT_TOUCH_SWIPE_R]
+        );
+    }
+
+    #[test]
+    fn ambiguous_legacy_automation_stays_an_existing_setup() {
+        let mut cfg = AppConfig::default();
+        let input = &mut cfg.profiles[0].inputs[0];
+        input.behavior = None;
+        input.action = Action::Macro {
+            steps: vec![MacroStep::Delay { ms: 10 }.into()],
+        };
+        let before = input.clone();
+        sanitize(&mut cfg);
+        assert_eq!(cfg.profiles[0].inputs[0], before);
+        assert_eq!(cfg.profiles[0].inputs[0].behavior, None);
+    }
+
+    #[test]
+    fn roundtrip_and_merge() {
+        let cfg = AppConfig::default();
+        let text = serde_json::to_string_pretty(&cfg).unwrap();
+        let back = parse_any(&text).expect("new schema roundtrips");
+        assert_eq!(back.profiles, cfg.profiles);
+        assert_eq!(back.theme, cfg.theme);
+        assert_eq!(back.activity_status_colors, cfg.activity_status_colors);
+
+        let mut into = AppConfig::default();
+        let name = unique_name(&into.profiles, "Codex");
+        assert_eq!(name, "Codex (imported)");
+        into.profiles.push(Profile {
+            name,
+            ..default_codex_profile()
+        });
+        assert_eq!(unique_name(&into.profiles, "Codex"), "Codex (imported 2)");
+    }
+
+    #[test]
+    fn current_json_without_status_colours_uses_runtime_defaults() {
+        let mut json = serde_json::to_value(AppConfig::default()).expect("serialize");
+        json.as_object_mut()
+            .expect("config object")
+            .remove("activity_status_colors");
+        let parsed: AppConfig = serde_json::from_value(json).expect("old current schema");
+        assert_eq!(
+            parsed.activity_status_colors,
+            ActivityStatusColors::default()
+        );
+    }
+
+    #[test]
+    fn codex_only_status_colour_key_migrates_to_generic_name() {
+        let mut json = serde_json::to_value(AppConfig::default()).expect("serialize");
+        let object = json.as_object_mut().expect("config object");
+        let mut colors = object
+            .remove("activity_status_colors")
+            .expect("status colours");
+        colors["working"] = serde_json::json!({ "mode": "solid", "r": 17, "g": 34, "b": 51 });
+        object.insert("codex_status_colors".into(), colors);
+
+        let parsed: AppConfig = serde_json::from_value(json).expect("Codex-only config");
+        assert_eq!(
+            parsed.activity_status_colors.working,
+            LedPattern::Solid {
+                r: 17,
+                g: 34,
+                b: 51,
+            }
+        );
+
+        let serialized = serde_json::to_value(parsed).expect("serialize migrated config");
+        let object = serialized.as_object().expect("config object");
+        assert!(object.contains_key("activity_status_colors"));
+        assert!(!object.contains_key("codex_status_colors"));
+    }
+
+    #[test]
+    fn simple_icon_namespace_roundtrips_without_changing_device_slots() {
+        let mut cfg = AppConfig::default();
+        cfg.profiles[0].inputs[0].icon = "simple:github".into();
+        let device_slots = cfg.profiles[0].slots();
+
+        let text = serde_json::to_string_pretty(&cfg).expect("serialize config");
+        let parsed = parse_any(&text).expect("parse config");
+
+        assert_eq!(parsed.profiles[0].inputs[0].icon, "simple:github");
+        assert_eq!(parsed.profiles[0].slots(), device_slots);
+    }
+}

@@ -1,0 +1,3 @@
+export function Arrow({down=false}:{down?:boolean}) {return <span aria-hidden="true" className={down?'arrow down':'arrow'}>↗</span>}
+export function SectionLabel({n,label}:{n:string;label:string}){return <div className="section-label"><span className="mono">{n} / {label}</span><span className="section-rule"/><span className="section-cross" aria-hidden="true">+</span></div>}
+export function ExternalLink({href,children,className=''}:{href:string;children:React.ReactNode;className?:string}){return <a className={className} href={href} target="_blank" rel="noopener noreferrer">{children}<Arrow/></a>}

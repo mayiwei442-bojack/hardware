@@ -1,0 +1,8 @@
+'use client';
+import {useState} from 'react';
+import {keyLabels} from '@/data/product';
+import type {InputController} from '@/lib/three/controller';
+export default function InputPanel({inputs}:{inputs:InputController}){
+ const [pressed,setPressed]=useState('');const press=(key:string)=>{setPressed(key);inputs.onKeyPress(key)};
+ return <div className="input-panel"><div className="between mono input-caption"><span>输入 / 二维控制面板</span><span>点击试用</span></div><div className="key-grid">{keyLabels.map((label,i)=>{const id=`K${String(i+1).padStart(2,'0')}`;return <button key={id} className={pressed===id?'last-pressed':''} onClick={()=>press(id)} aria-label={`${id} ${label}`}><small>{id}</small><span>{label}</span></button>})}</div><div className="analog-controls"><div><span className="mono">旋转编码器</span><div className="encoder-buttons"><button aria-label="旋钮逆时针" onClick={()=>inputs.onEncoderRotate(-5)}>−</button><span aria-hidden="true">↻</span><button aria-label="旋钮顺时针" onClick={()=>inputs.onEncoderRotate(5)}>+</button></div></div><div><span className="mono">模拟摇杆</span><div className="dpad"><button aria-label="摇杆左" onClick={()=>inputs.onJoystickMove(-1,0)}>←</button><button aria-label="摇杆上" onClick={()=>inputs.onJoystickMove(0,-1)}>↑</button><button aria-label="摇杆下" onClick={()=>inputs.onJoystickMove(0,1)}>↓</button><button aria-label="摇杆右" onClick={()=>inputs.onJoystickMove(1,0)}>→</button></div></div><div><span className="mono">触摸板</span><button className="touch-button" onClick={()=>inputs.onTouchPadAction('tap')} aria-label="轻触触摸板"><span aria-hidden="true">◎</span> 轻触</button></div></div></div>;
+}

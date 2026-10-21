@@ -3,10 +3,10 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 P=pathlib.Path(r'C:\Users\myw\Documents\ChatGPT\硬件\modeling');D=P/'acid_alloy'
 sys.path.insert(0,str(P/'tools'));import openmicro_controls as ui
-assert pathlib.Path(bpy.data.filepath)==P/'assets/OpenMicroKbd_AcidAlloy.blend'
+assert pathlib.Path(bpy.data.filepath)==P/'assets/MacroPad_AcidAlloy.blend'
 ui.set_demo(bpy.context,False);bpy.context.scene.frame_set(1);bpy.ops.omk.reset_controls();bpy.context.view_layer.update()
 base=json.loads((D/'baseline.json').read_text())
-report={'source_unchanged':hashlib.sha256((P/'assets/OpenMicroKbd.blend').read_bytes()).hexdigest()==base['source_sha256'],
+report={'source_unchanged':hashlib.sha256((P/'assets/MacroPad.blend').read_bytes()).hexdigest()==base['source_sha256'],
         'missing_original_objects':sorted(set(base['objects'])-set(bpy.data.objects.keys())),
         'added_objects':sorted(set(bpy.data.objects.keys())-set(base['objects'])),
         'reparented_original_objects':[],'changed_original_meshes':[],

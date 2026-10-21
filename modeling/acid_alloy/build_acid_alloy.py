@@ -3,7 +3,7 @@ from mathutils import Vector, Matrix
 from mathutils.bvhtree import BVHTree
 
 P=pathlib.Path(r'C:\Users\myw\Documents\ChatGPT\硬件\modeling')
-D=P/'acid_alloy';TARGET=P/'assets/OpenMicroKbd_AcidAlloy.blend'
+D=P/'acid_alloy';TARGET=P/'assets/MacroPad_AcidAlloy.blend'
 assert pathlib.Path(bpy.data.filepath)==TARGET
 assert 'AA_CoverPanel' not in bpy.data.objects, 'Already built; inspect before repeating'
 sys.path.insert(0,str(P/'tools'))

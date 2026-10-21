@@ -13,7 +13,7 @@
 
 - 已建立 `OMK_ROOT`、外壳/PCB/按键/控件/电子/LED/紧固件/控制/工作室/源参考集合。
 - 正式网格 `Housing_Shell_V1` 直接复制源外壳三角网格，记录尺寸和源文件；参考对象隐藏保留。
-- 保存主文件 `assets/OpenMicroKbd.blend`，断点 `checkpoints/batch_01_formal_housing.blend`。当前场景无外部贴图依赖。
+- 保存主文件 `assets/MacroPad.blend`，断点 `checkpoints/batch_01_formal_housing.blend`。当前场景无外部贴图依赖。
 
 ## 视觉检查
 

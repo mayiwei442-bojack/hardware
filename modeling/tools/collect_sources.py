@@ -3,7 +3,7 @@ import csv, hashlib, json, pathlib, re, zipfile
 import xml.etree.ElementTree as ET
 
 ROOT=pathlib.Path(__file__).resolve().parents[2]
-REPO=ROOT/'openmicrokbd-review'
+REPO=ROOT/'device'
 OUT=ROOT/'modeling/references'
 OUT.mkdir(parents=True,exist_ok=True)
 

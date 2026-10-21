@@ -1,5 +1,15 @@
 *.blend1
 *.blend2
-modeling/assets/OpenMicroKbd_AcidAlloy_before_keyprints.blend
+modeling/assets/*_before_keyprints.blend
 __pycache__/
 .DS_Store
+node_modules/
+.next/
+*.tsbuildinfo
+.env*
+!.env.example
+*.log
+*.err
+modeling/automation/*.lock
+modeling/automation/keep-awake.json
+modeling/automation/scheduler_state.json
