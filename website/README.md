@@ -51,6 +51,8 @@ npm run test:e2e
 
 ## 项目文件
 
+制作流程已加入 PCB 工艺配置、SMT 物料匹配与贴装预览、可拆装的手工配装工作台，以及支持断线重试的固件烧录演示。交互说明、数据来源及演示边界见 [制作工作台说明](docs/build-lab.md)。
+
 制造文件和打印模型链接指向本仓库的 `device/` 目录。预编译固件已归档到本仓库。
 
 `public/assets/keyboard-exploded.glb` 为约 2.86 MB 的压缩解构模型。`public/downloads/keyboard-*`、`keyboardKbkCase.3mf` 与本仓库制造资料同步，键帽等 STL 使用 `acid-alloy-*` 命名。导出脚本位于 `modeling/tools/export_hardware_web.py`，源文件现名为 `modeling/assets/MacroPad_AcidAlloy.blend`。
