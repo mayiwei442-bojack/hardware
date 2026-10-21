@@ -28,7 +28,7 @@ use std::path::PathBuf;
 use std::sync::mpsc;
 use std::time::{Duration, Instant};
 
-use openmicro_layout::{
+use keyboard_layout::{
     op, status, u32_at, validate_app, AppHeader, BootInfo, BootInfoReply, Validity, BOOT_PROTOCOL,
     DATA_BASE, ENTER_BOOT_KEY, FLASH_BASE, FLASH_SIZE, HEADER_OFFSET, PAGE_SIZE, RESET_OFFSET,
 };
@@ -54,14 +54,14 @@ const RAW_USAGE_PAGE: u16 = 0xFF60;
 /// `SET_MODE`). Changing it restarts the pad under the other identity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DeviceMode {
-    OpenMicro,
+    Keyboard,
     Codex,
 }
 
 impl DeviceMode {
     fn from_wire(byte: u8) -> Option<Self> {
         match byte {
-            0 => Some(Self::OpenMicro),
+            0 => Some(Self::Keyboard),
             1 => Some(Self::Codex),
             _ => None,
         }
@@ -69,7 +69,7 @@ impl DeviceMode {
 
     fn to_wire(self) -> u8 {
         match self {
-            Self::OpenMicro => 0,
+            Self::Keyboard => 0,
             Self::Codex => 1,
         }
     }
@@ -78,7 +78,7 @@ impl DeviceMode {
 impl std::fmt::Display for DeviceMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
-            Self::OpenMicro => "OpenMicro",
+            Self::Keyboard => "keyboard",
             Self::Codex => "Codex Micro compat",
         })
     }
@@ -1366,7 +1366,7 @@ pub fn plan_update(image: &ImageKind, pads: &PadTopology) -> Result<UpdatePlan, 
     let any_pad = pads.app_pad.is_some() || !pads.boot_pads.is_empty();
     if pads.dfu_devices > 0 && any_pad {
         return Err(
-            "an OpenMicro pad and a separate STM32 DFU device are both connected; disconnect the unrelated DFU device"
+            "an keyboard pad and a separate STM32 DFU device are both connected; disconnect the unrelated DFU device"
                 .into(),
         );
     }
@@ -1424,12 +1424,12 @@ pub fn plan_update(image: &ImageKind, pads: &PadTopology) -> Result<UpdatePlan, 
         ImageKind::AppOnly { .. } => match (app_pad, boot_pad, dfu) {
             (Some((serial, Some(pad))), _, _) => hid(true, serial, Some(pad)),
             (Some((_, None)), _, _) => Err(
-                "this is an application-only image and the connected pad has no bootloader (firmware 0.9.0 or older): install a combined openmicro-fw image first"
+                "this is an application-only image and the connected pad has no bootloader (firmware 0.9.0 or older): install a combined keyboard-fw image first"
                     .into(),
             ),
             (None, Some(serial), _) => hid(false, serial, None),
             (None, None, true) => Err(
-                "this is an application-only image; flashing it through ROM DFU would overwrite the bootloader — use a combined openmicro-fw image"
+                "this is an application-only image; flashing it through ROM DFU would overwrite the bootloader — use a combined keyboard-fw image"
                     .into(),
             ),
             (None, None, false) => Err(not_found_message()),
@@ -1513,7 +1513,7 @@ fn run_update(api: &mut HidApi, image_path: &PathBuf, expected_version: Option<&
             || !(0x0800_0000..0x0801_F800).contains(&rv)
         {
             return fail(format!(
-                "not an OpenMicro firmware image (SP={sp:08x} RV={rv_raw:08x}) — expected a Thumb vector table for 0x08000000"
+                "not an keyboard firmware image (SP={sp:08x} RV={rv_raw:08x}) — expected a Thumb vector table for 0x08000000"
             ));
         }
     }
@@ -1907,7 +1907,7 @@ fn wait_for_app(api: &mut HidApi, expected_version: Option<&str>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openmicro_layout::{
+    use keyboard_layout::{
         app_header_bytes, app_valid, boot_info_bytes, stamp_app, version_bytes, APP_BASE, APP_SIZE,
         BOOT_SIZE, RAM_END, VARIANT_PROD,
     };

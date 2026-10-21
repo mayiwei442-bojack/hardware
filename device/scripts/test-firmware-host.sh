@@ -59,7 +59,7 @@ run() {
 # exit the subshell explicitly.
 assembly_dry_run() {
     local work
-    work="$(mktemp -d "${TMPDIR:-/tmp}/openmicro-assembly.XXXXXX")"
+    work="$(mktemp -d "${TMPDIR:-/tmp}/keyboard-assembly.XXXXXX")"
     local rc=0
     (
         must() {  # must DESCRIPTION cmd args...
@@ -86,11 +86,11 @@ assembly_dry_run() {
         # Production pair.
         must "synth prod" python3 scripts/fw-image.py synth --out "$work/prod" --variant 0 --boot-version 1.0.0 --fw-version 0.10.0 --quiet
         must "assemble prod" assemble_firmware_image "$work/prod/boot.bin" "$work/prod/app.bin" \
-            "$work/out/openmicro-fw-0.10.0.bin" "$work/out/openmicro-fw-0.10.0.hex" \
+            "$work/out/keyboard-fw-0.10.0.bin" "$work/out/keyboard-fw-0.10.0.hex" \
             0.10.0 1.0.0 0 "$work/w-prod" > "$work/prod.log"
-        must "combined .bin written" test -s "$work/out/openmicro-fw-0.10.0.bin"
-        must "combined .hex written" test -s "$work/out/openmicro-fw-0.10.0.hex"
-        must "combined image verifies" python3 scripts/fw-image.py verify "$work/out/openmicro-fw-0.10.0.bin" --quiet
+        must "combined .bin written" test -s "$work/out/keyboard-fw-0.10.0.bin"
+        must "combined .hex written" test -s "$work/out/keyboard-fw-0.10.0.hex"
+        must "combined image verifies" python3 scripts/fw-image.py verify "$work/out/keyboard-fw-0.10.0.bin" --quiet
         must "layout summary printed" grep -q '^Layout:' "$work/prod.log"
         must "stamped app kept in the work dir" test -s "$work/w-prod/app-stamped.bin"
         # The stamped application stays in the work dir, never next to the outputs.
@@ -102,7 +102,7 @@ assembly_dry_run() {
         # Prototype pair, expected variant 1.
         must "synth proto" python3 scripts/fw-image.py synth --out "$work/proto" --variant 1 --quiet
         must "assemble proto" assemble_firmware_image "$work/proto/boot.bin" "$work/proto/app.bin" \
-            "$work/out/openmicro-fw-0.10.0-proto.bin" "$work/out/openmicro-fw-0.10.0-proto.hex" \
+            "$work/out/keyboard-fw-0.10.0-proto.bin" "$work/out/keyboard-fw-0.10.0-proto.hex" \
             0.10.0 1.0.0 1 "$work/w-proto" > /dev/null
 
         # Refusals, each with a fresh work dir like the real build's mktemp.

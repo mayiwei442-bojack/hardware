@@ -9,7 +9,7 @@
     "06_materials_interaction_exploded_rig",
     "07_demo_reopen_visual_acceptance_delivery"
   ],
-  "next_action": "交付完成；在Blender打开主文件，N侧栏选择OpenMicroKbd。",
+  "next_action": "交付完成；在Blender打开主文件，N侧栏选择keyboard。",
   "known_issues": [],
   "render_paths": [
     "modeling/renders/batch_01_source_top.png",

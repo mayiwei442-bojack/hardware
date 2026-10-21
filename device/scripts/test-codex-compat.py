@@ -11,7 +11,7 @@ second row, while plugging in; or toggle it in the app's Settings), then:
     python3 -m pip install hidapi   # once
     python3 scripts/test-codex-compat.py
 
-The OpenMicro app may stay running: it holds the 0xFF60 interface, this
+The keyboard app may stay running: it holds the 0xFF60 interface, this
 script only opens the 0xFF00 one. QUIT THE CODEX / CHATGPT DESKTOP APP
 FIRST: it grabs the 0xFF00 interface exclusively as soon as the pad
 appears, so either it or this script gets the device, never both. After the RPC checks it listens for
@@ -137,7 +137,7 @@ def main():
     r = rpc(dev, asm, "sys.version", {}, 4241)
     version = r.get("result", {}).get("version", "")
     check("sys.version replies", bool(version), f"version={version!r}")
-    check("version is the openmicro build", version.endswith("-openmicro"), version)
+    check("version is the keyboard build", version.endswith("-keyboard"), version)
 
     r = rpc(dev, asm, "device.status", {}, 4242)
     res = r.get("result", {})
@@ -198,7 +198,7 @@ def main():
             break
     check("keymap.json reassembles and parses", bool(buf) and json.loads(buf.decode()).get("profiles") is not None, f"{len(buf)} bytes")
     check("keymap.json checksum matches fs.list", hashlib.sha1(buf).hexdigest() == files.get("keymap.json", {}).get("checksum"))
-    sa = json.dumps({"version": 1, "smartActions": {"SA_0": {"name": "t", "type": "URL_STEP", "payload": {"url": "https://openmicrokbd.org"}}}, "smartActionGroups": []}).encode()
+    sa = json.dumps({"version": 1, "smartActions": {"SA_0": {"name": "t", "type": "URL_STEP", "payload": {"url": "https://github.com/mayiwei442-bojack/hardware"}}}, "smartActionGroups": []}).encode()
     b64 = base64.b64encode(sa).decode()
     r = rpc(dev, asm, "fs.writebin", {"file": "smart_actions.json", "data": b64, "append": True, "completed": True, "offset": 0}, 4252, timeout_s=4.0)
     check("fs.writebin stores smart_actions.json", r.get("result", {}).get("data_written") == len(sa), json.dumps(r))

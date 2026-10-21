@@ -7,7 +7,7 @@ D=P/'acid_alloy';TARGET=P/'assets/MacroPad_AcidAlloy.blend'
 assert pathlib.Path(bpy.data.filepath)==TARGET
 assert 'AA_CoverPanel' not in bpy.data.objects, 'Already built; inspect before repeating'
 sys.path.insert(0,str(P/'tools'))
-import openmicro_controls as ui
+import keyboard_controls as ui
 ui.set_demo(bpy.context,False);bpy.context.scene.frame_set(1);bpy.ops.omk.reset_controls()
 baseline_names=set(bpy.data.objects.keys())
 
@@ -89,7 +89,7 @@ for num in range(3,16):
         glyph.data.update()
 
 # Change only the exterior of the existing knob; shaft/socket geometry is retained.
-knob=bpy.data.objects['OpenMicroRotator_SourceMesh']
+knob=bpy.data.objects['keyboardRotator_SourceMesh']
 for v in knob.data.vertices:
     x,y,z=v.co;r=math.hypot(x,y)
     if r>5.8 and z>3:
@@ -98,7 +98,7 @@ for v in knob.data.vertices:
         factor=min(1,(r-5.8)/.9)*min(1,(z-3)/4)
         rr=r*(1-factor)+target*factor;v.co.x=x*rr/r;v.co.y=y*rr/r
 knob.data.update();assign(knob,silver);project_uv(knob,0,0,15,15,top_only=True)
-joy=bpy.data.objects['OpenMicroJoystickCap_SourceMesh'];assign(joy,purple);project_uv(joy,0,0,18,18,top_only=True)
+joy=bpy.data.objects['keyboardJoystickCap_SourceMesh'];assign(joy,purple);project_uv(joy,0,0,18,18,top_only=True)
 
 # One new connected cover, including its integral perimeter return.
 def loop(w,h,r,z,cx=0,cy=0,n=16):

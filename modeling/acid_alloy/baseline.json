@@ -1,6 +1,6 @@
 {
   "source_sha256": "4d327af6f6243a7e968475b985ccae283e2eb01dc4df83f329b9bfe14f7883d0",
-  "source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\modeling\\assets\\OpenMicroKbd.blend",
+  "source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\modeling\\assets\\keyboard.blend",
   "objects": {
     "AUDIT_Bottom": {
       "type": "CAMERA",
@@ -22541,7 +22541,7 @@
         ]
       ]
     },
-    "OpenMicroJoystickCap_SourceMesh": {
+    "keyboardJoystickCap_SourceMesh": {
       "type": "MESH",
       "parent": "Joystick_CapDetach",
       "mesh_hash": "85c9bdb062bacbeb1ecfa9c63beabfff445bf5c34ca966d5c4bd8e273a96f05b",
@@ -22574,7 +22574,7 @@
         ]
       ]
     },
-    "OpenMicroRotator_SourceMesh": {
+    "keyboardRotator_SourceMesh": {
       "type": "MESH",
       "parent": "Encoder_KnobDetach",
       "mesh_hash": "9a5f4dacbf6486739ea1e389ca8016a4f070f4ee8ac955e3f34d96f90cd33986",
@@ -24323,7 +24323,7 @@
         ]
       ]
     },
-    "SRC_Case_OpenMicroKbkCase": {
+    "SRC_Case_keyboardKbkCase": {
       "type": "MESH",
       "parent": null,
       "mesh_hash": "2401e4ff292a20855af6fade4047593aa9c88194365b0c6ac17ccc64f9472629",
@@ -24356,7 +24356,7 @@
         ]
       ]
     },
-    "SRC_JoystickCap_OpenMicroJoystickCap": {
+    "SRC_JoystickCap_keyboardJoystickCap": {
       "type": "MESH",
       "parent": null,
       "mesh_hash": "85c9bdb062bacbeb1ecfa9c63beabfff445bf5c34ca966d5c4bd8e273a96f05b",
@@ -24389,7 +24389,7 @@
         ]
       ]
     },
-    "SRC_Knob_OpenMicroRotator": {
+    "SRC_Knob_keyboardRotator": {
       "type": "MESH",
       "parent": null,
       "mesh_hash": "9a5f4dacbf6486739ea1e389ca8016a4f070f4ee8ac955e3f34d96f90cd33986",

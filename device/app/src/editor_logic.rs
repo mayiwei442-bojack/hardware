@@ -411,7 +411,7 @@ impl ActionKind {
             Self::Run => "Run command",
             Self::Open => "Open file or URL",
             Self::Media => "Host media control",
-            Self::AppSettings => "Open OpenMicro settings",
+            Self::AppSettings => "Open keyboard settings",
         }
     }
 }

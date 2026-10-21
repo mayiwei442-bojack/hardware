@@ -1,5 +1,5 @@
 /* ============================================================
-   OPEN MICRO KBD — page behaviour
+   KEYBOARD — page behaviour
    Vanilla JS, no deps.
    Modules below are IIFE-scoped and independent of each other.
    ============================================================ */
@@ -448,7 +448,7 @@
     }
 
     var TITLES = {
-      idle:    'OPEN MICRO KBD · READY',
+      idle:    'KEYBOARD · READY',
       voice:   'VOICE KEY · REC',
       knob:    'ENCODER · EFFORT',
       joy:     'THE STICK · ANALOG',
@@ -915,7 +915,7 @@
       // needs to talk to the player
       frame.src = 'https://www.youtube-nocookie.com/embed/' + VIDEO_ID +
                   '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
-      frame.title = 'OpenMicroKbd — the film';
+      frame.title = 'keyboard — the film';
       frame.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.referrerPolicy = 'strict-origin-when-cross-origin';
       frame.allowFullscreen = true;

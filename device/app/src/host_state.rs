@@ -11,7 +11,7 @@ use std::path::PathBuf;
 use std::sync::mpsc::Sender;
 use std::time::Duration;
 
-use openmicro_layout::BootInfoReply;
+use keyboard_layout::BootInfoReply;
 
 use crate::actions;
 use crate::behaviors;
@@ -258,7 +258,7 @@ impl HostState {
     fn current_profile_mode(&self) -> ProfileMode {
         match self.device_mode {
             Some(DeviceMode::Codex) => ProfileMode::CodexMicro,
-            _ => ProfileMode::OpenMicro,
+            _ => ProfileMode::Keyboard,
         }
     }
 
@@ -278,12 +278,12 @@ impl HostState {
         let original_len = self.config.profiles.len();
         if let Some(profile) = self.config.profiles.get(original) {
             match profile.mode {
-                ProfileMode::OpenMicro => self.config.active_openmicro_profile = Some(original),
+                ProfileMode::Keyboard => self.config.active_keyboard_profile = Some(original),
                 ProfileMode::CodexMicro => self.config.active_codex_profile = Some(original),
             }
         }
         let remembered = match mode {
-            ProfileMode::OpenMicro => self.config.active_openmicro_profile,
+            ProfileMode::Keyboard => self.config.active_keyboard_profile,
             ProfileMode::CodexMicro => self.config.active_codex_profile,
         };
         if let Some(index) = remembered.filter(|index| {
@@ -307,8 +307,8 @@ impl HostState {
             self.config.active_profile = self.config.profiles.len() - 1;
         }
         match mode {
-            ProfileMode::OpenMicro => {
-                self.config.active_openmicro_profile = Some(self.config.active_profile)
+            ProfileMode::Keyboard => {
+                self.config.active_keyboard_profile = Some(self.config.active_profile)
             }
             ProfileMode::CodexMicro => {
                 self.config.active_codex_profile = Some(self.config.active_profile)
@@ -426,7 +426,7 @@ impl HostState {
         }
         self.config.active_profile = index;
         match self.current_profile_mode() {
-            ProfileMode::OpenMicro => self.config.active_openmicro_profile = Some(index),
+            ProfileMode::Keyboard => self.config.active_keyboard_profile = Some(index),
             ProfileMode::CodexMicro => self.config.active_codex_profile = Some(index),
         }
         let _ = self.persist();
@@ -1081,7 +1081,7 @@ mod tests {
     #[test]
     fn device_modes_keep_separate_active_profiles() {
         let mut host = state();
-        let openmicro_profile = host.config.active_profile;
+        let keyboard_profile = host.config.active_profile;
 
         host.handle_event(AppEvent::Device(DeviceMsg::Connected {
             version: "0.10.1".into(),
@@ -1090,32 +1090,32 @@ mod tests {
             boot: None,
         }));
         let codex_profile = host.config.active_profile;
-        assert_ne!(codex_profile, openmicro_profile);
+        assert_ne!(codex_profile, keyboard_profile);
         assert_eq!(host.active_profile().mode, ProfileMode::CodexMicro);
 
         host.handle_event(AppEvent::Device(DeviceMsg::Connected {
             version: "0.10.1".into(),
             serial: "TEST".into(),
-            mode: Some(DeviceMode::OpenMicro),
+            mode: Some(DeviceMode::Keyboard),
             boot: None,
         }));
-        assert_eq!(host.config.active_profile, openmicro_profile);
-        assert_eq!(host.active_profile().mode, ProfileMode::OpenMicro);
+        assert_eq!(host.config.active_profile, keyboard_profile);
+        assert_eq!(host.active_profile().mode, ProfileMode::Keyboard);
     }
 
     #[test]
     fn profiles_cannot_be_switched_across_device_modes() {
         let mut host = state();
-        let openmicro_profile = host.add_profile(config::ProfileTemplate::Empty);
-        assert_eq!(host.config.profiles[openmicro_profile].mode, ProfileMode::OpenMicro);
+        let keyboard_profile = host.add_profile(config::ProfileTemplate::Empty);
+        assert_eq!(host.config.profiles[keyboard_profile].mode, ProfileMode::Keyboard);
 
         host.device_mode = Some(DeviceMode::Codex);
         host.select_profile_for_current_mode();
         let codex_profile = host.add_profile(config::ProfileTemplate::Empty);
         assert_eq!(host.config.profiles[codex_profile].mode, ProfileMode::CodexMicro);
-        assert!(!host.switch_profile(openmicro_profile));
+        assert!(!host.switch_profile(keyboard_profile));
 
-        host.device_mode = Some(DeviceMode::OpenMicro);
+        host.device_mode = Some(DeviceMode::Keyboard);
         host.select_profile_for_current_mode();
         assert!(!host.switch_profile(codex_profile));
     }
@@ -1129,7 +1129,7 @@ mod tests {
         };
         ReleaseCatalog {
             schema: 1,
-            product: "openmicrokbd".into(),
+            product: "keyboard".into(),
             release_url: "https://example.com/release".into(),
             app: AppRelease {
                 version: app_version.into(),
@@ -1141,7 +1141,7 @@ mod tests {
             },
             firmware: FirmwareRelease {
                 version: firmware_version.into(),
-                board: "openmicro-stm32f072cb".into(),
+                board: "keyboard-stm32f072cb".into(),
                 protocol: 2,
                 bootloader_version: None,
                 layout: None,
@@ -1159,10 +1159,10 @@ mod tests {
             status: 0,
             protocol: 1,
             boot_version: [1, 0, 0],
-            app_base: openmicro_layout::APP_BASE,
-            app_size: openmicro_layout::APP_SIZE,
+            app_base: keyboard_layout::APP_BASE,
+            app_size: keyboard_layout::APP_SIZE,
             app_valid,
-            app_version: openmicro_layout::version_bytes("0.10.0"),
+            app_version: keyboard_layout::version_bytes("0.10.0"),
             page: Some(2048),
             max_chunk: Some(56),
         }
@@ -1173,7 +1173,7 @@ mod tests {
         let mut host = state();
         assert!(host.bootloader.is_none());
 
-        let info = boot_info(openmicro_layout::app_valid::NONE);
+        let info = boot_info(keyboard_layout::app_valid::NONE);
         host.handle_event(AppEvent::Device(DeviceMsg::BootloaderPresent {
             serial: "ABC".into(),
             info: Ok(info),
@@ -1218,8 +1218,8 @@ mod tests {
         host.handle_event(AppEvent::Device(DeviceMsg::Connected {
             version: "0.10.0".into(),
             serial: "ABC".into(),
-            mode: Some(DeviceMode::OpenMicro),
-            boot: Some(boot_info(openmicro_layout::app_valid::VALID)),
+            mode: Some(DeviceMode::Keyboard),
+            boot: Some(boot_info(keyboard_layout::app_valid::VALID)),
         }));
         assert!(host.bootloader.is_none());
         assert!(host.connected);
@@ -1240,7 +1240,7 @@ mod tests {
         host.device_tx = Some(tx);
         host.handle_event(AppEvent::Device(DeviceMsg::BootloaderPresent {
             serial: "ABC".into(),
-            info: Ok(boot_info(openmicro_layout::app_valid::VALID)),
+            info: Ok(boot_info(keyboard_layout::app_valid::VALID)),
         }));
         assert!(host.start_firmware_update(PathBuf::from("fw.bin"), Some("0.11.0".into())));
         assert!(matches!(rx.try_recv(), Ok(DeviceCmd::StartUpdate { .. })));
@@ -1255,12 +1255,12 @@ mod tests {
             .is_some_and(|e| e.contains("CRC")));
         host.handle_event(AppEvent::Device(DeviceMsg::BootloaderPresent {
             serial: "ABC".into(),
-            info: Ok(boot_info(openmicro_layout::app_valid::NONE)),
+            info: Ok(boot_info(keyboard_layout::app_valid::NONE)),
         }));
         let pad = host.bootloader.as_ref().expect("still in bootloader mode");
         assert_eq!(
             pad.info.as_ref().map(|info| info.app_valid),
-            Ok(openmicro_layout::app_valid::NONE)
+            Ok(keyboard_layout::app_valid::NONE)
         );
         // The error stays visible on the card next to the fresh state.
         assert!(host.update_error.is_some());
@@ -1272,7 +1272,7 @@ mod tests {
         host.handle_event(AppEvent::Device(DeviceMsg::Connected {
             version: "0.9.0".into(),
             serial: "OLD".into(),
-            mode: Some(DeviceMode::OpenMicro),
+            mode: Some(DeviceMode::Keyboard),
             boot: None,
         }));
         assert!(host.connected);
@@ -1656,7 +1656,7 @@ mod tests {
         }));
         assert_eq!(host.app_download_progress, 1.0);
 
-        let path = PathBuf::from("OpenMicro.dmg");
+        let path = PathBuf::from("keyboard.dmg");
         let effects = host.handle_event(AppEvent::Release(ReleaseMsg::DownloadReady {
             kind: DownloadKind::App,
             version: "1.2.3".into(),

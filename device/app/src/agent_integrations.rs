@@ -2,7 +2,7 @@
 //!
 //! Agent configuration is external state, not part of [`crate::config::AppConfig`].
 //! The Settings UI derives status from the target files each time it opens and
-//! installs only OpenMicro-owned hook entries or plugin scripts. Existing
+//! installs only keyboard-owned hook entries or plugin scripts. Existing
 //! configuration is parsed structurally, backed up, and replaced atomically.
 
 use std::collections::HashSet;
@@ -15,19 +15,19 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 
-const DEFAULT_APP_BINARY: &str = "/Applications/OpenMicro.app/Contents/MacOS/OpenMicro";
-const MANAGED_MARKER: &str = "// Managed by OpenMicro Settings. Remove this line before editing; marked files may be replaced on update.";
-const SHELL_MANAGED_MARKER: &str = "# Managed by OpenMicro Settings. Remove this line before editing; marked files may be replaced on update.";
-const BATCH_MANAGED_MARKER: &str = "REM Managed by OpenMicro Settings. Remove this line before editing; marked files may be replaced on update.";
+const DEFAULT_APP_BINARY: &str = "/Applications/keyboard.app/Contents/MacOS/keyboard";
+const MANAGED_MARKER: &str = "// Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.";
+const SHELL_MANAGED_MARKER: &str = "# Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.";
+const BATCH_MANAGED_MARKER: &str = "REM Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.";
 const LEGACY_MANAGED_MARKER: &str =
-    "// Managed by OpenMicro Settings. Local changes may be replaced on update.";
+    "// Managed by keyboard Settings. Local changes may be replaced on update.";
 const LEGACY_SHELL_MANAGED_MARKER: &str =
-    "# Managed by OpenMicro Settings. Local changes may be replaced on update.";
+    "# Managed by keyboard Settings. Local changes may be replaced on update.";
 const MAX_AGENT_CONFIG_BYTES: u64 = 4 * 1024 * 1024;
 const CODEX_TEMPLATE: &str = include_str!("../codex-hooks.example.json");
 const CLAUDE_TEMPLATE: &str = include_str!("../claude-code-hooks.example.json");
 const GROK_TEMPLATE: &str = include_str!("../grok-hooks.example.json");
-const OPENCODE_TEMPLATE: &str = include_str!("../opencode-openmicro.example.ts");
+const OPENCODE_TEMPLATE: &str = include_str!("../opencode-keyboard.example.ts");
 const DEEP_CODE_TEMPLATE: &str = include_str!("../deep-code-notify.example.sh");
 const DEEP_CODE_WINDOWS_TEMPLATE: &str = include_str!("../deep-code-notify.example.cmd");
 
@@ -111,13 +111,13 @@ impl InstallLayout {
         let home =
             dirs::home_dir().ok_or_else(|| "cannot locate the user home directory".to_string())?;
         let executable = env::current_exe()
-            .map_err(|error| format!("cannot locate the OpenMicro executable: {error}"))?;
+            .map_err(|error| format!("cannot locate the keyboard executable: {error}"))?;
         validate_executable(&executable)?;
 
         let executable_text = path_text(&executable)?;
         if cfg!(target_os = "macos") && executable_text.contains("/AppTranslocation/") {
             return Err(
-                "OpenMicro is running from macOS App Translocation; move it to Applications and reopen it before installing hooks"
+                "keyboard is running from macOS App Translocation; move it to Applications and reopen it before installing hooks"
                     .into(),
             );
         }
@@ -129,19 +129,19 @@ impl InstallLayout {
             nonempty_env_path("XDG_CONFIG_HOME")?.unwrap_or_else(|| home.join(".config"));
 
         let deep_code_script = if cfg!(target_os = "windows") {
-            home.join(".deepcode/openmicro-notify.cmd")
+            home.join(".deepcode/keyboard-notify.cmd")
         } else {
-            home.join(".deepcode/openmicro-notify.sh")
+            home.join(".deepcode/keyboard-notify.sh")
         };
 
         Ok(Self {
             executable,
             codex_hooks: codex_home.join("hooks.json"),
             claude_settings: claude_home.join("settings.json"),
-            opencode_plugin: xdg_config.join("opencode/plugins/openmicro.ts"),
+            opencode_plugin: xdg_config.join("opencode/plugins/keyboard.ts"),
             deep_code_settings: home.join(".deepcode/settings.json"),
             deep_code_script,
-            grok_hooks: home.join(".grok/hooks/openmicro.json"),
+            grok_hooks: home.join(".grok/hooks/keyboard.json"),
             octos_defaults: home.join(".octos/profile-defaults.json"),
         })
     }
@@ -163,14 +163,14 @@ impl InstallLayout {
             executable: executable.to_path_buf(),
             codex_hooks: home.join(".codex/hooks.json"),
             claude_settings: home.join(".claude/settings.json"),
-            opencode_plugin: home.join(".config/opencode/plugins/openmicro.ts"),
+            opencode_plugin: home.join(".config/opencode/plugins/keyboard.ts"),
             deep_code_settings: home.join(".deepcode/settings.json"),
             deep_code_script: home.join(if cfg!(target_os = "windows") {
-                ".deepcode/openmicro-notify.cmd"
+                ".deepcode/keyboard-notify.cmd"
             } else {
-                ".deepcode/openmicro-notify.sh"
+                ".deepcode/keyboard-notify.sh"
             }),
-            grok_hooks: home.join(".grok/hooks/openmicro.json"),
+            grok_hooks: home.join(".grok/hooks/keyboard.json"),
             octos_defaults: home.join(".octos/profile-defaults.json"),
         }
     }
@@ -240,7 +240,7 @@ fn inspect(layout: &InstallLayout, kind: IntegrationKind) -> IntegrationReport {
         IntegrationKind::OpenCode => inspect_owned_template(
             &layout.opencode_plugin,
             &render_opencode_plugin(&layout.executable),
-            "const OPENMICRO = ",
+            "const KEYBOARD = ",
         ),
         IntegrationKind::DeepCode => inspect_deep_code(layout),
         IntegrationKind::Octoscode => inspect_octoscode(layout),
@@ -464,7 +464,7 @@ fn apply_writes(writes: Vec<PlannedWrite>) -> Result<(Vec<PathBuf>, Vec<PathBuf>
             Ok(false) => {
                 cleanup_staged(&staged);
                 return Err(format!(
-                    "{} changed while OpenMicro was preparing the installation; nothing was replaced",
+                    "{} changed while keyboard was preparing the installation; nothing was replaced",
                     write.planned.snapshot.logical_path.display()
                 ));
             }
@@ -490,7 +490,7 @@ fn apply_writes(writes: Vec<PlannedWrite>) -> Result<(Vec<PathBuf>, Vec<PathBuf>
             cleanup_staged(&staged[index..]);
             return Err(partial_write_error(
                 format!(
-                    "{} changed before OpenMicro could replace it",
+                    "{} changed before keyboard could replace it",
                     write.planned.snapshot.logical_path.display()
                 ),
                 &changed,
@@ -532,7 +532,7 @@ fn publish_staged(write: &StagedWrite) -> Result<Option<PathBuf>, String> {
         if !matches {
             let recovery = restore_displaced(&backup, &snapshot.resolved_path);
             return Err(format!(
-                "{} changed before OpenMicro could replace it; {recovery}",
+                "{} changed before keyboard could replace it; {recovery}",
                 snapshot.logical_path.display()
             ));
         }
@@ -743,7 +743,7 @@ fn sibling_candidate(
     attempt: u32,
 ) -> PathBuf {
     parent.join(format!(
-        ".{file_name}.openmicro-{purpose}-{}-{seed}-{attempt}",
+        ".{file_name}.keyboard-{purpose}-{}-{seed}-{attempt}",
         std::process::id()
     ))
 }
@@ -984,9 +984,9 @@ fn prune_managed_groups(
     for group in std::mem::take(groups) {
         if is_known_managed_group(&group, event, kind, executable, desired_groups) {
             changed = true;
-        } else if contains_openmicro_hook_candidate(&group, kind, executable) {
+        } else if contains_keyboard_hook_candidate(&group, kind, executable) {
             return Err(format!(
-                "the existing {event} OpenMicro hook was customized; remove it manually before installing"
+                "the existing {event} keyboard hook was customized; remove it manually before installing"
             ));
         } else {
             retained.push(group);
@@ -1032,7 +1032,7 @@ fn normalized_managed_group(
     }
     commands[0].as_object_mut()?.insert(
         "command".into(),
-        Value::String("<OPENMICRO_EXECUTABLE>".into()),
+        Value::String("<KEYBOARD_EXECUTABLE>".into()),
     );
     Some(normalized)
 }
@@ -1055,7 +1055,7 @@ fn legacy_codex_group(event: &str) -> Option<Value> {
     Some(serde_json::json!({ "hooks": [Value::Object(command)] }))
 }
 
-fn contains_openmicro_hook_candidate(
+fn contains_keyboard_hook_candidate(
     group: &Value,
     kind: IntegrationKind,
     executable: &Path,
@@ -1066,7 +1066,7 @@ fn contains_openmicro_hook_candidate(
         .is_some_and(|commands| {
             commands
                 .iter()
-                .any(|command| looks_like_openmicro_hook(command, kind, executable))
+                .any(|command| looks_like_keyboard_hook(command, kind, executable))
         })
 }
 
@@ -1136,7 +1136,7 @@ fn is_managed_hook(command: &Value, kind: IntegrationKind, executable: &Path) ->
     }
 }
 
-fn looks_like_openmicro_hook(command: &Value, kind: IntegrationKind, executable: &Path) -> bool {
+fn looks_like_keyboard_hook(command: &Value, kind: IntegrationKind, executable: &Path) -> bool {
     if is_managed_hook(command, kind, executable) {
         return true;
     }
@@ -1179,7 +1179,7 @@ fn looks_like_openmicro_hook(command: &Value, kind: IntegrationKind, executable:
 
 /// Recognize only the shell grammar emitted by [`shell_word`], followed by
 /// one exact helper invocation. Substring matching here would let an unrelated
-/// command such as `echo openmicro agent-hook codex` be deleted during merge.
+/// command such as `echo keyboard agent-hook codex` be deleted during merge.
 fn managed_shell_invocation(command: &str, executable: &Path, suffixes: &[&str]) -> bool {
     suffixes.iter().any(|suffix| {
         let Some(program) = command.strip_suffix(&format!(" {suffix}")) else {
@@ -1237,16 +1237,16 @@ fn is_managed_binary_path(candidate: &str, executable: &Path) -> bool {
     }
 
     // Recognize stale source-build paths and normal macOS bundle binaries,
-    // while leaving arbitrary wrappers containing "openmicro" untouched.
+    // while leaving arbitrary wrappers containing "keyboard" untouched.
     let file_name = candidate.file_name().and_then(|name| name.to_str());
     if file_name.is_some_and(|name| {
-        name.eq_ignore_ascii_case("openmicro-app")
-            || name.eq_ignore_ascii_case("openmicro-app.exe")
-            || name.eq_ignore_ascii_case("OpenMicro.exe")
+        name.eq_ignore_ascii_case("keyboard-app")
+            || name.eq_ignore_ascii_case("keyboard-app.exe")
+            || name.eq_ignore_ascii_case("keyboard.exe")
     }) {
         return true;
     }
-    file_name == Some("OpenMicro")
+    file_name == Some("keyboard")
         && candidate
             .parent()
             .and_then(Path::file_name)
@@ -1264,11 +1264,11 @@ fn render_opencode_plugin(executable: &Path) -> Result<Vec<u8>, String> {
     replace_declaration(
         OPENCODE_TEMPLATE,
         &format!(
-            "const OPENMICRO = {}",
+            "const KEYBOARD = {}",
             serde_json::to_string(DEFAULT_APP_BINARY).expect("static path is JSON")
         ),
         &format!(
-            "const OPENMICRO = {}",
+            "const KEYBOARD = {}",
             serde_json::to_string(path_text(executable)?)
                 .map_err(|error| format!("cannot quote executable path: {error}"))?
         ),
@@ -1279,21 +1279,21 @@ fn render_deep_code_script(executable: &Path) -> Result<Vec<u8>, String> {
     if cfg!(target_os = "windows") {
         let executable = path_text(executable)?;
         if executable.contains(['"', '\r', '\n']) {
-            return Err("the OpenMicro executable path cannot be represented in a batch file".into());
+            return Err("the keyboard executable path cannot be represented in a batch file".into());
         }
         // Percent signs are expanded by cmd.exe even inside a quoted SET
         // assignment; doubling them preserves a literal percent in a path.
         let executable = executable.replace('%', "%%");
         return replace_declaration(
             DEEP_CODE_WINDOWS_TEMPLATE,
-            "set \"OPENMICRO_BIN=C:\\Program Files\\OpenMicro\\OpenMicro.exe\"",
-            &format!("set \"OPENMICRO_BIN={executable}\""),
+            "set \"KEYBOARD_BIN=C:\\Program Files\\keyboard\\keyboard.exe\"",
+            &format!("set \"KEYBOARD_BIN={executable}\""),
         );
     }
     replace_declaration(
         DEEP_CODE_TEMPLATE,
-        &format!("OPENMICRO_BIN=\"{DEFAULT_APP_BINARY}\""),
-        &format!("OPENMICRO_BIN={}", shell_word(path_text(executable)?)),
+        &format!("KEYBOARD_BIN=\"{DEFAULT_APP_BINARY}\""),
+        &format!("KEYBOARD_BIN={}", shell_word(path_text(executable)?)),
     )
 }
 
@@ -1333,7 +1333,7 @@ fn inspect_owned_template(
         Ok(InstallState::NeedsUpdate)
     } else {
         Err(format!(
-            "{} already exists and is not an unmodified OpenMicro integration",
+            "{} already exists and is not an unmodified keyboard integration",
             path.display()
         ))
     }
@@ -1373,7 +1373,7 @@ fn normalized_owned_template(text: &str, declaration_prefix: &str) -> Option<Str
         if content.starts_with(declaration_prefix) {
             found += 1;
             normalized.push_str(declaration_prefix);
-            normalized.push_str("<OPENMICRO_EXECUTABLE>");
+            normalized.push_str("<KEYBOARD_EXECUTABLE>");
             normalized.push_str(newline);
         } else {
             normalized.push_str(line);
@@ -1390,7 +1390,7 @@ fn install_opencode(
     inspect_owned_template(
         &layout.opencode_plugin,
         &Ok(desired.clone()),
-        "const OPENMICRO = ",
+        "const KEYBOARD = ",
     )?;
     let snapshot = FileSnapshot::read(&layout.opencode_plugin)?;
     let (changed_files, backups) = apply_writes(vec![PlannedWrite {
@@ -1418,7 +1418,7 @@ fn inspect_deep_code(layout: &InstallLayout) -> Result<InstallState, String> {
         Some(Value::String(value)) if value == script_path => true,
         Some(_) => {
             return Err(format!(
-                "{} already configures a different notifier; OpenMicro will not replace it",
+                "{} already configures a different notifier; keyboard will not replace it",
                 layout.deep_code_settings.display()
             ))
         }
@@ -1458,7 +1458,7 @@ fn install_deep_code(
         Some(Value::String(value)) if value == script_path => {}
         Some(_) => {
             return Err(format!(
-                "{} already configures a different notifier; OpenMicro will not replace it",
+                "{} already configures a different notifier; keyboard will not replace it",
                 layout.deep_code_settings.display()
             ))
         }
@@ -1500,9 +1500,9 @@ fn install_deep_code(
 
 fn deep_code_declaration_prefix() -> &'static str {
     if cfg!(target_os = "windows") {
-        "set \"OPENMICRO_BIN="
+        "set \"KEYBOARD_BIN="
     } else {
-        "OPENMICRO_BIN="
+        "KEYBOARD_BIN="
     }
 }
 
@@ -1626,7 +1626,7 @@ mod tests {
         fn new() -> Self {
             let id = TEST_DIR_COUNTER.fetch_add(1, Ordering::Relaxed);
             let path = env::temp_dir().join(format!(
-                "openmicro-agent-integrations-{}-{id}",
+                "keyboard-agent-integrations-{}-{id}",
                 std::process::id()
             ));
             fs::create_dir_all(&path).expect("create test directory");
@@ -1641,7 +1641,7 @@ mod tests {
     }
 
     fn layout_in(root: &TestDir) -> InstallLayout {
-        let executable = root.0.join("OpenMicro build's binary");
+        let executable = root.0.join("keyboard build's binary");
         fs::write(&executable, b"test executable").expect("write executable");
         InstallLayout::test(&root.0, &executable)
     }
@@ -1658,11 +1658,11 @@ mod tests {
                 "Stop": [
                     { "matcher": "keep", "hooks": [
                         { "type": "command", "command": "echo keep" },
-                        { "type": "command", "command": "echo OpenMicro agent-hook codex" }
+                        { "type": "command", "command": "echo keyboard agent-hook codex" }
                     ] },
                     { "hooks": [{
                         "type": "command",
-                        "command": "/Applications/OpenMicro.app/Contents/MacOS/OpenMicro codex-hook",
+                        "command": "/Applications/keyboard.app/Contents/MacOS/keyboard codex-hook",
                         "timeout": 2,
                         "async": true
                     }] }
@@ -1687,7 +1687,7 @@ mod tests {
         assert!(stop.iter().any(|group| group["matcher"] == "keep"));
         assert!(serde_json::to_string(&installed)
             .unwrap()
-            .contains("echo OpenMicro agent-hook codex"));
+            .contains("echo keyboard agent-hook codex"));
         assert!(!serde_json::to_string(&installed)
             .unwrap()
             .contains("\"async\":true"));
@@ -1821,25 +1821,25 @@ mod tests {
 
     #[test]
     fn managed_hook_recognition_requires_an_exact_invocation_grammar() {
-        let executable = Path::new("/tmp/OpenMicro.app/Contents/MacOS/OpenMicro");
+        let executable = Path::new("/tmp/keyboard.app/Contents/MacOS/keyboard");
         let exact = serde_json::json!({
             "type": "command",
-            "command": "/tmp/OpenMicro.app/Contents/MacOS/OpenMicro agent-hook codex"
+            "command": "/tmp/keyboard.app/Contents/MacOS/keyboard agent-hook codex"
         });
         assert!(is_managed_hook(&exact, IntegrationKind::Codex, executable));
 
         for unrelated in [
             serde_json::json!({
                 "type": "command",
-                "command": "echo OpenMicro agent-hook codex"
+                "command": "echo keyboard agent-hook codex"
             }),
             serde_json::json!({
                 "type": "notification",
-                "command": "/Applications/OpenMicro.app/Contents/MacOS/OpenMicro agent-hook codex"
+                "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook codex"
             }),
             serde_json::json!({
                 "type": "command",
-                "command": "/tmp/my-openmicro-wrapper",
+                "command": "/tmp/my-keyboard-wrapper",
                 "args": ["agent-hook", "claude-code"]
             }),
         ] {
@@ -1857,13 +1857,13 @@ mod tests {
 
         let legacy = serde_json::json!({
             "type": "command",
-            "command": "/Applications/OpenMicro.app/Contents/MacOS/OpenMicro codex-hook"
+            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard codex-hook"
         });
         assert!(is_managed_hook(&legacy, IntegrationKind::Codex, executable));
     }
 
     #[test]
-    fn customized_openmicro_hook_group_requires_manual_review() {
+    fn customized_keyboard_hook_group_requires_manual_review() {
         let root = TestDir::new();
         let layout = layout_in(&root);
         fs::create_dir_all(layout.codex_hooks.parent().unwrap()).unwrap();
@@ -1922,7 +1922,7 @@ mod tests {
         let encoded_executable = serde_json::to_string(old_executable).unwrap();
         assert!(installed.contains(&encoded_executable));
 
-        let encoded_replacement = serde_json::to_string("/old/OpenMicro").unwrap();
+        let encoded_replacement = serde_json::to_string("/old/keyboard").unwrap();
         fs::write(
             &layout.opencode_plugin,
             installed.replace(&encoded_executable, &encoded_replacement),
@@ -1935,7 +1935,7 @@ mod tests {
 
         fs::write(
             &layout.opencode_plugin,
-            installed.replace("export const OpenMicroStatus", "export const LocallyEdited"),
+            installed.replace("export const KeyboardStatus", "export const LocallyEdited"),
         )
         .unwrap();
         assert_eq!(
@@ -1949,7 +1949,7 @@ mod tests {
             let unowned_edit = installed_lf
                 .replace('\n', newline)
                 .replace(&format!("{MANAGED_MARKER}{newline}"), "")
-                .replace("export const OpenMicroStatus", "export const LocallyEdited");
+                .replace("export const KeyboardStatus", "export const LocallyEdited");
             fs::write(&layout.opencode_plugin, unowned_edit).unwrap();
             assert_eq!(
                 inspect(&layout, IntegrationKind::OpenCode).state,
@@ -2082,7 +2082,7 @@ mod tests {
 
         let error = apply_writes(vec![PlannedWrite {
             snapshot,
-            contents: b"OpenMicro replacement".to_vec(),
+            contents: b"keyboard replacement".to_vec(),
             default_mode: 0o600,
             required_mode: None,
         }])
@@ -2092,7 +2092,7 @@ mod tests {
         assert!(!fs::read_dir(&root.0).unwrap().flatten().any(|entry| entry
             .file_name()
             .to_string_lossy()
-            .contains("openmicro-tmp")));
+            .contains("keyboard-tmp")));
     }
 
     #[test]
@@ -2103,7 +2103,7 @@ mod tests {
         let snapshot = FileSnapshot::read(&target).unwrap();
         let staged = stage_write(PlannedWrite {
             snapshot,
-            contents: b"OpenMicro replacement".to_vec(),
+            contents: b"keyboard replacement".to_vec(),
             default_mode: 0o600,
             required_mode: None,
         })
@@ -2127,7 +2127,7 @@ mod tests {
                     && entry
                         .file_name()
                         .to_string_lossy()
-                        .contains("openmicro-backup")
+                        .contains("keyboard-backup")
             })
             .map(|entry| entry.path().join("settings.json"))
             .expect("displaced editor save backup");
@@ -2147,23 +2147,23 @@ mod tests {
     #[test]
     fn shell_word_handles_spaces_and_apostrophes() {
         if cfg!(target_os = "windows") {
-            assert_eq!(shell_word(r"C:\OpenMicro.exe"), r"C:\OpenMicro.exe");
+            assert_eq!(shell_word(r"C:\keyboard.exe"), r"C:\keyboard.exe");
             assert_eq!(
-                shell_word(r"C:\Tony's OpenMicro\OpenMicro.exe"),
-                r#""C:\Tony's OpenMicro\OpenMicro.exe""#
+                shell_word(r"C:\Tony's keyboard\keyboard.exe"),
+                r#""C:\Tony's keyboard\keyboard.exe""#
             );
         } else {
-            assert_eq!(shell_word("/tmp/OpenMicro"), "/tmp/OpenMicro");
+            assert_eq!(shell_word("/tmp/keyboard"), "/tmp/keyboard");
             assert_eq!(
-                shell_word("/tmp/Tony's OpenMicro"),
-                "'/tmp/Tony'\"'\"'s OpenMicro'"
+                shell_word("/tmp/Tony's keyboard"),
+                "'/tmp/Tony'\"'\"'s keyboard'"
             );
         }
     }
 
     #[test]
     fn relative_environment_override_is_rejected() {
-        const NAME: &str = "OPENMICRO_TEST_RELATIVE_CONFIG_HOME";
+        const NAME: &str = "KEYBOARD_TEST_RELATIVE_CONFIG_HOME";
         let previous = env::var_os(NAME);
         env::set_var(NAME, "relative/config");
         let result = nonempty_env_path(NAME);

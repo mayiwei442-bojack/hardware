@@ -39,7 +39,7 @@ direct_views = ['01_usb_rear','01_mechanics_overview','02_electronics_top',
 renders = [f'renders/final_{v}.png' for v in final_views]
 renders += [f'renders/direct_{v}.png' for v in direct_views]
 required = ['assets/MacroPad.blend','操作说明.md','验收报告.md','资料整理.md',
-            '建模计划.md','工作日志.md','tools/openmicro_controls.py',
+            '建模计划.md','工作日志.md','tools/keyboard_controls.py',
             'references/appearance_multiview_v2.png'] + renders
 for rel in required:
     assert (root / rel).is_file() and (root / rel).stat().st_size > 0, rel
@@ -51,7 +51,7 @@ progress['completed_batches'] = [
     '03_13_choc_switches_and_keycaps','04_ec11_rkjxv_controls',
     '05_internal_electronics_21_leds','06_materials_interaction_exploded_rig',
     '07_demo_reopen_visual_acceptance_delivery']
-progress['next_action'] = '交付完成；在Blender打开主文件，N侧栏选择OpenMicroKbd。'
+progress['next_action'] = '交付完成；在Blender打开主文件，N侧栏选择keyboard。'
 progress['known_issues'] = []
 progress['limitations'] = [
     'MakerWorld网页访问受限；使用已读取的用户仓库、V1 CAD/PCB、厂商图和官网照片。',

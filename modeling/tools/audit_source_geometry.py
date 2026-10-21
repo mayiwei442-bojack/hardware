@@ -4,7 +4,7 @@ import pathlib
 
 WORK = pathlib.Path(__file__).resolve().parents[1]
 records = json.loads((WORK / 'references/source_meshes.json').read_text(encoding='utf-8'))
-source = next(r for r in records if r['source'] == 'OpenMicroKbkCase.3mf')
+source = next(r for r in records if r['source'] == 'keyboardKbkCase.3mf')
 verts = [(47.5-z, 47.5-x, y) for x, y, z in source['vertex_data']]
 faces = source['triangle_data']
 

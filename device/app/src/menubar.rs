@@ -75,7 +75,7 @@ impl Menubar {
             TrayIconBuilder::new()
                 .with_icon(icon)
                 .with_icon_as_template(true)
-                .with_tooltip("OpenMicro")
+                .with_tooltip("keyboard")
                 .build()
                 .ok()
         });
@@ -93,7 +93,7 @@ impl Menubar {
         // a dedicated thread. Keeping ownership on that thread also avoids
         // sending GTK objects across threads.
         let spawn = std::thread::Builder::new()
-            .name("openmicro-tray".into())
+            .name("keyboard-tray".into())
             .spawn(move || {
                 if let Err(error) = gtk::init() {
                     eprintln!("system tray unavailable: GTK initialization failed: {error}");
@@ -105,7 +105,7 @@ impl Menubar {
                     TrayIconBuilder::new()
                         .with_icon(icon)
                         .with_icon_as_template(true)
-                        .with_tooltip("OpenMicro")
+                        .with_tooltip("keyboard")
                         .build()
                         .ok()
                 });

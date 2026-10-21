@@ -1,4 +1,4 @@
-// OpenMicro footprints — real land patterns for every bound part. Geometry
+// keyboard footprints — real land patterns for every bound part. Geometry
 // from the KiCad official footprint / datasheet noted in each comment. Pad
 // numbers match each device's declared pins (RFC-002/E807). Datasheet-
 // verified packages (see docs/compliance-report.md).

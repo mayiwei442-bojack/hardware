@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
-"""Hardware client and round-trip test for the OpenMicro v1 resident bootloader
+"""Hardware client and round-trip test for the keyboard v1 resident bootloader
 (firmware >= 0.10.0, bootloader >= 1.0.0).
 
-Talks to the pad over the same raw HID interfaces the OpenMicro app uses:
+Talks to the pad over the same raw HID interfaces the keyboard app uses:
 the application's vendor interface (1209:0001 or 303A:8360 in Codex mode,
 usage page 0xFF60, 32-byte reports) and the bootloader's (1209:0002
-"OpenMicro Bootloader", 64-byte reports). No driver is needed on any OS;
+"keyboard Bootloader", 64-byte reports). No driver is needed on any OS;
 on Linux the udev rule in docs/linux-firmware-updates.md must cover 1209:0002.
 
     python3 -m pip install hidapi                      # once
     python3 scripts/test-bootloader.py find             # what is plugged in
     python3 scripts/test-bootloader.py info             # BOOT_INFO from app or bootloader
     python3 scripts/test-bootloader.py enter-boot       # app -> bootloader (ENTER_BOOT)
-    python3 scripts/test-bootloader.py upload dist/openmicro-fw-<ver>.bin
+    python3 scripts/test-bootloader.py upload dist/keyboard-fw-<ver>.bin
     python3 scripts/test-bootloader.py upload ... --abort-after 40   # simulate an interrupted update
     python3 scripts/test-bootloader.py run              # bootloader -> app (BOOT_RUN)
     python3 scripts/test-bootloader.py dfu              # ENTER_DFU from whichever image runs
-    python3 scripts/test-bootloader.py cycle dist/openmicro-fw-<ver>.bin   # the whole round trip, PASS/FAIL
+    python3 scripts/test-bootloader.py cycle dist/keyboard-fw-<ver>.bin   # the whole round trip, PASS/FAIL
     python3 scripts/test-bootloader.py selftest         # no hardware: the client against a model of the bootloader
 
 `upload` and `cycle` accept the published combined image (bootloader + app)
 or an application slice; the application part is cut out with fw-image.py's
-logic and verified locally before a byte is sent. The OpenMicro app may stay
+logic and verified locally before a byte is sent. The keyboard app may stay
 running for `find`/`info`, but quit it before `enter-boot`/`upload`/`cycle`:
 it reacts to the bootloader appearing and would race this script.
 
@@ -71,7 +71,7 @@ APP_IDENTITIES = ((0x1209, 0x0001), (0x303A, 0x8360))
 RAW_USAGE_PAGE = 0xFF60
 BOOT_VID, BOOT_PID = 0x1209, 0x0002
 BOOT_MANUFACTURER = "conol"
-BOOT_PRODUCT = "OpenMicro Bootloader"
+BOOT_PRODUCT = "keyboard Bootloader"
 DFU_VID, DFU_PID = 0x0483, 0xDF11
 
 APP_REPORT_LEN = 32
@@ -176,7 +176,7 @@ def format_boot_info(info):
 
 def non_exclusive():
     """hidapi seizes the device on macOS by default, which would knock the
-    OpenMicro app off the interface; the flag lives in the compiled module."""
+    keyboard app off the interface; the flag lives in the compiled module."""
     if sys.platform != "darwin":
         return
     try:
@@ -513,7 +513,7 @@ def cmd_find(args):
         for line in dfu:
             print("rom-dfu    {}".format(line))
     if not apps and not boots and not odd and not dfu:
-        print("no OpenMicro pad found (app 1209:0001 / 303a:8360 usage page 0xFF60, bootloader 1209:0002)")
+        print("no keyboard pad found (app 1209:0001 / 303a:8360 usage page 0xFF60, bootloader 1209:0002)")
         return 1
     return 0
 
@@ -666,7 +666,7 @@ def cmd_dfu(args):
         if found:
             for line in found:
                 print("  " + line)
-            print("flash the COMBINED image back with: dfu-util -d 0483:df11 -a 0 -s 0x08000000:leave -D openmicro-fw-<ver>.bin")
+            print("flash the COMBINED image back with: dfu-util -d 0483:df11 -a 0 -s 0x08000000:leave -D keyboard-fw-<ver>.bin")
             return 0
         time.sleep(POLL_S * 2)
     print("no 0483:df11 device within {:.0f} s".format(WAIT_DEVICE_S))
@@ -1034,7 +1034,7 @@ def cmd_selftest(args):
     import tempfile
 
     with tempfile.TemporaryDirectory() as tmp:
-        p_comb = os.path.join(tmp, "openmicro-fw-0.10.0.bin")
+        p_comb = os.path.join(tmp, "keyboard-fw-0.10.0.bin")
         with open(p_comb, "wb") as f:
             f.write(combined)
         piece, base, h, kind = load_app_slice(p_comb)
@@ -1099,7 +1099,7 @@ def build_parser():
     s = sub.add_parser("enter-boot", help="ENTER_BOOT on the app, wait for the bootloader, print BOOT_INFO")
     s.set_defaults(fn=cmd_enter_boot)
     s = sub.add_parser("upload", help="send the application image to a pad in bootloader mode")
-    s.add_argument("file", help="combined openmicro-fw-<ver>.bin or an application slice")
+    s.add_argument("file", help="combined keyboard-fw-<ver>.bin or an application slice")
     s.add_argument("--abort-after", type=int, metavar="N", help="stop after N chunks without UPDATE_END (interrupted-update test)")
     s.add_argument("--chunk", type=int, default=MAX_CHUNK, help="bytes per UPDATE_DATA (default and max %d)" % MAX_CHUNK)
     s.set_defaults(fn=cmd_upload)

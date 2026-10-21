@@ -1,4 +1,4 @@
-//! The contract between the OpenMicro v1 bootloader, the application firmware
+//! The contract between the keyboard v1 bootloader, the application firmware
 //! and the host tools: where things live in flash and RAM, what the image
 //! header and the bootloader info block look like, the RAM handoff words,
 //! and the bootloader's HID protocol. Pure `no_std` logic with no
@@ -109,7 +109,7 @@ pub const fn flags_for_variant(variant: u16) -> u16 {
 pub const BOOT_VID: u16 = 0x1209;
 pub const BOOT_PID: u16 = 0x0002;
 pub const BOOT_MANUFACTURER: &str = "conol";
-pub const BOOT_PRODUCT: &str = "OpenMicro Bootloader";
+pub const BOOT_PRODUCT: &str = "keyboard Bootloader";
 /// Vendor usage page / usage shared with the application's raw interface.
 pub const RAW_USAGE_PAGE: u16 = 0xFF60;
 pub const RAW_USAGE: u16 = 0x61;

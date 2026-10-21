@@ -44,7 +44,7 @@ def open_raw():
             dev = hid.device()
             dev.open_path(info["path"])
             return dev
-    sys.exit("OpenMicro raw-HID interface not found — is the pad plugged in?")
+    sys.exit("keyboard raw-HID interface not found — is the pad plugged in?")
 
 
 def command(dev, payload, timeout_s=1.0):

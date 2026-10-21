@@ -1,9 +1,9 @@
 [package]
-name = "openmicro-fw"
+name = "keyboard-fw"
 version = "0.10.1"
 edition = "2021"
 license = "MIT"
-description = "OpenMicro macropad firmware (STM32F072CBT6, embassy)"
+description = "keyboard macropad firmware (STM32F072CBT6, embassy)"
 
 [features]
 # Prototype boards fabbed before the 2026-07-28 GPIO re-derivation: the old
@@ -54,7 +54,7 @@ critical-section = "1"
 
 # The contract with the resident bootloader and the host: flash/RAM map,
 # image header, handoff words, BOOT_INFO reply (../layout, no_std, no deps).
-openmicro-layout = { path = "../layout" }
+keyboard-layout = { path = "../layout" }
 
 [profile.release]
 debug = true

@@ -567,7 +567,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openmicro-boot"
+name = "keyboard-boot"
 version = "1.0.0"
 dependencies = [
  "cortex-m",
@@ -578,13 +578,13 @@ dependencies = [
  "embassy-stm32",
  "embassy-time",
  "embassy-usb",
- "openmicro-layout",
+ "keyboard-layout",
  "portable-atomic",
  "static_cell",
 ]
 
 [[package]]
-name = "openmicro-layout"
+name = "keyboard-layout"
 version = "0.1.0"
 
 [[package]]

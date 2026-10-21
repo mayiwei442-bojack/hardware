@@ -1,7 +1,7 @@
-//! Client for the OpenMicro resident bootloader's HID update mode.
+//! Client for the keyboard resident bootloader's HID update mode.
 //!
 //! The bootloader (boot/, flashed once through ROM DFU with a combined image)
-//! enumerates as 1209:0002 "OpenMicro Bootloader" with one vendor HID
+//! enumerates as 1209:0002 "keyboard Bootloader" with one vendor HID
 //! interface (usage page 0xFF60) of **64-byte** reports and no report IDs.
 //! Its protocol is the one in ../layout/src/lib.rs (`op`, `status`): every
 //! reply echoes the opcode in byte 0, multi-byte fields are little-endian,
@@ -27,7 +27,7 @@ use std::ffi::{CStr, CString};
 use std::time::{Duration, Instant};
 
 use hidapi::{HidApi, HidDevice};
-use openmicro_layout::{
+use keyboard_layout::{
     app_valid, op, status, validate_app, AppError, BootInfoReply, Validity, BOOT_MANUFACTURER,
     BOOT_PID, BOOT_PRODUCT, BOOT_PROTOCOL, BOOT_REPORT_LEN, BOOT_VID, ENTER_DFU_KEY, MAX_CHUNK,
     RAW_USAGE_PAGE,
@@ -389,7 +389,7 @@ pub fn version_string(v: [u8; 3]) -> String {
 
 // ------------------------------------------------------------------ hidapi --
 
-/// Every OpenMicro bootloader interface currently enumerated: `(path,
+/// Every keyboard bootloader interface currently enumerated: `(path,
 /// serial)`. A generic 1209:0002 is not enough — pid.codes ids are shared —
 /// so the manufacturer and product strings must match too.
 pub fn find_bootloaders(api: &HidApi) -> Vec<(CString, String)> {
@@ -484,7 +484,7 @@ mod real_update;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openmicro_layout::{
+    use keyboard_layout::{
         app_header_bytes, stamp_app, APP_BASE, APP_SIZE, FLAG_PROTO, HEADER_OFFSET, PAGE_SIZE,
         RAM_END, RESET_OFFSET, VARIANT_PROD, VARIANT_PROTO,
     };

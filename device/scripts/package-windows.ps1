@@ -38,20 +38,20 @@ if ($Target -notin @("aarch64-pc-windows-msvc", "x86_64-pc-windows-msvc")) {
 }
 
 $appMetadata = cargo metadata --manifest-path (Join-Path $appRoot "Cargo.toml") --locked --no-deps --format-version 1 | ConvertFrom-Json
-$appPackage = $appMetadata.packages | Where-Object name -EQ "openmicro-app" | Select-Object -First 1
+$appPackage = $appMetadata.packages | Where-Object name -EQ "keyboard-app" | Select-Object -First 1
 if (-not $appPackage) {
-    throw "Cannot determine the OpenMicro app version"
+    throw "Cannot determine the keyboard app version"
 }
 $appVersion = $appPackage.version
 
 $firmwareMetadata = cargo metadata --manifest-path (Join-Path $repoRoot "fw\Cargo.toml") --locked --no-deps --format-version 1 | ConvertFrom-Json
-$firmwarePackage = $firmwareMetadata.packages | Where-Object name -EQ "openmicro-fw" | Select-Object -First 1
+$firmwarePackage = $firmwareMetadata.packages | Where-Object name -EQ "keyboard-fw" | Select-Object -First 1
 if (-not $firmwarePackage) {
-    throw "Cannot determine the OpenMicro firmware version"
+    throw "Cannot determine the keyboard firmware version"
 }
 $firmwareVersion = $firmwarePackage.version
 $architecture = if ($Target.StartsWith("aarch64-")) { "aarch64" } else { "x86_64" }
-$packageName = "OpenMicro-$appVersion-windows-$architecture"
+$packageName = "keyboard-$appVersion-windows-$architecture"
 $stageRoot = Join-Path $outputPath $packageName
 $archivePath = Join-Path $outputPath "$packageName.zip"
 
@@ -63,7 +63,7 @@ try {
     } else {
         "-C target-feature=+crt-static"
     }
-    cargo build --release --locked --target $Target --bin openmicro-app
+    cargo build --release --locked --target $Target --bin keyboard-app
     if ($LASTEXITCODE -ne 0) {
         throw "The Windows release build failed"
     }
@@ -72,7 +72,7 @@ try {
     Pop-Location
 }
 
-$builtExecutable = Join-Path $appRoot "target\$Target\release\openmicro-app.exe"
+$builtExecutable = Join-Path $appRoot "target\$Target\release\keyboard-app.exe"
 if (-not (Test-Path -LiteralPath $builtExecutable -PathType Leaf)) {
     throw "Release executable was not produced: $builtExecutable"
 }
@@ -92,10 +92,9 @@ if (Test-Path -LiteralPath $archivePath) {
 $firmwareDir = Join-Path $stageRoot "firmware"
 $licensesDir = Join-Path $stageRoot "licenses"
 New-Item -ItemType Directory -Force -Path $firmwareDir, $licensesDir | Out-Null
-Copy-Item -LiteralPath $builtExecutable -Destination (Join-Path $stageRoot "OpenMicro.exe")
-Copy-Item -LiteralPath $firmwarePath -Destination (Join-Path $firmwareDir "openmicro-fw.bin")
-Copy-Item -LiteralPath (Join-Path $repoRoot "LICENSE") -Destination (Join-Path $licensesDir "OpenMicro-LICENSE.txt")
-Copy-Item -LiteralPath (Join-Path $appRoot "resources\simple-icons.LICENSE.md") -Destination (Join-Path $licensesDir "SimpleIcons-LICENSE.md")
+Copy-Item -LiteralPath $builtExecutable -Destination (Join-Path $stageRoot "keyboard.exe")
+Copy-Item -LiteralPath $firmwarePath -Destination (Join-Path $firmwareDir "keyboard-fw.bin")
+Copy-Item -LiteralPath (Join-Path $repoRoot "LICENSE") -Destination (Join-Path $licensesDir "keyboard-LICENSE.txt")
 
 $firmwareHash = (Get-FileHash -LiteralPath $firmwarePath -Algorithm SHA256).Hash.ToLowerInvariant()
 $firmwareManifest = [ordered]@{
@@ -105,14 +104,14 @@ $firmwareManifest = [ordered]@{
 Set-Content -LiteralPath (Join-Path $firmwareDir "manifest.json") -Value $firmwareManifest -Encoding utf8NoBOM
 
 $readme = @"
-OpenMicro $appVersion for Windows $architecture
+keyboard $appVersion for Windows $architecture
 
 1. Extract this entire folder before running the app.
-2. Run OpenMicro.exe. The app, firmware folder, and licenses must stay together.
+2. Run keyboard.exe. The app, firmware folder, and licenses must stay together.
 3. Firmware updates need no driver: the pad reboots into its own bootloader (a
-   plain HID device) and OpenMicro installs the image over it. Only a pad still
+   plain HID device) and keyboard installs the image over it. Only a pad still
    running firmware 0.9.0 or older gets that bootloader installed once through
-   the STM32 ROM DFU, and only that one-time step needs WinUSB: if OpenMicro
+   the STM32 ROM DFU, and only that one-time step needs WinUSB: if keyboard
    shows DFU driver setup then, open Zadig, enable Options > List All Devices,
    choose STM32 BOOTLOADER (0483:df11), select WinUSB, and install/replace the
    driver. Every update after that is driverless.

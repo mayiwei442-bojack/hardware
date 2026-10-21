@@ -10,7 +10,7 @@
 //! Requests are 64-byte HID reports whose byte 0 is the opcode; replies
 //! echo it (bit 7 never set) and carry a status in byte 1 where the table
 //! in boot/README.md says so. Multi-byte fields are little-endian. Opcodes
-//! and status codes live in `openmicro_layout::{op, status}`.
+//! and status codes live in `keyboard_layout::{op, status}`.
 //!
 //! Upload state machine (one image at a time):
 //!
@@ -33,7 +33,7 @@
 //! upload drops the BEGIN state (the host must start over); an out-of-order
 //! chunk keeps it and reports the offset to resume from.
 
-use openmicro_layout::{
+use keyboard_layout::{
     app_valid, op, status, u32_at, validate_app_for, version_triple, AppError,
     BootInfoReply, Validity, APP_BASE, APP_SIZE, BOOT_PROTOCOL, BOOT_REPORT_LEN, ENTER_DFU_KEY,
     HEADER_OFFSET, MAX_CHUNK, PAGE_SIZE, RESET_OFFSET,

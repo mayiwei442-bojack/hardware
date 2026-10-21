@@ -1,5 +1,5 @@
 [package]
-name = "openmicro-boot-tests"
+name = "keyboard-boot-tests"
 version = "0.0.0"
 edition = "2021"
 publish = false
@@ -11,4 +11,4 @@ description = "Host-side tests for boot/src/update.rs (the bootloader's HID upda
 [workspace]
 
 [dependencies]
-openmicro-layout = { path = "../../layout" }
+keyboard-layout = { path = "../../layout" }

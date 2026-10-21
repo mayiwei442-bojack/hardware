@@ -1,4 +1,4 @@
-# OpenMicro v1 resident bootloader (`openmicro-boot`)
+# keyboard v1 resident bootloader (`keyboard-boot`)
 
 The bootloader owns the first 24 KiB of the STM32F072CB's flash and is the
 only thing that ever writes the application slot. Before every start it
@@ -56,7 +56,7 @@ combined image; nothing else hard-codes the layout.
    1 ms settle, 20 samples 1 ms apart (busy loop calibrated for 8 MHz); all
    low → update mode with `REASON_SWITCH`. The pin and its clock go back to
    reset state.
-4. **Validate** the slot with `openmicro_layout::validate_app`: magic,
+4. **Validate** the slot with `keyboard_layout::validate_app`: magic,
    header version, stack pointer inside RAM, reset vector exactly
    `0x080060E1`, and for a stamped header `0xE0 <= length <= 0x15000`,
    `length % 4 == 0`, CRC-32 over `[0, length)` (the header's own crc field
@@ -75,7 +75,7 @@ combined image; nothing else hard-codes the layout.
 `embassy_stm32::init` with the application's clock configuration (HSI48
 trimmed by CRS from USB SOF, 48 MHz core), then a hand-built
 `embassy_executor::Executor` with one task. USB identity: **1209:0002**,
-manufacturer `conol`, product `OpenMicro Bootloader`, serial = the MCU's
+manufacturer `conol`, product `keyboard Bootloader`, serial = the MCU's
 96-bit UID in hex, `bcdDevice` = the bootloader version. One HID interface:
 usage page `0xFF60`, usage `0x61`, **64-byte** IN and OUT reports, no report
 IDs, 1 ms polling. Update mode never times out; only `BOOT_RUN`,
@@ -97,7 +97,7 @@ application's last frame. Brightness is capped at 40/255 per channel.
 
 64-byte reports; the host prepends report id 0 (65-byte writes). Byte 0 is
 the opcode, replies echo it (bit 7 never set) and are always full 64-byte
-reports, zero padded. Little-endian fields. Codes: `openmicro_layout::{op,
+reports, zero padded. Little-endian fields. Codes: `keyboard_layout::{op,
 status}`.
 
 | op | request | reply |
@@ -129,7 +129,7 @@ additionally refuses a slot that reads back unstamped (defence in depth)
 and an image built for the other board variant (`flags & 1` must equal the
 info block's `variant`, i.e. `proto` builds only install on a `proto`
 bootloader). The variant rule is part of the slot validation itself
-(`openmicro_layout::validate_app_for`), so the boot path and BOOT_INFO apply
+(`keyboard_layout::validate_app_for`), so the boot path and BOOT_INFO apply
 it too: a wrong-variant image that a refused upload left in the slot is
 reported as `app_valid 0` and is never started, not even when a debugger
 flashed it. `scripts/build-firmware.sh` builds both crates with the same
@@ -184,7 +184,7 @@ bytes (`scripts/build-firmware.sh` asserts it). Measured for 1.0.0:
 
 ```sh
 BIN="$(rustc --print sysroot)/lib/rustlib/$(rustc -vV | sed -n 's/^host: //p')/bin"
-"$BIN/llvm-objcopy" -O binary target/thumbv6m-none-eabi/release/openmicro-boot boot.bin
+"$BIN/llvm-objcopy" -O binary target/thumbv6m-none-eabi/release/keyboard-boot boot.bin
 xxd -l 0xE0 boot.bin     # word 0 = 0x20003FF0, word 1 = 0x080000E1, "OMKB" at 0xC0
 ```
 
@@ -211,7 +211,7 @@ with no valid header there the pad comes up in update mode (amber
 breathing, 1209:0002) and the application is installed over HID.
 
 The alternative is the **ROM DFU with the combined image**
-(`dist/openmicro-fw-<ver>.bin` from `scripts/build-firmware.sh`: bootloader
+(`dist/keyboard-fw-<ver>.bin` from `scripts/build-firmware.sh`: bootloader
 padded to 24 KiB + stamped app): `ENTER_DFU` on the application's raw
 interface, then `dfu-util -a 0 -s 0x08000000:leave -D <combined>.bin`. That
 is the one-time migration path for pads running fw ≤ 0.9.0, and it carries

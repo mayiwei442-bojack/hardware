@@ -1,4 +1,4 @@
-# openmicro — component datasheets
+# keyboard — component datasheets
 
 Manufacturer datasheets for the board's core components: every active,
 connector, and electromechanical part in the BOM. Generic passives (the
@@ -21,7 +21,7 @@ genuine manufacturer document.
 | SK6812MINI-E | `sk6812mini-e.pdf` | addressable RGB LEDs | Opsco Rev 02, 18 pp | `cdn-shop.adafruit.com/product-files/4960/4960_SK6812MINI-E_REV02_EN.pdf` |
 | ABM8-8.000MHZ-10-1-U-T | `abm8.pdf` | 8 MHz HSE crystal, 3.2×2.5 | Abracon rev 07-29-20 | `abracon.com/Resonators/abm8.pdf` |
 | EVQ-P7A01P | `evq-p7a01p.pdf` | *removed* — was the reset switch | Panasonic ANCTB21E, 5 pp | SnapEDA S3 mirror of the Panasonic document |
-| Kailh Choc V2 (CPG1353) | `choc-v2.pdf` | key switches (WL-LP-SW-55G) | CPG135301D01 rev A0, 8 pp | `github.com/keyboardio/keyswitch_documentation` |
+| Kailh Choc V2 (CPG1353) | `choc-v2.pdf` | key switches (WL-LP-SW-55G) | CPG135301D01 rev A0, 8 pp | `` |
 | TYPE-C-31-M-12 | `type-c-31-m-12.pdf` | USB-C receptacle | HRO customer drawing, 2020-12-08 | LCSC |
 | RKJXV122400R | `rkjxv122400r.pdf` | joystick (ThumbPointer) | Alps product drawing | Alps product page (via Octopart) |
 | RKJXV series | `rkjxv-series-catalog.pdf` | joystick series catalogue | Alps, update 2510 | `tech.alpsalpine.com/cms.media/` |

@@ -61,43 +61,43 @@ impl MacOsUpdater {
     }
 }
 
-#[cfg(all(target_os = "macos", openmicro_sparkle))]
+#[cfg(all(target_os = "macos", keyboard_sparkle))]
 mod platform {
     unsafe extern "C" {
-        fn openmicro_sparkle_is_enabled() -> bool;
-        fn openmicro_sparkle_start() -> bool;
-        fn openmicro_sparkle_can_check_for_updates() -> bool;
-        fn openmicro_sparkle_session_in_progress() -> bool;
-        fn openmicro_sparkle_check_for_updates() -> bool;
+        fn keyboard_sparkle_is_enabled() -> bool;
+        fn keyboard_sparkle_start() -> bool;
+        fn keyboard_sparkle_can_check_for_updates() -> bool;
+        fn keyboard_sparkle_session_in_progress() -> bool;
+        fn keyboard_sparkle_check_for_updates() -> bool;
     }
 
     pub fn is_enabled() -> bool {
         // SAFETY: the owner constructs this wrapper from GPUI's main thread.
-        unsafe { openmicro_sparkle_is_enabled() }
+        unsafe { keyboard_sparkle_is_enabled() }
     }
 
     pub fn start() -> bool {
         // SAFETY: the owner constructs this wrapper from GPUI's main thread.
-        unsafe { openmicro_sparkle_start() }
+        unsafe { keyboard_sparkle_start() }
     }
 
     pub fn can_check_for_updates() -> bool {
         // SAFETY: callers are GPUI listeners running on the main thread.
-        unsafe { openmicro_sparkle_can_check_for_updates() }
+        unsafe { keyboard_sparkle_can_check_for_updates() }
     }
 
     pub fn session_in_progress() -> bool {
         // SAFETY: callers are GPUI listeners running on the main thread.
-        unsafe { openmicro_sparkle_session_in_progress() }
+        unsafe { keyboard_sparkle_session_in_progress() }
     }
 
     pub fn check_for_updates() -> bool {
         // SAFETY: callers are GPUI listeners running on the main thread.
-        unsafe { openmicro_sparkle_check_for_updates() }
+        unsafe { keyboard_sparkle_check_for_updates() }
     }
 }
 
-#[cfg(not(all(target_os = "macos", openmicro_sparkle)))]
+#[cfg(not(all(target_os = "macos", keyboard_sparkle)))]
 mod platform {
     pub fn is_enabled() -> bool {
         false

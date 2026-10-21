@@ -9,7 +9,7 @@ two problems affect the same screen, but they have different causes and fixes.
 Since firmware 0.10.0 the pad carries its own bootloader in the first 24 KiB of
 flash (`boot/`). Normal updates no longer touch the STM32 ROM DFU at all: the
 app sends `ENTER_BOOT`, the pad re-enumerates as a plain HID device
-(`1209:0002` "OpenMicro Bootloader"), the application image is sent in 64-byte
+(`1209:0002` "keyboard Bootloader"), the application image is sent in 64-byte
 reports, and the bootloader checks its length and CRC-32 before it runs it. An
 interrupted update leaves the pad in bootloader mode, never dead. No DFU
 control transfer is involved on that path, so the xHCI `dfuDNBUSY` defect
@@ -21,9 +21,9 @@ What the published files are, and where they go:
 
 | file | contents | flash it with |
 |---|---|---|
-| `openmicro-fw-<ver>.bin` | bootloader + application, one image | ROM DFU / SWD at `0x08000000` (migration, recovery, factory); the app's normal update reads the application part out of it |
-| `openmicro-fw-<ver>.hex` | the same bytes with the load address embedded | SWD / gang programmers |
-| `openmicro-fw-<ver>-app-slot-0x08006000.bin` | application only, cut out locally with `python3 scripts/fw-image.py slice` (never published) | `dfu-util -s 0x08006000` only (no `:leave`; replug afterwards so the bootloader validates and starts it), or `scripts/test-bootloader.py upload` |
+| `keyboard-fw-<ver>.bin` | bootloader + application, one image | ROM DFU / SWD at `0x08000000` (migration, recovery, factory); the app's normal update reads the application part out of it |
+| `keyboard-fw-<ver>.hex` | the same bytes with the load address embedded | SWD / gang programmers |
+| `keyboard-fw-<ver>-app-slot-0x08006000.bin` | application only, cut out locally with `python3 scripts/fw-image.py slice` (never published) | `dfu-util -s 0x08006000` only (no `:leave`; replug afterwards so the bootloader validates and starts it), or `scripts/test-bootloader.py upload` |
 
 Never write an application-only image (a slice, or an `.elf` converted by
 hand) at `0x08000000`: it overwrites the bootloader and the pad no longer
@@ -35,12 +35,12 @@ round trip; see `RELEASING.md`):
 
 ```sh
 python3 -m pip install hidapi
-python3 scripts/test-bootloader.py cycle openmicro-fw-<version>.bin
+python3 scripts/test-bootloader.py cycle keyboard-fw-<version>.bin
 ```
 
 ## Confirmed failure signature (ROM DFU path)
 
-The affected OpenMicro pad has completed a firmware update on macOS through the
+The affected keyboard pad has completed a firmware update on macOS through the
 app's USB DfuSe backend. It was not programmed through SWD, J2, ST-Link, or
 `probe-rs`. On the affected Linux host, the same physical pad behaves as
 follows:
@@ -48,7 +48,7 @@ follows:
 - normal mode `1209:0001` enumerates and accepts the command to enter DFU;
 - ROM DFU `0483:df11` enumerates and is accessible to the desktop user;
 - `GETSTATUS`, `GETCOMMANDS`, and `UPLOAD` control requests work;
-- both the OpenMicro updater and `dfu-util` accept a `DNLOAD` request, then stay
+- both the keyboard updater and `dfu-util` accept a `DNLOAD` request, then stay
   in `dfuDNBUSY` indefinitely;
 - even the non-destructive DfuSe Set Address command exhibits the failure;
 - after a failed attempt and a power cycle, the existing application can still
@@ -96,7 +96,7 @@ its own bootloader and never enters ROM DFU unless asked (`ENTER_DFU`).
      -S <dfu-serial> \
      -a 0 \
      -s 0x08000000:leave \
-     -D openmicro-fw-<version>.bin
+     -D keyboard-fw-<version>.bin
    ```
 
    `-a 0` selects internal flash. Never write alt setting 1 (Option Bytes).
@@ -105,10 +105,10 @@ its own bootloader and never enters ROM DFU unless asked (`ENTER_DFU`).
    at `0x08000000` — and do **not** add `:leave` to a slice:
 
    ```sh
-   python3 scripts/fw-image.py slice openmicro-fw-<version>.bin \
-     --out /tmp/openmicro-fw-<version>-app-slot-0x08006000.bin
+   python3 scripts/fw-image.py slice keyboard-fw-<version>.bin \
+     --out /tmp/keyboard-fw-<version>-app-slot-0x08006000.bin
    dfu-util -d 0483:df11 -a 0 -s 0x08006000 \
-     -D /tmp/openmicro-fw-<version>-app-slot-0x08006000.bin
+     -D /tmp/keyboard-fw-<version>-app-slot-0x08006000.bin
    ```
 
    then unplug and replug the pad: the bootloader validates the slot and
@@ -132,7 +132,7 @@ Linux installations need permission for every identity the pad can take during
 an update:
 
 ```udev
-# /etc/udev/rules.d/70-openmicro.rules
+# /etc/udev/rules.d/70-keyboard.rules
 KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="0001", MODE="0660", TAG+="uaccess"
 # Codex Micro compat mode (fw 0.8.0+): the same pad under its other identity
 KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="8360", MODE="0660", TAG+="uaccess"
@@ -185,15 +185,15 @@ Acceptance criteria:
 
 ### P1: ship a supported Linux application
 
-- Add `packaging/linux/70-openmicro.rules` and install it from Linux packages.
+- Add `packaging/linux/70-keyboard.rules` and install it from Linux packages.
 - Add a Linux CI job that produces at least an x86-64 tar archive containing
   the GPUI binary, desktop metadata/icon, udev rules, firmware image, and
   adjacent firmware manifest. AppImage or distro-native packages can follow.
 - Generalize `release::bundled_firmware()` to search, in order:
-  1. an explicit `OPENMICRO_FIRMWARE_DIR` override;
+  1. an explicit `KEYBOARD_FIRMWARE_DIR` override;
   2. macOS `Contents/Resources/firmware`;
-  3. a Linux executable-relative `../share/openmicro/firmware` directory;
-  4. `/usr/share/openmicro/firmware`;
+  3. a Linux executable-relative `../share/keyboard/firmware` directory;
+  4. `/usr/share/keyboard/firmware`;
   5. the verified release catalog download.
 - Test that the packaged firmware bytes match the version, size, and SHA-256 in
   the adjacent manifest.
@@ -211,7 +211,7 @@ Acceptance criteria:
 - Publish firmware 0.7.0 (or the next intentionally selected version) in the
   release catalog instead of leaving the public manifest at 0.6.0.
 - Decide which GitHub repository owns official releases. The app currently
-  reads the manifest from `conol-ai/openmicrokbd`, while active development may
+  reads the manifest from `mayiwei442-bojack/hardware`, while active development may
   be published from another fork. Keep the workflow asset URLs and
   `MANIFEST_URL` on the same authority.
 - Include Linux artifacts in the release manifest without changing firmware

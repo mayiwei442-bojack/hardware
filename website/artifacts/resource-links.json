@@ -14,55 +14,55 @@
       "ok": true
     },
     {
-      "url": "https://github.com/conol-ai/openmicrokbd/archive/refs/heads/main.zip",
+      "url": "https://github.com/mayiwei442-bojack/hardware/archive/refs/heads/main.zip",
       "status": 200,
-      "finalUrl": "https://codeload.github.com/conol-ai/openmicrokbd/zip/refs/heads/main",
+      "finalUrl": "https://codeload.github.com/mayiwei442-bojack/hardware/zip/refs/heads/main",
       "ok": true
     },
     {
-      "url": "https://github.com/conol-ai/openmicrokbd/raw/refs/heads/main/hw/v1/fab/openmicro-gerbers.zip",
+      "url": "https://github.com/mayiwei442-bojack/hardware/raw/refs/heads/main/hw/v1/fab/keyboard-gerbers.zip",
       "status": 200,
-      "finalUrl": "https://raw.githubusercontent.com/conol-ai/openmicrokbd/refs/heads/main/hw/v1/fab/openmicro-gerbers.zip",
+      "finalUrl": "https://raw.githubusercontent.com/mayiwei442-bojack/hardware/refs/heads/main/hw/v1/fab/keyboard-gerbers.zip",
       "ok": true
     },
     {
-      "url": "https://github.com/conol-ai/openmicrokbd/raw/refs/heads/main/hw/v1/fab/openmicro-bom.csv",
+      "url": "https://github.com/mayiwei442-bojack/hardware/raw/refs/heads/main/hw/v1/fab/keyboard-bom.csv",
       "status": 200,
-      "finalUrl": "https://raw.githubusercontent.com/conol-ai/openmicrokbd/refs/heads/main/hw/v1/fab/openmicro-bom.csv",
+      "finalUrl": "https://raw.githubusercontent.com/mayiwei442-bojack/hardware/refs/heads/main/hw/v1/fab/keyboard-bom.csv",
       "ok": true
     },
     {
-      "url": "https://github.com/conol-ai/openmicrokbd/raw/refs/heads/main/hw/v1/fab/openmicro-smt.csv",
+      "url": "https://github.com/mayiwei442-bojack/hardware/raw/refs/heads/main/hw/v1/fab/keyboard-smt.csv",
       "status": 200,
-      "finalUrl": "https://raw.githubusercontent.com/conol-ai/openmicrokbd/refs/heads/main/hw/v1/fab/openmicro-smt.csv",
+      "finalUrl": "https://raw.githubusercontent.com/mayiwei442-bojack/hardware/refs/heads/main/hw/v1/fab/keyboard-smt.csv",
       "ok": true
     },
     {
-      "url": "https://raw.githubusercontent.com/conol-ai/openmicrokbd/main/hw/v1/mechanical/OpenMicroKbkCase.3mf",
+      "url": "https://raw.githubusercontent.com/mayiwei442-bojack/hardware/main/device/hw/v1/mechanical/keyboardKbkCase.3mf",
       "status": 200,
-      "finalUrl": "https://raw.githubusercontent.com/conol-ai/openmicrokbd/main/hw/v1/mechanical/OpenMicroKbkCase.3mf",
+      "finalUrl": "https://raw.githubusercontent.com/mayiwei442-bojack/hardware/main/device/hw/v1/mechanical/keyboardKbkCase.3mf",
       "ok": true
     },
     {
-      "url": "https://raw.githubusercontent.com/conol-ai/openmicrokbd/main/hw/v1/mechanical/OpenMicroRotator.3mf",
+      "url": "https://raw.githubusercontent.com/mayiwei442-bojack/hardware/main/device/hw/v1/mechanical/keyboardRotator.3mf",
       "status": 200,
-      "finalUrl": "https://raw.githubusercontent.com/conol-ai/openmicrokbd/main/hw/v1/mechanical/OpenMicroRotator.3mf",
+      "finalUrl": "https://raw.githubusercontent.com/mayiwei442-bojack/hardware/main/device/hw/v1/mechanical/keyboardRotator.3mf",
       "ok": true
     },
     {
-      "url": "https://raw.githubusercontent.com/conol-ai/openmicrokbd/main/hw/v1/mechanical/OpenMicroJoystickCap.3mf",
+      "url": "https://raw.githubusercontent.com/mayiwei442-bojack/hardware/main/device/hw/v1/mechanical/keyboardJoystickCap.3mf",
       "status": 200,
-      "finalUrl": "https://raw.githubusercontent.com/conol-ai/openmicrokbd/main/hw/v1/mechanical/OpenMicroJoystickCap.3mf",
+      "finalUrl": "https://raw.githubusercontent.com/mayiwei442-bojack/hardware/main/device/hw/v1/mechanical/keyboardJoystickCap.3mf",
       "ok": true
     },
     {
-      "url": "https://makerworld.com.cn/zh/models/2838721-openmicrokbd-kai-yuan-jian-pan",
+      "url": "https://makerworld.com.cn/zh/models/2838721-keyboard-kai-yuan-jian-pan",
       "status": 403,
-      "finalUrl": "https://makerworld.com.cn/zh/models/2838721-openmicrokbd-kai-yuan-jian-pan",
+      "finalUrl": "https://makerworld.com.cn/zh/models/2838721-keyboard-kai-yuan-jian-pan",
       "ok": false
     },
     {
-      "url": "https://github.com/conol-ai/openmicrokbd/releases/download/v0.15.0/openmicro-fw-0.10.1.hex",
+      "url": "https://github.com/mayiwei442-bojack/hardware/releases/download/v0.15.0/keyboard-fw-0.10.1.hex",
       "status": 200,
       "finalUrl": "https://release-assets.githubusercontent.com/github-production-release-asset/1307161130/f9f72446-fad5-4771-92c7-ae26f570c522",
       "ok": true

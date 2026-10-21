@@ -1,8 +1,8 @@
-// OpenMicro — an open-source STM32F072 clone of the OpenAI Codex Micro
+// keyboard — an open-source STM32F072 clone of the OpenAI Codex Micro
 // macropad (13 keys, rotary dial, analog joystick, cap-touch, per-key RGB).
 // Wired USB-C. Every footprint datasheet-verified (see docs/README.md).
 
-design OpenMicro {
+design keyboard {
     // ---- major devices ----
     inst mcu: st_stm32::f0::stm32f072cb::MCU_STM32F072
     inst usbc: usb::connectors::type_c::USB_C_HRO_TYPE_C_31_M_12
@@ -245,7 +245,7 @@ design OpenMicro {
                   USBC_DM) [differential_impedance: 100ohm, single_ended_impedance: 50ohm, frequency: 1GHz]
         diff_pair(USB_DP,
                   USB_DM) [differential_impedance: 100ohm, single_ended_impedance: 50ohm, frequency: 1GHz]
-        board_outline: "mechanical/openmicro-outline.dxf"
+        board_outline: "mechanical/keyboard-outline.dxf"
         // MCU on the BACK (RFC-026 side bottom), in the LEFT MARGIN at mid
         // height, turned a quarter turn. This position was derived, not chosen:
         // Quilter failed to route the previous placement, and a search over
@@ -282,7 +282,7 @@ design OpenMicro {
         // 8.82mm it was BEFORE the 45-degree experiment), total net length
         // 1691.7 -> 1626.2mm.
         //
-        // Note the GPIO map in openmicro_parts.cohdl was assigned position-aware
+        // Note the GPIO map in keyboard_parts.cohdl was assigned position-aware
         // for a long-superseded TOP-left location. It has now been wrong for
         // three placements running; re-deriving it is the obvious next lever if
         // routing is still tight.
@@ -447,7 +447,7 @@ design OpenMicro {
         // 83.9% free on a 2-LAYER board, and that collar is the natural path
         // for rail and matrix nets crossing the key field. The GPIO map was
         // re-derived for the current MCU placement to buy that back; see
-        // openmicro_parts.cohdl.
+        // keyboard_parts.cohdl.
         //
         // The top (USB-side) and left LEDs carry an extra 180 degrees: the
         // SK6812's DOUT and DIN sit at opposite ends of the package, so on

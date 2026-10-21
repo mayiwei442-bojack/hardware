@@ -3,7 +3,6 @@ set -euo pipefail
 
 SPARKLE_VERSION="2.9.6"
 SPARKLE_SHA256="52bf9e88cdd972fc0c81501377a880e90d47031bd8ca5462488f843e2609e192"
-SPARKLE_URL="https://github.com/sparkle-project/Sparkle/releases/download/$SPARKLE_VERSION/Sparkle-$SPARKLE_VERSION.tar.xz"
 
 if [[ $# -ne 1 || -z "$1" || "$1" == "/" ]]; then
     echo "usage: $0 OUTPUT_DIRECTORY" >&2
@@ -23,14 +22,11 @@ ARCHIVE="$PARENT/Sparkle-$SPARKLE_VERSION.tar.xz"
 EXPANDED="$TEMP_DIR/expanded"
 mkdir -p "$EXPANDED"
 if [[ ! -f "$ARCHIVE" ]]; then
-    PARTIAL="$TEMP_DIR/Sparkle-$SPARKLE_VERSION.tar.xz.partial"
-    curl --fail --location --silent --show-error "$SPARKLE_URL" -o "$PARTIAL"
-    PARTIAL_SHA256="$(shasum -a 256 "$PARTIAL" | awk '{print $1}')"
-    if [[ "$PARTIAL_SHA256" != "$SPARKLE_SHA256" ]]; then
-        echo "Sparkle archive checksum mismatch" >&2
+    if [[ -z "${SPARKLE_ARCHIVE:-}" || ! -f "$SPARKLE_ARCHIVE" ]]; then
+        echo "Set SPARKLE_ARCHIVE to the local Sparkle $SPARKLE_VERSION tar.xz archive." >&2
         exit 1
     fi
-    mv "$PARTIAL" "$ARCHIVE"
+    cp "$SPARKLE_ARCHIVE" "$ARCHIVE"
 fi
 ACTUAL_SHA256="$(shasum -a 256 "$ARCHIVE" | awk '{print $1}')"
 if [[ "$ACTUAL_SHA256" != "$SPARKLE_SHA256" ]]; then

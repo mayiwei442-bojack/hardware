@@ -2,7 +2,7 @@
   "created_at": "2026-10-01T20:01:24.312847+08:00",
   "files": [
     {
-      "path": "assets/OpenMicroKbd.blend",
+      "path": "assets/keyboard.blend",
       "size_bytes": 1323153,
       "sha256": "c657252dfad0dbee25e992ee97d864cb32f23277ba9fac34c558c6dd00944406"
     },
@@ -32,7 +32,7 @@
       "sha256": "62fd150a03db31823f785638d1496f5b2f3195417941f795de29c618e3a6afbb"
     },
     {
-      "path": "tools/openmicro_controls.py",
+      "path": "tools/keyboard_controls.py",
       "size_bytes": 8276,
       "sha256": "799320077636aeb93eb7d844449855dfd28799f9f5bff7bbb4fd70771b63144d"
     },

@@ -1,7 +1,7 @@
-/* OpenMicro v1 memory map — STM32F072CB: 128 KiB flash in 2 KiB pages,
+/* keyboard v1 memory map — STM32F072CB: 128 KiB flash in 2 KiB pages,
    16 KiB SRAM. Since fw 0.10.0 the application is linked BEHIND a resident
    bootloader and only ever started by it. Every number below is mirrored
-   in ../layout/src/lib.rs (openmicro-layout: BOOT_SIZE, APP_BASE, APP_SIZE,
+   in ../layout/src/lib.rs (keyboard-layout: BOOT_SIZE, APP_BASE, APP_SIZE,
    VECTORS_LEN, HEADER_OFFSET, HANDOFF_*) and in scripts/fw-image.py;
    change them together.
 

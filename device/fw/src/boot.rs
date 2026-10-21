@@ -4,7 +4,7 @@
 //! 24 KiB of flash (`../../boot`); this image is linked at `APP_BASE`
 //! (0x08006000, see memory.x) and is only ever started by it. Everything the
 //! two images and the host must agree on — addresses, header formats, the
-//! handoff words, protocol constants — lives in `openmicro-layout`
+//! handoff words, protocol constants — lives in `keyboard-layout`
 //! (`../../layout`); this module is the thin runtime glue around it:
 //!
 //! * [`APP_HEADER`] — the 32-byte header at `APP_BASE + 0xC0`, right behind
@@ -50,7 +50,7 @@
 use core::ptr;
 use embassy_stm32::pac;
 use embassy_stm32::pac::syscfg::vals::MemMode;
-use openmicro_layout::{
+use keyboard_layout::{
     app_header_bytes, app_valid, flags_for_variant, status, version_bytes, version_triple_bytes,
     BootInfo, BootInfoReply, APP_BASE, BOOT_BASE, HANDOFF_FAULTS, HANDOFF_REASON, HANDOFF_REQUEST,
     HANDOFF_REQUEST_INV, HEADER_LEN, HEADER_OFFSET, RAM_BASE, REASON_AFTER_UPDATE, REASON_NORMAL,
@@ -196,7 +196,7 @@ pub fn is_stamped() -> bool {
     len != 0 || crc != 0
 }
 
-/// Builds the BOOT_INFO reply (31 bytes, `openmicro_layout::BootInfoReply`)
+/// Builds the BOOT_INFO reply (31 bytes, `keyboard_layout::BootInfoReply`)
 /// into a raw-HID report. Status 0 with the bootloader's protocol, version
 /// and layout when the info block is present; status 1 with everything
 /// zeroed when it is missing. `app_valid` is 1 (stamped) or 2 (unstamped —

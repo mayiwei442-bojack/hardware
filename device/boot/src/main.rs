@@ -1,4 +1,4 @@
-//! OpenMicro v1 resident bootloader (STM32F072CB, 24 KiB at 0x08000000).
+//! keyboard v1 resident bootloader (STM32F072CB, 24 KiB at 0x08000000).
 //!
 //! The one job: the pad must never end up executing garbage. The
 //! bootloader is the only thing that writes the application slot, checks
@@ -19,12 +19,12 @@
 //! 4. REQ_BOOTLOADER → update mode; REQ_RUN → straight on to step 5;
 //!    otherwise a fault counted on the previous boot → update mode, and
 //!    sampling the encoder switch for 20 ms → held → update mode;
-//! 5. validate the slot (`openmicro_layout::validate_app_for`: header, CRC and board variant);
+//! 5. validate the slot (`keyboard_layout::validate_app_for`: header, CRC and board variant);
 //! 6. valid → copy its vector table to 0x20000000, remap SRAM to address 0
 //!    (no VTOR on Cortex-M0), `bootload`; invalid → update mode.
 //!
 //! Update mode brings the clocks to 48 MHz, enumerates as 1209:0002
-//! "OpenMicro Bootloader" with one 64-byte raw-HID interface and runs the
+//! "keyboard Bootloader" with one 64-byte raw-HID interface and runs the
 //! protocol in `update.rs` over the flash (`flashprog.rs`). It never times
 //! out. Panics, HardFaults and every otherwise unbound exception escalate
 //! through the FAULTS handoff word: reset once (back into update mode when
@@ -59,7 +59,7 @@ use embassy_stm32::{bind_interrupts, peripherals, usb, Config, Peripherals};
 use embassy_time::{Duration, Instant, Timer};
 use embassy_usb::class::hid::{HidReader, HidReaderWriter, HidWriter, State};
 use embassy_usb::driver::Driver as UsbDriver;
-use openmicro_layout::{
+use keyboard_layout::{
     boot_info_bytes, faults_count, faults_word, validate_app_for, APP_BASE, APP_SIZE,
     BOOT_MANUFACTURER, BOOT_PID, BOOT_PRODUCT, BOOT_REPORT_LEN, BOOT_VID, RAM_BASE,
     REASON_AFTER_UPDATE, REASON_NORMAL, REASON_SWITCH, REQ_BOOTLOADER, REQ_ROM_DFU, REQ_RUN,

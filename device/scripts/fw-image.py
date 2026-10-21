@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""OpenMicro v1 firmware image tool: inspect, stamp, verify and slice images.
+"""keyboard v1 firmware image tool: inspect, stamp, verify and slice images.
 
 Since firmware 0.10.0 the pad runs a resident bootloader (boot/) in the first
 24 KiB of flash and the application (fw/) behind it at 0x08006000. Both carry
@@ -13,7 +13,7 @@ jump and stays in its USB HID update mode when it does not check out, so the
 release pipeline must stamp every application image and never publish one
 that would fail on the pad. This tool is that pipeline's single source of
 truth on the host side; the numbers below mirror layout/src/lib.rs
-(openmicro-layout), which the bootloader, the firmware and the host app share.
+(keyboard-layout), which the bootloader, the firmware and the host app share.
 `selftest` cross-checks the CRC against the crate's test vectors.
 
     fw-image.py info <file> [--json]        what is in an image (combined, app, boot, legacy)
@@ -135,7 +135,7 @@ def fmt_size(n):
     return "{:,}".format(n)
 
 
-# ---- CRC-32 (ISO-HDLC: zlib.crc32 == openmicro_layout::crc32) --------------
+# ---- CRC-32 (ISO-HDLC: zlib.crc32 == keyboard_layout::crc32) --------------
 
 
 def crc32(data):
@@ -144,7 +144,7 @@ def crc32(data):
 
 def image_crc(image):
     """CRC of an application image with the header's crc field taken as zero,
-    exactly like openmicro_layout::image_crc: the field cannot cover itself."""
+    exactly like keyboard_layout::image_crc: the field cannot cover itself."""
     at = HEADER_OFFSET + 8
     c = zlib.crc32(image[:at])
     c = zlib.crc32(b"\0\0\0\0", c)
@@ -227,7 +227,7 @@ def boot_used(region):
     return max(len(stripped), RESET_OFFSET)
 
 
-# ---- validation (mirrors openmicro_layout::validate_app) --------------------
+# ---- validation (mirrors keyboard_layout::validate_app) --------------------
 
 
 def check_vectors(image, base, what):
@@ -518,7 +518,7 @@ def app_slice(image):
 
 
 def suggested_slice_name(header, app_base):
-    return "openmicro-fw-{}-app-slot-0x{:08X}.bin".format(header["version"], app_base)
+    return "keyboard-fw-{}-app-slot-0x{:08X}.bin".format(header["version"], app_base)
 
 
 def slice_flash_hint(path, app_base):
@@ -613,7 +613,7 @@ def selftest(verbose=True):
           and parse_app_header(app_header_bytes("0.10.0", FLAG_PROTO))["flags"] == FLAG_PROTO
           and parse_app_header(app_header_bytes("0.10.0"))["proto"] is False)
 
-    # CRC: the ISO-HDLC vectors openmicro_layout::crc32 is tested against,
+    # CRC: the ISO-HDLC vectors keyboard_layout::crc32 is tested against,
     # and the image rule (crc field zeroed) spelled out with plain zlib.
     check("crc32(\"123456789\") == 0xCBF43926", crc32(b"123456789") == 0xCBF43926, "0x{:08X}".format(crc32(b"123456789")))
     check("crc32(\"\") == 0", crc32(b"") == 0)
@@ -727,7 +727,7 @@ def selftest(verbose=True):
     piece, base, h = app_slice(combined)
     check("slice equals the stamped app", piece == stamped and base == APP_BASE and h == header)
     check("slice of a padded combined image is exact", app_slice(combined + b"\xff" * 100)[0] == stamped)
-    check("suggested slice name", suggested_slice_name(h, base) == "openmicro-fw-0.10.0-app-slot-0x08006000.bin")
+    check("suggested slice name", suggested_slice_name(h, base) == "keyboard-fw-0.10.0-app-slot-0x08006000.bin")
     check("dist refusal sees any dist component", inside_dist("dist/x.bin") and inside_dist("/a/dist/b/x.bin") and not inside_dist("out/dist.bin") and not inside_dist("/tmp/x/dist"))
     d = describe(combined, "synthetic")
     check("describe(combined)", d["kind"] == KIND_COMBINED and d["boot"]["version"] == "1.0.0" and d["app"]["version"] == "0.10.0"
@@ -799,7 +799,7 @@ def selftest(verbose=True):
         padded_path = os.path.join(tmp, "boot-padded.bin")
         check("cli pad-boot", main(["pad-boot", boot_path, "--out", padded_path, "--quiet"]) == 0 and open(padded_path, "rb").read() == padded)
         check("cli verify boot", main(["verify", boot_path, "--quiet"]) == 0)
-        combined_path = os.path.join(tmp, "openmicro-fw-0.10.0.bin")
+        combined_path = os.path.join(tmp, "keyboard-fw-0.10.0.bin")
         with open(combined_path, "wb") as f:
             f.write(open(padded_path, "rb").read() + open(out_path, "rb").read())
         check("cli verify combined", main(["verify", combined_path, "--quiet"]) == 0)
@@ -807,10 +807,10 @@ def selftest(verbose=True):
         check("cli info combined", main(["info", combined_path, "--quiet"]) == 0)
         dist_dir = os.path.join(tmp, "dist")
         os.mkdir(dist_dir)
-        dist_slice = os.path.join(dist_dir, "openmicro-fw-0.10.0-app-slot-0x08006000.bin")
+        dist_slice = os.path.join(dist_dir, "keyboard-fw-0.10.0-app-slot-0x08006000.bin")
         check("cli slice refuses dist/", main(["slice", combined_path, "--out", dist_slice, "--quiet"]) == 1 and not os.path.exists(dist_slice))
         check("cli slice --force into dist/", main(["slice", combined_path, "--out", dist_slice, "--force", "--quiet"]) == 0 and open(dist_slice, "rb").read() == stamped)
-        slice_path = os.path.join(tmp, "openmicro-fw-0.10.0-app-slot-0x08006000.bin")
+        slice_path = os.path.join(tmp, "keyboard-fw-0.10.0-app-slot-0x08006000.bin")
         check("cli slice", main(["slice", combined_path, "--out", slice_path, "--quiet"]) == 0 and open(slice_path, "rb").read() == stamped)
         check("cli verify slice", main(["verify", slice_path, "--quiet"]) == 0)
         check("cli slice passes an app-only image through", main(["slice", slice_path, "--out", slice_path + ".2", "--quiet"]) == 0
@@ -837,7 +837,7 @@ def selftest(verbose=True):
               and "dfu-util -d 0483:df11 -a 0 -s 0x08006000 -D " + slice_path + ".4" in hint_out.getvalue()
               and "unplug and replug the pad: the bootloader validates the slot and starts it" in hint_out.getvalue())
         # A mixed pair on disk: verify and slice refuse it, info reports it.
-        mixed_path = os.path.join(tmp, "openmicro-fw-0.10.0-mixed.bin")
+        mixed_path = os.path.join(tmp, "keyboard-fw-0.10.0-mixed.bin")
         with open(mixed_path, "wb") as f:
             f.write(padded + proto_app)
         check("cli verify mixed pair fails", main(["verify", mixed_path, "--quiet"]) == 1)
@@ -1021,7 +1021,7 @@ def build_parser():
 
     s = sub.add_parser("slice", help="write the application image out of a combined image")
     s.add_argument("file")
-    s.add_argument("--out", required=True, help="output path; suggested: openmicro-fw-<ver>-app-slot-0x%08X.bin" % APP_BASE)
+    s.add_argument("--out", required=True, help="output path; suggested: keyboard-fw-<ver>-app-slot-0x%08X.bin" % APP_BASE)
     s.add_argument("--force", action="store_true", help="allow an output path under a dist/ directory")
     common(s)
     s.set_defaults(fn=cmd_slice)

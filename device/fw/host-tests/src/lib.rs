@@ -292,7 +292,7 @@ mod layout_tests {
 mod tests {
     use super::wire::*;
 
-    const VERSION: &str = "0.8.0-openmicro";
+    const VERSION: &str = "0.8.0-keyboard";
 
     /// Split `json` the way a host does (61-byte payloads, report ID first,
     /// newline-terminated) and feed every fragment to `rx`, returning the
@@ -552,7 +552,7 @@ mod tests {
         assert_eq!(what, Handled::DeviceStatus);
         assert_eq!(
             reply,
-            r#"{"id":4242,"result":{"version":"0.8.0-openmicro","profile_index":0,"layer_index":1,"battery":100,"is_charging":false}}"#
+            r#"{"id":4242,"result":{"version":"0.8.0-keyboard","profile_index":0,"layer_index":1,"battery":100,"is_charging":false}}"#
         );
     }
 
@@ -561,7 +561,7 @@ mod tests {
         let mut lights = Lights::OFF;
         let (what, reply) = handle(br#"{"method":"sys.version","id":1}"#, &mut lights);
         assert_eq!(what, Handled::SysVersion);
-        assert_eq!(reply, r#"{"id":1,"result":{"version":"0.8.0-openmicro"}}"#);
+        assert_eq!(reply, r#"{"id":1,"result":{"version":"0.8.0-keyboard"}}"#);
         for (m, expect) in [
             ("lights.preview", Handled::LightsPreview),
             ("host.focused_app", Handled::Acked),

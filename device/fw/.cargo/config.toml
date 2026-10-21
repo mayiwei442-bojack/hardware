@@ -14,10 +14,10 @@ rustflags = ["-C", "link-arg=-Tlink.x", "-C", "link-arg=-Tdefmt.x"]
 [env]
 # Default for `cargo build` / `cargo run`: our own crate at info (boot
 # reason, keymap, USB state), embassy at warn. The 84 KiB application slot
-# cannot hold the full debug stream any more (`info,openmicro_fw=debug`
+# cannot hold the full debug stream any more (`info,keyboard_fw=debug`
 # links to within ~100 bytes of the slot in 0.10.0), so opt into it per
 # invocation when chasing joystick raw values, touch charge time or the
 # executor heartbeat:
-#   DEFMT_LOG=info,openmicro_fw=debug cargo run --release
+#   DEFMT_LOG=info,keyboard_fw=debug cargo run --release
 # `off` strips all logging from the build (what releases use).
-DEFMT_LOG = "warn,openmicro_fw=info"
+DEFMT_LOG = "warn,keyboard_fw=info"

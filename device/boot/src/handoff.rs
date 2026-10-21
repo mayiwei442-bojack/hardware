@@ -14,7 +14,7 @@
 //! | FAULTS   | `FAULTS_TAG | count`: panic/HardFault escalation counter   |
 
 use core::ptr::{read_volatile, write_volatile};
-use openmicro_layout::{HANDOFF_FAULTS, HANDOFF_REASON, HANDOFF_REQUEST, HANDOFF_REQUEST_INV};
+use keyboard_layout::{HANDOFF_FAULTS, HANDOFF_REASON, HANDOFF_REQUEST, HANDOFF_REQUEST_INV};
 
 #[inline(always)]
 fn read(addr: u32) -> u32 {
@@ -54,7 +54,7 @@ pub fn set_reason(reason: u32) {
     write(HANDOFF_REASON, reason);
 }
 
-/// Raw faults word; decode with `openmicro_layout::faults_count`.
+/// Raw faults word; decode with `keyboard_layout::faults_count`.
 pub fn faults() -> u32 {
     read(HANDOFF_FAULTS)
 }

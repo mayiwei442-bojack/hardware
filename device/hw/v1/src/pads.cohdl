@@ -1,4 +1,4 @@
-// OpenMicro pad library — one padstack per land-pattern role, dimensions from
+// keyboard pad library — one padstack per land-pattern role, dimensions from
 // the KiCad official footprint named in each comment (datasheet-derived land
 // patterns). Edits here propagate to every footprint that references the pad.
 

@@ -1,14 +1,14 @@
-# OpenMicro companion app
+# keyboard companion app
 
-Cross-platform desktop app for the OpenMicro macropad, built with
+Cross-platform desktop app for the keyboard macropad, built with
 [GPUI](https://gpui.rs) and
-[GPUI Component](https://github.com/longbridge/gpui-component). The native,
+GPUI Component. The native,
 GPU-accelerated interface uses platform-quality text rendering and a compact
 8-bit visual system; the whole product stack (compiler-designed board,
 embassy firmware, host app) stays in Rust.
 
 ```sh
-cargo run --release --locked --bin openmicro-app
+cargo run --release --locked --bin keyboard-app
 ```
 
 On Windows, install Rust plus Visual Studio's **Desktop development with C++**
@@ -30,7 +30,7 @@ as a disc, and all **13 keys as independent 1U cells**. Selecting any input
 opens its editor beside the grid; macros, settings and firmware updates are
 focused sheets over the pad; a menubar item carries profile switching and
 connection status. Settings also includes a Community shortcut to [join the
-shared CoHDL and OpenMicroKbd Discord](https://discord.gg/x7DXPvK66).
+shared CoHDL and keyboard Discord](https://discord.gg/x7DXPvK66).
 Disconnected, the board remains fully legible and an
 offline-editing callout explains that the active profile will sync when the
 pad returns.
@@ -154,24 +154,24 @@ activity color across the key LEDs.
 
 The easiest setup is in **Settings → Agent integrations**. Each **Install**
 button adds the integration to that client's user-level configuration using the
-exact OpenMicro executable that is currently running. **Configured** means the
+exact keyboard executable that is currently running. **Configured** means the
 files already match this app; **Reinstall** updates a recognized older
-OpenMicro integration, which is useful after moving the app or upgrading its
+keyboard integration, which is useful after moving the app or upgrading its
 hook format.
 
 | Client | User-level target | Main event mapping |
 | --- | --- | --- |
 | Codex | `$CODEX_HOME/hooks.json`, or `~/.codex/hooks.json` | prompt → working, approval → attention, stop → success, session end → idle |
 | Claude Code | `$CLAUDE_CONFIG_DIR/settings.json`, or `~/.claude/settings.json` | prompt/tool → working, permission/question/elicitation → attention, stop → success, API failure → error |
-| OpenCode | `$XDG_CONFIG_HOME/opencode/plugins/openmicro.ts`, or `~/.config/opencode/plugins/openmicro.ts` | busy/retry → working, permission/question → attention, idle → success, session error → error |
-| Deep Code | `~/.deepcode/settings.json` plus `openmicro-notify.sh` (macOS/Linux) or `openmicro-notify.cmd` (Windows) | completed turn → success, failed turn → error |
-| Grok | `~/.grok/hooks/openmicro.json` | prompt/tool → working, permission → attention, stop → success, API failure → error |
+| OpenCode | `$XDG_CONFIG_HOME/opencode/plugins/keyboard.ts`, or `~/.config/opencode/plugins/keyboard.ts` | busy/retry → working, permission/question → attention, idle → success, session error → error |
+| Deep Code | `~/.deepcode/settings.json` plus `keyboard-notify.sh` (macOS/Linux) or `keyboard-notify.cmd` (Windows) | completed turn → success, failed turn → error |
+| Grok | `~/.grok/hooks/keyboard.json` | prompt/tool → working, permission → attention, stop → success, API failure → error |
 | Octoscode / Octos | `~/.octos/profile-defaults.json` | prompt/LLM call → working, turn end → success |
 
 The installer parses Codex, Claude Code, Grok, Octos, and Deep Code JSON structurally. It
 keeps unrelated settings and third-party hooks, removes only recognized
-OpenMicro entries, and creates a uniquely named private backup beside a file
-before changing it. OpenCode and Deep Code helper scripts carry an OpenMicro
+keyboard entries, and creates a uniquely named private backup beside a file
+before changing it. OpenCode and Deep Code helper scripts carry an keyboard
 managed marker; remove that marker before customizing a script, because marked
 files may be replaced on update after backup. A malformed JSON file, an
 unrelated file at the OpenCode plugin path, or a different Deep Code notifier
@@ -181,30 +181,30 @@ prepared.
 
 Hook execution remains under each client's security controls. After installing
 the Codex integration, use `/hooks` in Codex to inspect and trust the new
-commands; OpenMicro does not bypass that review. Existing agent processes may
+commands; keyboard does not bypass that review. Existing agent processes may
 have cached their configuration, so start a new session or restart the client
-if the lights do not appear. The OpenMicro companion app must also be running
-when a hook fires. On macOS, move OpenMicro out of a downloaded/translocated
+if the lights do not appear. The keyboard companion app must also be running
+when a hook fires. On macOS, move keyboard out of a downloaded/translocated
 location (normally into `/Applications`) and reopen it before installing.
 
 The buttons install user-level integrations on macOS, Windows, and Linux. For
 a project-local setup or a manual review before installation, the equivalent
 templates remain available as [`codex-hooks.example.json`](codex-hooks.example.json),
 [`claude-code-hooks.example.json`](claude-code-hooks.example.json),
-[`opencode-openmicro.example.ts`](opencode-openmicro.example.ts), and
+[`opencode-keyboard.example.ts`](opencode-keyboard.example.ts), and
 [`deep-code-notify.example.sh`](deep-code-notify.example.sh) or
 [`deep-code-notify.example.cmd`](deep-code-notify.example.cmd).
 
 The checked-in JSON examples assume the installed macOS binary at
-`/Applications/OpenMicro.app/Contents/MacOS/OpenMicro`; Windows installations
-use the absolute path to `OpenMicro.exe`. Source builds must use their own
+`/Applications/keyboard.app/Contents/MacOS/keyboard`; Windows installations
+use the absolute path to `keyboard.exe`. Source builds must use their own
 absolute binary path. Hook commands are deliberately synchronous and
 short-lived in the Codex and Claude Code examples; the OpenCode plugin queues
 its fire-and-forget callbacks so a late helper cannot replace a newer state.
 See the official [Codex hooks](https://learn.chatgpt.com/docs/hooks), [Claude
 Code hooks](https://code.claude.com/docs/en/hooks), [OpenCode plugin
 documentation](https://opencode.ai/docs/plugins/), and [Deep Code notify
-documentation](https://github.com/lessweb/deepcode-cli/blob/main/docs/notify.md)
+documentation]()
 for their surrounding config formats.
 
 DeepSeek is often the model/provider rather than the lifecycle client. When a
@@ -216,13 +216,13 @@ reliably report working or approval states. DeepSeek Harness is currently a
 separate developer-preview client and can integrate through the generic command
 below without changing the app.
 
-Start the OpenMicro GUI before testing—the helper sends to its local endpoint
+Start the keyboard GUI before testing—the helper sends to its local endpoint
 and agent hooks deliberately treat a missing resident app as a no-op. For
 manual smoke tests and other agents, the installed binary accepts:
 
 ```text
-/Applications/OpenMicro.app/Contents/MacOS/OpenMicro status <idle|working|attention|success|error> [client:session]
-OpenMicro.exe status <idle|working|attention|success|error> [client:session]
+/Applications/keyboard.app/Contents/MacOS/keyboard status <idle|working|attention|success|error> [client:session]
+keyboard.exe status <idle|working|attention|success|error> [client:session]
 ```
 
 Use a stable, client-prefixed session name so independent agents cannot clear
@@ -270,7 +270,7 @@ mapping and the provenance and trademark notes.
 From firmware 0.10.0 the pad carries a resident bootloader (`boot/`, 24 KiB
 at the start of flash) and updates are **driverless**: the sheet checks the
 image, sends `ENTER_BOOT` over raw HID, the pad reboots into the
-bootloader's update mode (`1209:0002` "OpenMicro Bootloader", a plain HID
+bootloader's update mode (`1209:0002` "keyboard Bootloader", a plain HID
 interface every OS can open), the app uploads the application slice in
 64-byte HID reports (56 data bytes each), the bootloader verifies the
 header's length and CRC-32 from flash before it will ever start it, and the
@@ -332,7 +332,7 @@ Release builds check `release-manifest.json` at startup and every six hours.
 When a newer host version exists, macOS release builds open Sparkle's native
 update flow. Sparkle downloads the correct architecture-specific DMG, verifies
 its Ed25519 update signature and Developer ID signature, installs it atomically,
-and relaunches OpenMicro. Windows downloads the matching x64 or Arm64 portable
+and relaunches keyboard. Windows downloads the matching x64 or Arm64 portable
 ZIP, verifies its declared size and SHA-256, and opens it for manual replacement.
 Source and ad-hoc macOS builds retain the same verified manual DMG fallback.
 See [`../RELEASING.md`](../RELEASING.md) for packaging and publishing details.

@@ -74,22 +74,6 @@ await writeFile(
   "utf8",
 );
 
-const license = await readFile(resolve(packageRoot, "LICENSE.md"), "utf8");
-const disclaimer = await readFile(
-  resolve(packageRoot, "DISCLAIMER.md"),
-  "utf8",
-);
-const bundledNotice = `# Simple Icons ${packageMetadata.version}\n\n` +
-  "The embedded brand catalog was generated from the Simple Icons npm " +
-  `package version ${packageMetadata.version}. The upstream license and ` +
-  "brand-use disclaimer follow.\n\n---\n\n" +
-  `${license.trim()}\n\n---\n\n${disclaimer.trim()}\n`;
-await writeFile(
-  resolve(resourcesRoot, "simple-icons.LICENSE.md"),
-  bundledNotice,
-  "utf8",
-);
-
 console.log(
   `Generated ${icons.length} Simple Icons ${packageMetadata.version} entries.`,
 );

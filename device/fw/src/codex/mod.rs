@@ -21,7 +21,7 @@
 //! The protocol is undocumented. This module is an independent Rust
 //! re-implementation of the behaviour observed, documented and validated
 //! (over BLE) by two MIT-licensed reference projects:
-//! `imliubo/codex-micro-4-core2` (Copyright (c) 2026 imliubo) and
+//! `imliubo/codex-micro-4-core2` and
 //! `digitsisyph/codex-micro-stopwatch`, plus what Work Louder's device kit
 //! (bundled inside the Codex and Input apps) expects. None of their code is
 //! copied. The identifiers used here (VID/PID, device strings, usage page,
@@ -134,7 +134,7 @@ pub const PRODUCT: &str = "Codex Micro";
 pub const DEVICE_RELEASE: u16 = 0x0100;
 /// What `sys.version` / `device.status` report. Suffixed so a host log can
 /// tell this pad from the real hardware and from the BLE emulators.
-pub const VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), "-openmicro");
+pub const VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), "-keyboard");
 
 // ---- device -> host events --------------------------------------------------
 

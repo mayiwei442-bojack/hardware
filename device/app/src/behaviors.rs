@@ -1431,7 +1431,7 @@ mod tests {
     #[test]
     fn windows_application_scan_finds_shortcuts_and_executables() {
         let unique = format!(
-            "openmicro-app-scan-{}-{}",
+            "keyboard-app-scan-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)

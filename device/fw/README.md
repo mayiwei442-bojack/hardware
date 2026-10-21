@@ -1,11 +1,11 @@
-# OpenMicro firmware
+# keyboard firmware
 
-Rust/[embassy](https://embassy.dev) firmware for the OpenMicro macropad
+Rust/[embassy](https://embassy.dev) firmware for the keyboard macropad
 (STM32F072CBT6). Async, no RTOS, no unsafe outside the vendored HAL.
 
 Build stats (fw 0.10.0, release, LTO, `opt-level = "s"`): 68.1 KiB flash
 with `DEFMT_LOG=off` (the production build), 83.3 KiB with the default
-bring-up logging (`warn,openmicro_fw=info`) compiled in — of the 84 KiB
+bring-up logging (`warn,keyboard_fw=info`) compiled in — of the 84 KiB
 application slot behind the resident bootloader (see [Flash
 map](#flash-map-header-and-boot-handoff)); ~9.6 KiB static RAM of 16 KiB.
 The saved keymap and the Codex file slots live in their own pages above the
@@ -14,7 +14,7 @@ image.
 ## Pin map — where it comes from
 
 The pin assignment is **generated from the board design**, not chosen here:
-`../src/openmicro_parts.cohdl` (the `STM32F072CBT6` device block) is the
+`../src/keyboard_parts.cohdl` (the `STM32F072CBT6` device block) is the
 single source of truth — it is the position-aware GPIO map that made the
 board routable. If the `.cohdl` changes, update the table at the top of
 `src/main.rs` to match.
@@ -53,7 +53,7 @@ Touch, USB, and SWD are identical on both revisions.
 
 ```sh
 cargo build --release --features proto            # from fw/, or:
-FW_FEATURES=proto scripts/build-firmware.sh dist  # -> dist/openmicro-fw-<version>-proto.bin
+FW_FEATURES=proto scripts/build-firmware.sh dist  # -> dist/keyboard-fw-<version>-proto.bin
 ```
 
 ## What it does
@@ -123,7 +123,7 @@ traffic against this firmware without errors. The app opens the interface
 **exclusively**, so any other tool holding it (the probe scripts, the
 reference Swift probes) makes the app's connection fail with "exclusive
 access and device already open" until that tool exits — quit one before
-running the other. The normal keymap is bypassed in this mode; the OpenMicro vendor
+running the other. The normal keymap is bypassed in this mode; the keyboard vendor
 interface (`0xFF60`) stays, so the companion app, firmware updates and the
 mode switch keep working.
 
@@ -132,13 +132,13 @@ mode switch keep working.
 | Held at power-up | Mode |
 |---|---|
 | The **second** key of the second row (KEY 04 in the app; slot 3, matrix row 1 / col 1) | Codex Micro compat |
-| The **first** key of the second row (KEY 03 in the app; slot 2, matrix row 1 / col 0) | OpenMicro (the default) |
+| The **first** key of the second row (KEY 03 in the app; slot 2, matrix row 1 / col 0) | keyboard (the default) |
 
 The choice is saved with the keymap (it takes the reserved byte of the v4
-blob, so older firmware ignores it and a downgrade falls back to OpenMicro
+blob, so older firmware ignores it and a downgrade falls back to keyboard
 mode — until that older firmware SAVEs, re-flashing 0.8.0+ restores the
 saved mode) and applies to every later boot. The underglow shows the mode for a
-second at power-up — amber for OpenMicro, white for Codex — blinking when a
+second at power-up — amber for keyboard, white for Codex — blinking when a
 chord has just changed it. The app's Settings sheet has the same switch
 (`GET_MODE` / `SET_MODE` below); a change resets the pad so it re-enumerates.
 
@@ -209,9 +209,9 @@ per-app layer switching (`linkedApps`).
 **Provenance and disclaimer.** The protocol is undocumented. This is an
 independent Rust re-implementation of the behaviour documented by two
 MIT-licensed projects that emulate the device over Bluetooth,
-[`imliubo/codex-micro-4-core2`](https://github.com/imliubo/codex-micro-4-core2)
-(Copyright (c) 2026 imliubo) and
-[`digitsisyph/codex-micro-stopwatch`](https://github.com/digitsisyph/codex-micro-stopwatch).
+`imliubo/codex-micro-4-core2`
+ and
+`digitsisyph/codex-micro-stopwatch`.
 Neither validated USB; that part is now confirmed against the real app,
 whose bundled Work Louder device kit filters on VID `0x303A`, PIDs `0x8360`
 (Codex Micro) / `0x8297` / `0x8298` (Creator Micro V2), usage page `0xFF00`,
@@ -251,21 +251,21 @@ printed on the channel via `panic-probe`. `cargo run --release` flashes and
 then streams:
 
 ```
-[INFO ] OpenMicro fw v0.1.0: clocks up (HSI48 -> 48 MHz core, CRS synced from USB SOF)
+[INFO ] keyboard fw v0.1.0: clocks up (HSI48 -> 48 MHz core, CRS synced from USB SOF)
 [INFO ] matrix r2 c1 DOWN kc=0x6f
 [INFO ] encoder CW -> vol+
 [DEBUG] touch charge t=48 baseline=48
 ```
 
 The level is set by `DEFMT_LOG` in `.cargo/config.toml`, defaulting to
-`warn,openmicro_fw=info` — this crate's boot/keymap/USB messages at `info`,
+`warn,keyboard_fw=info` — this crate's boot/keymap/USB messages at `info`,
 embassy at `warn`. Filtering is compile-time, so **`DEFMT_LOG=off` strips
 logging out entirely** and is what production builds should use. The
 per-tick diagnostics (joystick raw counts, touch charge time, executor
 heartbeat) are `debug` and have to be opted into per invocation:
 
 ```sh
-DEFMT_LOG=info,openmicro_fw=debug cargo run --release
+DEFMT_LOG=info,keyboard_fw=debug cargo run --release
 ```
 
 Flash footprint of 0.10.0 by filter, against the 86,016-byte slot:
@@ -274,9 +274,9 @@ Flash footprint of 0.10.0 by filter, against the 86,016-byte slot:
 |---|---|---|
 | `off` (releases) | 69,696 B | 16,320 B |
 | `warn` | 84,112 B | 1,904 B |
-| `warn,openmicro_fw=info` (default) | 85,264 B | 752 B |
+| `warn,keyboard_fw=info` (default) | 85,264 B | 752 B |
 | `info` | 85,424 B | 592 B |
-| `info,openmicro_fw=debug` | 85,936 B | 80 B |
+| `info,keyboard_fw=debug` | 85,936 B | 80 B |
 
 The debug stream is at the edge of the slot: a new `info!` on a busy path
 may not link with it, which is why it is no longer the default.
@@ -289,7 +289,7 @@ Since fw 0.10.0 the pad boots through a **resident bootloader** (`../boot`,
 and stays in a driverless USB HID update mode whenever there is nothing
 valid to run, so an interrupted update leaves a pad that still updates
 instead of a dead one. Every number below is defined once, in
-[`../layout/src/lib.rs`](../layout/src/lib.rs) (the `openmicro-layout`
+[`../layout/src/lib.rs`](../layout/src/lib.rs) (the `keyboard-layout`
 crate shared by the bootloader, this firmware, the host app and the build
 scripts) and mirrored in `memory.x`.
 
@@ -315,7 +315,7 @@ scripts) and mirrored in `memory.x`.
 | 0 | magic `"OMKA"` (`0x414B4D4F`) |
 | 4 | image length in bytes from `0x08006000`, a multiple of 4 |
 | 8 | CRC-32 (ISO-HDLC — `zlib.crc32`, `crc32fast`) over the image with this field taken as zero |
-| 12 | header version `1` (u16), flags (u16): bit 0 set = built with `--features proto` (`openmicro_layout::FLAG_PROTO`); the bootloader refuses to install an image whose bit disagrees with its own info-block `variant`, so a `proto` build cannot land on a production pad or vice versa |
+| 12 | header version `1` (u16), flags (u16): bit 0 set = built with `--features proto` (`keyboard_layout::FLAG_PROTO`); the bootloader refuses to install an image whose bit disagrees with its own info-block `variant`, so a `proto` build cannot land on a production pad or vice versa |
 | 16 | `CARGO_PKG_VERSION`, NUL padded to 16 bytes |
 
 Straight out of the linker the length and CRC are **zero** — an *unstamped*
@@ -392,10 +392,10 @@ any IN report starting `0x80` is an unsolicited input event, not a reply:
 | `[0x0D]` | Replies `[0x0D, kmode,kr,kg,kb, umode,ur,ug,ub]` — per-chain LED pattern (0 rainbow, 1 solid RGB) |
 | `[0x0E, kmode,kr,kg,kb, umode,ur,ug,ub]` | Acks `[0x0E, 0x01]` — set patterns in RAM (SAVE persists) |
 | `[0x0F, index, enabled, r, g, b]` | Acks `[0x0F, 0x01]` — set or clear one key LED override in RAM (never persisted) |
-| `[0x10]` | Replies `[0x10, mode]` — running device mode (0 OpenMicro / 1 Codex Micro compat, fw 0.8.0+) |
+| `[0x10]` | Replies `[0x10, mode]` — running device mode (0 keyboard / 1 Codex Micro compat, fw 0.8.0+) |
 | `[0x11, mode, 'M','O','D','E']` | Acks `[0x11, ok]`; a changed mode is saved (the whole RAM configuration, like SAVE) and the pad resets to re-enumerate in it |
-| `[0x12, 'B','O','O','T']` | Acks `[0x12, 0x01]`, then (50 ms later) resets into the bootloader's HID update mode — the pad re-enumerates as `1209:0002` "OpenMicro Bootloader". A wrong key is refused with `[0x12, 0x00]` (fw 0.10.0+) |
-| `[0x20]` | Replies `[0x20, status, proto, boot_major, boot_minor, boot_patch, app_base u32, app_size u32, app_valid, app_version[16]]` — 31 bytes, little-endian (`openmicro_layout::BootInfoReply`): status 0 with the bootloader's protocol (1), version and layout (`0x08006000`, `0x15000`), `app_valid` 1 stamped / 2 unstamped, and this firmware's version NUL-padded; status 1 with the rest zeroed if there is no bootloader info block (fw 0.10.0+). The bootloader answers the same opcode on its own interface with `page u16, max_chunk u8` appended |
+| `[0x12, 'B','O','O','T']` | Acks `[0x12, 0x01]`, then (50 ms later) resets into the bootloader's HID update mode — the pad re-enumerates as `1209:0002` "keyboard Bootloader". A wrong key is refused with `[0x12, 0x00]` (fw 0.10.0+) |
+| `[0x20]` | Replies `[0x20, status, proto, boot_major, boot_minor, boot_patch, app_base u32, app_size u32, app_valid, app_version[16]]` — 31 bytes, little-endian (`keyboard_layout::BootInfoReply`): status 0 with the bootloader's protocol (1), version and layout (`0x08006000`, `0x15000`), `app_valid` 1 stamped / 2 unstamped, and this firmware's version NUL-padded; status 1 with the rest zeroed if there is no bootloader info block (fw 0.10.0+). The bootloader answers the same opcode on its own interface with `page u16, max_chunk u8` appended |
 
 The Codex Micro compat interface (usage page `0xFF00`) is documented in
 [`src/codex/mod.rs`](src/codex/mod.rs); its keymap file format in
@@ -410,7 +410,7 @@ feedback — and a hardware test — with no OS input-monitoring permission.
 **Field updates: the bootloader's HID update mode — no driver, no buttons.**
 
 The host app sends `ENTER_BOOT`; the pad re-enumerates as `1209:0002`
-"OpenMicro Bootloader" (keys breathing amber), a raw-HID device on the same
+"keyboard Bootloader" (keys breathing amber), a raw-HID device on the same
 usage page with 64-byte reports that speaks `BOOT_INFO` / `UPDATE_BEGIN` /
 `UPDATE_DATA` / `UPDATE_END` / `BOOT_RUN` — see
 [`../boot/README.md`](../boot/README.md). The bootloader erases and programs
@@ -428,7 +428,7 @@ release can be replaced rather than reset-looping. Raw HID needs no driver
 on any OS (Linux wants a udev rule for `1209:0002`,
 `docs/linux-firmware-updates.md`).
 
-Release images are **combined**: `dist/openmicro-fw-<version>.bin` is the
+Release images are **combined**: `dist/keyboard-fw-<version>.bin` is the
 bootloader padded to 24 KiB followed by the stamped application, so its
 first words are the bootloader's vectors and it flashes at `0x08000000`.
 The host app reads `app_base` from the bootloader's info block (never
@@ -445,7 +445,7 @@ binding; on some Linux xHCI hosts the ROM's DNLOAD bug bites
 (`docs/linux-firmware-updates.md`).
 
 ```sh
-dfu-util -a 0 -s 0x08000000:leave -D dist/openmicro-fw-0.10.0.bin   # combined image only
+dfu-util -a 0 -s 0x08000000:leave -D dist/keyboard-fw-0.10.0.bin   # combined image only
 ```
 
 `bcdDevice` in the USB device descriptor carries the semver from

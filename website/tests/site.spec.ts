@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 test('five chapters, responsive navigation and no 3D requests',async({page},testInfo)=>{
  const errors:string[]=[];const modelRequests:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/\.(glb|gltf)(\?|$)/i.test(r.url()))modelRequests.push(r.url())});
  await page.goto('/');await page.waitForLoadState('networkidle');await expect(page.locator('main>section')).toHaveCount(5);await expect(page.locator('h1')).toHaveText('Key board');
- expect(await page.locator('body').innerText()).not.toMatch(/openmicro|开源/i);await expect(page.locator('.model-slot canvas')).toHaveCount(0);await expect(page.locator('#film')).toHaveCount(0);
+ expect(await page.locator('body').innerText()).not.toMatch(/keyboard|开源/i);await expect(page.locator('.model-slot canvas')).toHaveCount(0);await expect(page.locator('#film')).toHaveCount(0);
  if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'展开导航'}).click();
  await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:/02\s*硬件/}).click();await expect(page).toHaveURL(/#hardware$/);await page.waitForTimeout(800);
  await page.getByRole('button',{name:/06\s*PCB/}).click();await expect(page.locator('.part-detail')).toContainText('STM32F072CBT6');

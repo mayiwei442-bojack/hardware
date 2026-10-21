@@ -1,39 +1,38 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="site/public/assets/wordmark-dark.png">
-  <img src="site/public/assets/wordmark-light.png" alt="openmicrokbd" width="560">
+  <img src="site/public/assets/wordmark-light.png" alt="keyboard" width="560">
 </picture>
 
-# OpenMicroKbd
+# keyboard
 
 An open-source hardware recreation of OpenAI's **Codex Micro** macropad — 13 low-profile keys, a rotary encoder, an analog joystick, a capacitive touch pad, and per-key + underglow RGB on a wired USB-C board built around an STM32F072.
 
-[![The finished OpenMicroKbd held in one hand: black PCB in a white printed case, icon keycaps, a knob, a joystick and a yellow accent key](site/public/blog/openmicrokbd-launch/img/hero.webp)](https://openmicrokbd.org/blog/openmicrokbd-launch/)
+[![The finished keyboard held in one hand: black PCB in a white printed case, icon keycaps, a knob, a joystick and a yellow accent key](site/public/blog/keyboard-launch/img/hero.webp)](https://github.com/mayiwei442-bojack/hardware/blog/keyboard-launch/)
 
-*The finished board — read the [launch post](https://openmicrokbd.org/blog/openmicrokbd-launch/) for the full story.*
+*The finished board — read the [launch post](https://github.com/mayiwei442-bojack/hardware/blog/keyboard-launch/) for the full story.*
 
 **The PCB is written, not drawn.** The entire schematic is source code in [**CoHDL**](https://cohdl.org), an open-source, AI-native hardware description language. The compiler type-checks the design — units, pin-connection obligations, power integrity — and emits the netlist, BOM, footprints and layout constraints you can inspect under [`hw/v1/out/`](hw/v1/out/).
 
-🌐 **https://openmicrokbd.org** · 🖨️ **[Printable case on MakerWorld](https://makerworld.com/en/models/3163016-openmicrokbd#profileId-3599737)** ([中国站](https://makerworld.com.cn/zh/models/2838721-openmicrokbd-kai-yuan-jian-pan)) · License: [MIT](LICENSE)
+🌐 **https://github.com/mayiwei442-bojack/hardware** · 🖨️ **[Printable case on MakerWorld](https://makerworld.com/en/models/3163016-keyboard#profileId-3599737)** ([中国站](https://makerworld.com.cn/zh/models/2838721-keyboard-kai-yuan-jian-pan)) · License: [MIT](LICENSE)
 
 ## Designed in CoHDL
 
 This board was designed in [**CoHDL**](https://cohdl.org), an open-source hardware description language that makes schematic (PCB) design AI-native: a board is a program — typed, checked, and compiled. In CoHDL, the design in [`hw/v1/src/`](hw/v1/src/) *is* the schematic; the compiler is the oracle that grades it.
 
-**CoHDL is open source.** Visit [cohdl.org](https://cohdl.org) to explore the language, or browse and contribute to the [compiler and libraries on GitHub](https://github.com/conol-ai/cohdl). This repository also checks in the complete compiler outputs under `hw/*/out/`, so the generated hardware design remains directly inspectable.
+**CoHDL is open source.** Visit [cohdl.org](https://cohdl.org) to explore the language, or browse and contribute to the compiler and libraries on GitHub. This repository also checks in the complete compiler outputs under `hw/*/out/`, so the generated hardware design remains directly inspectable.
 
-Questions about CoHDL, the hardware source, or building a board of your own? [Join the CoHDL and OpenMicroKbd community on Discord](https://discord.gg/x7DXPvK66).
+Questions about CoHDL, the hardware source, or building a board of your own? [Join the CoHDL and keyboard community on Discord](https://discord.gg/x7DXPvK66).
 
 ## What's inside
 
 | Path | Contents |
 |---|---|
-| [`hw/v1/src/`](hw/v1/src/) | The PCB as CoHDL source: `main.cohdl` (top-level design), `openmicro_parts.cohdl` (datasheet-verified part bindings), `footprints.cohdl`, `pads.cohdl` |
-| [`hw/v1/out/`](hw/v1/out/) | Checked-in compiler output: KiCad netlist (`openmicro.net`), BOM (`openmicro-bom.csv`), SMT placement (`openmicro-smt.csv`), `.kicad_mod` footprints, layout constraints (`openmicro-layout.json`) |
-| [`hw/v1/pcb/`](hw/v1/pcb/) | The routed board — `openmicro.kicad_pcb` + KiCad project (design rules) |
+| [`hw/v1/src/`](hw/v1/src/) | The PCB as CoHDL source: `main.cohdl` (top-level design), `keyboard_parts.cohdl` (datasheet-verified part bindings), `footprints.cohdl`, `pads.cohdl` |
+| [`hw/v1/out/`](hw/v1/out/) | Checked-in compiler output: KiCad netlist (`keyboard.net`), BOM (`keyboard-bom.csv`), SMT placement (`keyboard-smt.csv`), `.kicad_mod` footprints, layout constraints (`keyboard-layout.json`) |
+| [`hw/v1/pcb/`](hw/v1/pcb/) | The routed board — `keyboard.kicad_pcb` + KiCad project (design rules) |
 | [`hw/v1/fab/`](hw/v1/fab/) | Manufacturing package: Gerber/drill zip, assembly BOM, SMT placement CSV — see [`hw/v1/fab/README.md`](hw/v1/fab/README.md) |
-| [`hw/v1/mechanical/`](hw/v1/mechanical/) | Board outline (DXF) plus the printable enclosure parts — case, rotary knob, joystick cap, shipping tray and a solder-assembly jig, as editable Fusion 360 `.f3d` and ready-to-slice `.3mf`. Also published as a print profile on [MakerWorld](https://makerworld.com/en/models/3163016-openmicrokbd#profileId-3599737) ([中国站](https://makerworld.com.cn/zh/models/2838721-openmicrokbd-kai-yuan-jian-pan)) |
+| [`hw/v1/mechanical/`](hw/v1/mechanical/) | Board outline (DXF) plus the printable enclosure parts — case, rotary knob, joystick cap, shipping tray and a solder-assembly jig, as editable Fusion 360 `.f3d` and ready-to-slice `.3mf`. Also published as a print profile on [MakerWorld](https://makerworld.com/en/models/3163016-keyboard#profileId-3599737) ([中国站](https://makerworld.com.cn/zh/models/2838721-keyboard-kai-yuan-jian-pan)) |
 | [`hw/v1/docs/`](hw/v1/docs/) | Manufacturer datasheets for every active, connector, and electromechanical part in the BOM, with sourcing/verification notes — see [`hw/v1/docs/README.md`](hw/v1/docs/README.md) |
-| [`hw/v2/`](hw/v2/) | **Hardware v2, in development** — wireless successor on the SiFli SF32LB52 (BLE, battery-powered): CoHDL source + compiler outputs, not yet routed. See [`hw/v2/README.md`](hw/v2/README.md) |
 | [`layout/`](layout/) | The bootloader/firmware/host contract: flash and RAM map, image header, handoff words, HID update protocol, CRC-32 — `no_std`, shared by `fw`, `boot`, `app` and `scripts/` |
 | [`boot/`](boot/) | Resident 24 KiB bootloader at 0x08000000: validates the application by length and CRC-32 before every start and offers a driverless USB HID update mode, so an interrupted update never bricks the pad. See [`boot/README.md`](boot/README.md) |
 | [`fw/`](fw/) | Firmware — Rust + [embassy](https://embassy.dev) on STM32F072CB: key matrix, twin WS2812 chains, USB HID + vendor interface, driverless updates through the resident bootloader (ROM DFU kept for migration and recovery), and an opt-in **Codex Micro compat mode** (the pad boots with the Codex Micro's USB identity and speaks ChatGPT Desktop's device protocol so the desktop app drives it natively — confirmed with Codex desktop 26.825 on macOS). See [`fw/README.md`](fw/README.md) |
@@ -55,7 +54,7 @@ Questions about CoHDL, the hardware source, or building a board of your own? [Jo
 scripts/build-firmware.sh dist
 
 # Native GPUI macOS app bundle + DMG (ad-hoc signed for local testing)
-scripts/package-macos.sh dist dist/openmicro-fw-<firmware-version>.bin
+scripts/package-macos.sh dist dist/keyboard-fw-<firmware-version>.bin
 
 # Or run the companion app from source
 cd app && cargo run --release --locked
@@ -68,14 +67,14 @@ workload, then build a portable package from PowerShell:
 rustup target add x86_64-pc-windows-msvc
 ./scripts/package-windows.ps1 `
   -OutputDir dist/windows `
-  -FirmwareBin dist/openmicro-fw-<firmware-version>.bin `
+  -FirmwareBin dist/keyboard-fw-<firmware-version>.bin `
   -Target x86_64-pc-windows-msvc
 ```
 
 Use `aarch64-pc-windows-msvc` for a native Windows on Arm package; that build
 also requires the Visual Studio LLVM/Clang component.
 
-The open-source [CoHDL compiler](https://github.com/conol-ai/cohdl) and its documentation are available at [cohdl.org](https://cohdl.org). Generated netlists, BOMs, footprints, and layout constraints remain checked in under `hw/*/out/` for inspection and use without rerunning the toolchain.
+The open-source CoHDL compiler and its documentation are available at [cohdl.org](https://cohdl.org). Generated netlists, BOMs, footprints, and layout constraints remain checked in under `hw/*/out/` for inspection and use without rerunning the toolchain.
 
 Releases build Intel and Apple Silicon DMGs, Windows x64 and Arm64 portable
 ZIPs, and firmware through GitHub Actions. See
@@ -87,14 +86,14 @@ workaround are tracked in
 
 ## Production files
 
-The final routed v1 board lives in [`hw/v1/pcb/`](hw/v1/pcb/) (`openmicro.kicad_pcb`, opens in KiCad 9+). The manufacturing package — Gerber/drill zip, assembly BOM, and SMT pick-and-place CSV, ready to upload to a fab such as JLCPCB — is in [`hw/v1/fab/`](hw/v1/fab/), with DRC status and ordering notes in [`hw/v1/fab/README.md`](hw/v1/fab/README.md).
+The final routed v1 board lives in [`hw/v1/pcb/`](hw/v1/pcb/) (`keyboard.kicad_pcb`, opens in KiCad 9+). The manufacturing package — Gerber/drill zip, assembly BOM, and SMT pick-and-place CSV, ready to upload to a fab such as JLCPCB — is in [`hw/v1/fab/`](hw/v1/fab/), with DRC status and ordering notes in [`hw/v1/fab/README.md`](hw/v1/fab/README.md).
 
 ## Printing the case
 
 The enclosure is published as a ready-to-print model on MakerWorld, alongside the editable Fusion sources in [`hw/v1/mechanical/`](hw/v1/mechanical/):
 
-- **[MakerWorld — OpenMicroKbd](https://makerworld.com/en/models/3163016-openmicrokbd#profileId-3599737)**
-- **[MakerWorld 中国 — OpenMicroKbd 开源键盘](https://makerworld.com.cn/zh/models/2838721-openmicrokbd-kai-yuan-jian-pan)**
+- **[MakerWorld — keyboard](https://makerworld.com/en/models/3163016-keyboard#profileId-3599737)**
+- **[MakerWorld 中国 — keyboard 开源键盘](https://makerworld.com.cn/zh/models/2838721-keyboard-kai-yuan-jian-pan)**
 
 The print covers the case, the rotary knob and the joystick cap, plus the solder-assembly jig and the shipping package as a bonus from the same project. Recommended settings: 0.4 mm nozzle, 0.2 mm layer height, 3 walls, 15–20% infill, PLA or PETG (PETG for a daily driver), **no supports required**.
 
@@ -102,8 +101,11 @@ Beyond the print you will need an assembled PCB, Choc V2-compatible keycaps, M2�
 
 ## License
 
-[MIT](LICENSE) © 2026 Tony Huang. Build your own — attribution appreciated.
 
 ---
 
-*OpenMicroKbd is an independent open-source project and is not affiliated with, endorsed by, or sponsored by OpenAI. "Codex Micro" refers to OpenAI's product; all trademarks belong to their respective owners.*
+*keyboard is an independent open-source project and is not affiliated with, endorsed by, or sponsored by OpenAI. "Codex Micro" refers to OpenAI's product; all trademarks belong to their respective owners.*
+
+## 本仓库的发布配置
+
+自动更新指向本仓库的 Releases；尚未发布清单时不会提供在线更新。macOS 打包使用本地 Sparkle 2.9.6 归档，通过 `SPARKLE_ARCHIVE` 指定文件，脚本仍会验证固定 SHA-256。

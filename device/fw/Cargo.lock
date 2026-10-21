@@ -686,7 +686,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
-name = "openmicro-fw"
+name = "keyboard-fw"
 version = "0.10.1"
 dependencies = [
  "cortex-m",
@@ -700,7 +700,7 @@ dependencies = [
  "embassy-sync 0.6.2",
  "embassy-time",
  "embassy-usb",
- "openmicro-layout",
+ "keyboard-layout",
  "panic-probe",
  "portable-atomic",
  "static_cell",
@@ -708,7 +708,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openmicro-layout"
+name = "keyboard-layout"
 version = "0.1.0"
 
 [[package]]

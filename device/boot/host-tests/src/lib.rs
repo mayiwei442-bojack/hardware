@@ -13,7 +13,7 @@ pub mod update;
 #[cfg(test)]
 mod tests {
     use super::update::{outcome, Action, Outcome, Programmer, Updater};
-    use openmicro_layout::{
+    use keyboard_layout::{
         app_header_bytes, app_valid, image_crc, op, stamp_app, status, BootInfoReply, APP_BASE,
         APP_SIZE, BOOT_INFO_REPLY_EXT_LEN, BOOT_REPORT_LEN, FLAG_PROTO, HEADER_OFFSET, MAX_CHUNK,
         PAGE_SIZE, RAM_END, RESET_OFFSET, VARIANT_PROD, VARIANT_PROTO,

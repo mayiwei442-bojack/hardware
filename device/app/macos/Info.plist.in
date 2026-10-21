@@ -5,17 +5,17 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleDisplayName</key>
-    <string>OpenMicro</string>
+    <string>keyboard</string>
     <key>CFBundleExecutable</key>
-    <string>OpenMicro</string>
+    <string>keyboard</string>
     <key>CFBundleIconFile</key>
-    <string>OpenMicro</string>
+    <string>keyboard</string>
     <key>CFBundleIdentifier</key>
-    <string>org.openmicrokbd.OpenMicro</string>
+    <string>org.keyboard.keyboard</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>OpenMicro</string>
+    <string>keyboard</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
@@ -30,8 +30,8 @@
     <true/>
     <key>NSSupportsAutomaticGraphicsSwitching</key>
     <true/>
-    <key>OpenMicroAutomaticUpdates</key>
-    @OPENMICRO_AUTOMATIC_UPDATES@
+    <key>keyboardAutomaticUpdates</key>
+    @KEYBOARD_AUTOMATIC_UPDATES@
     <key>SUEnableAutomaticChecks</key>
     <false/>
     <key>SUFeedURL</key>

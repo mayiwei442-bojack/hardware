@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Managed by OpenMicro Settings. Remove this line before editing; marked files may be replaced on update.
-# Copy to ~/.deepcode/openmicro-notify.sh, make it executable, and set the
+# Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.
+# Copy to ~/.deepcode/keyboard-notify.sh, make it executable, and set the
 # `notify` key in ~/.deepcode/settings.json to that absolute path.
-OPENMICRO_BIN="/Applications/OpenMicro.app/Contents/MacOS/OpenMicro"
+KEYBOARD_BIN="/Applications/keyboard.app/Contents/MacOS/keyboard"
 
 case "${STATUS:-}" in
   completed) light_status="success" ;;
@@ -11,4 +11,4 @@ case "${STATUS:-}" in
   *) exit 0 ;;
 esac
 
-"$OPENMICRO_BIN" status "$light_status" "deep-code:${TITLE:-default}" >/dev/null 2>&1 || true
+"$KEYBOARD_BIN" status "$light_status" "deep-code:${TITLE:-default}" >/dev/null 2>&1 || true

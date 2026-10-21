@@ -1,6 +1,6 @@
 //! Local IPC bridge for transient LED activity status.
 //!
-//! The OpenMicro process owns the HID handle, so hook clients must not open
+//! The keyboard process owns the HID handle, so hook clients must not open
 //! the pad directly. A per-user Unix socket on Unix or authenticated loopback
 //! endpoint on Windows lets a short-lived helper (the same app binary invoked
 //! with `agent-hook`) hand a small, allow-listed event to the resident app
@@ -21,7 +21,7 @@ const MAX_IPC_MESSAGE_BYTES: usize = 4096;
 // events. Keep the local socket protocol small, but allow bounded lifecycle
 // input large enough for normal agent turns.
 const MAX_HOOK_INPUT_BYTES: usize = 16 * 1024 * 1024;
-const SOCKET_DIR: &str = "OpenMicro";
+const SOCKET_DIR: &str = "keyboard";
 const SOCKET_FILE: &str = "activity.sock";
 const WINDOWS_ENDPOINT_FILE: &str = "activity.json";
 
@@ -132,11 +132,11 @@ pub fn spawn_listener() {
 
         let path = socket_path();
         let Some(parent) = path.parent() else {
-            eprintln!("OpenMicro activity socket has no parent directory");
+            eprintln!("keyboard activity socket has no parent directory");
             return;
         };
         if let Err(error) = std::fs::create_dir_all(parent) {
-            eprintln!("cannot create OpenMicro activity socket directory: {error}");
+            eprintln!("cannot create keyboard activity socket directory: {error}");
             return;
         }
         let _ = std::fs::set_permissions(parent, std::fs::Permissions::from_mode(0o700));
@@ -144,7 +144,7 @@ pub fn spawn_listener() {
             Ok(()) => {}
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
             Err(error) => {
-                eprintln!("cannot replace OpenMicro activity socket: {error}");
+                eprintln!("cannot replace keyboard activity socket: {error}");
                 return;
             }
         }
@@ -152,19 +152,19 @@ pub fn spawn_listener() {
         let listener = match UnixListener::bind(&path) {
             Ok(listener) => listener,
             Err(error) => {
-                eprintln!("cannot bind OpenMicro activity socket: {error}");
+                eprintln!("cannot bind keyboard activity socket: {error}");
                 return;
             }
         };
         let _ = std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600));
 
         let _ = std::thread::Builder::new()
-            .name("openmicro-activity-ipc".into())
+            .name("keyboard-activity-ipc".into())
             .spawn(move || {
                 for incoming in listener.incoming() {
                     match incoming {
                         Ok(stream) => handle_stream(stream),
-                        Err(error) => eprintln!("OpenMicro activity socket error: {error}"),
+                        Err(error) => eprintln!("keyboard activity socket error: {error}"),
                     }
                 }
             });
@@ -183,20 +183,20 @@ pub fn spawn_listener() {
         let listener = match TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)) {
             Ok(listener) => listener,
             Err(error) => {
-                eprintln!("cannot bind OpenMicro activity listener: {error}");
+                eprintln!("cannot bind keyboard activity listener: {error}");
                 return;
             }
         };
         let port = match listener.local_addr() {
             Ok(address) => address.port(),
             Err(error) => {
-                eprintln!("cannot inspect OpenMicro activity listener: {error}");
+                eprintln!("cannot inspect keyboard activity listener: {error}");
                 return;
             }
         };
         let mut secret = [0u8; 32];
         if let Err(error) = getrandom::fill(&mut secret) {
-            eprintln!("cannot secure OpenMicro activity listener: {error}");
+            eprintln!("cannot secure keyboard activity listener: {error}");
             return;
         }
         let token = secret
@@ -207,17 +207,17 @@ pub fn spawn_listener() {
             port,
             token: token.clone(),
         }) {
-            eprintln!("cannot publish OpenMicro activity listener: {error}");
+            eprintln!("cannot publish keyboard activity listener: {error}");
             return;
         }
 
         let _ = std::thread::Builder::new()
-            .name("openmicro-activity-ipc".into())
+            .name("keyboard-activity-ipc".into())
             .spawn(move || {
                 for incoming in listener.incoming() {
                     match incoming {
                         Ok(stream) => handle_windows_stream(stream, &token),
-                        Err(error) => eprintln!("OpenMicro activity listener error: {error}"),
+                        Err(error) => eprintln!("keyboard activity listener error: {error}"),
                     }
                 }
             });
@@ -264,7 +264,7 @@ fn write_windows_endpoint(endpoint: &WindowsEndpoint) -> Result<(), String> {
     let path = socket_path();
     let parent = path
         .parent()
-        .ok_or_else(|| "OpenMicro activity endpoint has no parent directory".to_string())?;
+        .ok_or_else(|| "keyboard activity endpoint has no parent directory".to_string())?;
     std::fs::create_dir_all(parent)
         .map_err(|error| format!("cannot create {}: {error}", parent.display()))?;
     let temporary = parent.join(format!(
@@ -420,7 +420,7 @@ fn send_event(event: &ActivityEvent) -> Result<(), String> {
     #[cfg(not(any(unix, target_os = "windows")))]
     {
         let _ = event;
-        Err("OpenMicro activity IPC is not supported on this host".into())
+        Err("keyboard activity IPC is not supported on this host".into())
     }
 }
 
@@ -451,7 +451,7 @@ pub fn run_cli_if_requested() -> bool {
 
 fn run_agent_hook(client_name: Option<&str>) -> i32 {
     let Some(client) = client_name.and_then(AgentClient::from_name) else {
-        eprintln!("usage: openmicro-app agent-hook <codex|claude-code|grok|octoscode>");
+        eprintln!("usage: keyboard-app agent-hook <codex|claude-code|grok|octoscode>");
         return 2;
     };
     let mut bytes = Vec::new();
@@ -521,7 +521,7 @@ fn decode_agent_hook(client: AgentClient, bytes: &[u8]) -> Option<ActivityEvent>
 
 fn run_manual_status(status: Option<&str>, session_id: Option<String>) -> i32 {
     let Some(status) = status.and_then(ActivityStatus::from_name) else {
-        eprintln!("usage: openmicro-app status <idle|working|attention|success|error> [session]");
+        eprintln!("usage: keyboard-app status <idle|working|attention|success|error> [session]");
         return 2;
     };
     let event = ActivityEvent {
@@ -533,7 +533,7 @@ fn run_manual_status(status: Option<&str>, session_id: Option<String>) -> i32 {
     match send_event(&event) {
         Ok(()) => 0,
         Err(error) => {
-            eprintln!("cannot reach OpenMicro: {error}");
+            eprintln!("cannot reach keyboard: {error}");
             1
         }
     }

@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "openmicro-layout"
+name = "keyboard-layout"
 version = "0.1.0"

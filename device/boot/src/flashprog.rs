@@ -9,7 +9,7 @@
 use core::sync::atomic::{compiler_fence, Ordering};
 
 use embassy_stm32::flash::{Blocking, Flash};
-use openmicro_layout::{APP_BASE, APP_SIZE, DATA_BASE, FLASH_BASE, PAGE_SIZE};
+use keyboard_layout::{APP_BASE, APP_SIZE, DATA_BASE, FLASH_BASE, PAGE_SIZE};
 
 use crate::update::Programmer;
 

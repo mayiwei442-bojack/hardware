@@ -14,7 +14,7 @@ def bounds(vertices):
 
 inventory=[]
 meshes=[]
-paths=list((REPO/'hw/v1/mechanical').glob('*.3mf'))+[pathlib.Path('D:/App/OpenMicro.3mf')]
+paths=list((REPO/'hw/v1/mechanical').glob('*.3mf'))+[pathlib.Path('D:/App/keyboard.3mf')]
 for path in paths:
     item={'file':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'objects':[]}
     with zipfile.ZipFile(path) as z:
@@ -31,10 +31,10 @@ for path in paths:
                 item['objects'].append(record)
             item.setdefault('build_items',[]).extend(dict(x.attrib) for x in root.findall('m:build/m:item',ns))
     inventory.append(item)
-with zipfile.ZipFile('D:/App/OpenMicroKbd.zip') as z:
+with zipfile.ZipFile('D:/App/keyboard.zip') as z:
     archive=[{'entry':i.filename,'bytes':i.file_size,'sha256':hashlib.sha256(z.read(i)).hexdigest()} for i in z.infolist() if not i.is_dir()]
 
-text=(REPO/'hw/v1/pcb/openmicro.kicad_pcb').read_text(encoding='utf-8')
+text=(REPO/'hw/v1/pcb/keyboard.kicad_pcb').read_text(encoding='utf-8')
 tokens=re.findall(r'"(?:\\.|[^"\\])*"|[()]|[^\s()]+',text)
 stack=[]; tree=None
 for token in tokens:
@@ -55,7 +55,7 @@ for fp in tree:
     props={x[1]:x[2] for x in fp if isinstance(x,list) and x and x[0]=='property'}
     fps.append({'reference':props.get('Reference'),'value':props.get('Value'),'footprint':fp[1], 'at':field(fp,'at'),'layer':field(fp,'layer'),'pads':[x[1:] for x in fp if isinstance(x,list) and x and x[0]=='pad'], 'graphics':[x for x in fp if isinstance(x,list) and x and x[0] in ('fp_line','fp_rect','fp_circle','fp_arc')], 'models':[x for x in fp if isinstance(x,list) and x and x[0]=='model']})
 edges=[x for x in tree if isinstance(x,list) and x and x[0] in ('gr_line','gr_arc','gr_rect') and field(x,'layer')==['Edge.Cuts']]
-with (REPO/'hw/v1/fab/openmicro-pos-all.csv').open(encoding='utf-8-sig',newline='') as f:positions=list(csv.DictReader(f))
+with (REPO/'hw/v1/fab/keyboard-pos-all.csv').open(encoding='utf-8-sig',newline='') as f:positions=list(csv.DictReader(f))
 data={'inventory':inventory,'provided_zip':archive,'pcb':{'thickness_mm':1.6,'footprints':fps,'edge_cuts':edges,'placements':positions}}
 (OUT/'source_inventory.json').write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8')
 (OUT/'source_meshes.json').write_text(json.dumps(meshes,separators=(',',':')),encoding='utf-8')

@@ -1,10 +1,10 @@
 [package]
-name = "openmicro"
+name = "keyboard"
 version = "0.1.0"
 license = "MIT"
 
 [design]
-top = "OpenMicro"
+top = "keyboard"
 
 [dependencies]
 "@st/stm32" = "0.1.0"

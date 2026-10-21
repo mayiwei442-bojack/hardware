@@ -1,4 +1,4 @@
-//! Native GPUI frontend for the OpenMicro companion application.
+//! Native GPUI frontend for the keyboard companion application.
 //!
 //! The visual language is a quiet 8-bit hardware workstation: whole-pixel
 //! measurements, sparse stepped shadows, compact display labels, and native
@@ -51,7 +51,7 @@ use crate::status::ActivityStatus;
 
 // Quit is a real GPUI action (not just a tray menu id) so macOS gives it the
 // standard Cmd+Q route: app menu item + global key binding, wired in run().
-gpui::actions!(openmicro, [Quit, CheckForUpdates]);
+gpui::actions!(keyboard, [Quit, CheckForUpdates]);
 
 const CELL_ENCODER: usize = 13;
 const CELL_JOYSTICK: usize = 14;
@@ -511,7 +511,7 @@ fn apply_launch_at_login(enable: bool) -> Result<(), String> {
     let app_path = exe.as_path();
     let mut builder = auto_launch::AutoLaunchBuilder::new();
     builder
-        .set_app_name("OpenMicro")
+        .set_app_name("keyboard")
         .set_app_path(&app_path.display().to_string());
     #[cfg(target_os = "macos")]
     builder.set_args(&["--hidden"]);
@@ -636,8 +636,8 @@ fn selection_card(
 /// and rails (the worker's `describe_app_valid` is English, for the log).
 fn bootloader_state_label(app_valid: u8) -> &'static str {
     match app_valid {
-        openmicro_layout::app_valid::VALID => tr("bootloader_state_valid"),
-        openmicro_layout::app_valid::UNSTAMPED => tr("bootloader_state_unstamped"),
+        keyboard_layout::app_valid::VALID => tr("bootloader_state_valid"),
+        keyboard_layout::app_valid::UNSTAMPED => tr("bootloader_state_unstamped"),
         _ => tr("bootloader_state_none"),
     }
 }
@@ -764,7 +764,7 @@ fn configured_icon_label(value: &str) -> String {
 fn profile_template_item(
     label: &'static str,
     template: ProfileTemplate,
-    view: &Entity<OpenMicro>,
+    view: &Entity<Keyboard>,
 ) -> PopupMenuItem {
     let view = view.clone();
     PopupMenuItem::element(move |_, _| div().cursor_pointer().child(label)).on_click(move |_, window, cx| {
@@ -775,7 +775,7 @@ fn profile_template_item(
 fn profile_delete_item(
     label: &'static str,
     enabled: bool,
-    view: &Entity<OpenMicro>,
+    view: &Entity<Keyboard>,
 ) -> PopupMenuItem {
     let view = view.clone();
     PopupMenuItem::element(move |_, _| {
@@ -885,7 +885,7 @@ impl RenderOnce for ChromeMenuButton {
     }
 }
 
-pub struct OpenMicro {
+pub struct Keyboard {
     host: HostState,
     sheet: Sheet,
     key_picker_target: KeyTarget,
@@ -923,7 +923,7 @@ pub struct OpenMicro {
     _subscriptions: Vec<Subscription>,
 }
 
-impl OpenMicro {
+impl Keyboard {
     fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
         let mut host = HostState::new();
         set_dock_icon_visible(host.config.show_dock);
@@ -2369,7 +2369,7 @@ impl OpenMicro {
         let directory = dirs::download_dir()
             .or_else(dirs::home_dir)
             .unwrap_or_else(|| PathBuf::from("."));
-        let path = cx.prompt_for_new_path(&directory, Some("openmicro-profiles.json"));
+        let path = cx.prompt_for_new_path(&directory, Some("keyboard-profiles.json"));
         cx.spawn(async move |weak, cx| {
             if let Ok(Ok(Some(path))) = path.await {
                 let _ = weak.update(cx, |this, cx| {
@@ -2391,7 +2391,7 @@ impl OpenMicro {
         let index = self.host.config.active_profile;
         self.host.config.profiles.remove(index);
         for remembered in [
-            &mut self.host.config.active_openmicro_profile,
+            &mut self.host.config.active_keyboard_profile,
             &mut self.host.config.active_codex_profile,
         ] {
             if let Some(saved) = remembered {
@@ -2591,7 +2591,7 @@ impl OpenMicro {
             tr("mode_switching_short")
         } else {
             match self.host.device_mode {
-                Some(DeviceMode::OpenMicro) => tr("openmicro_mode"),
+                Some(DeviceMode::Keyboard) => tr("keyboard_mode"),
                 Some(DeviceMode::Codex) => tr("codex_micro_mode"),
                 None => "—",
             }
@@ -2619,7 +2619,7 @@ impl OpenMicro {
                     .font_semibold()
                     .text_size(px(12.))
                     .text_color(pixel::text_color())
-                    .child("OPENMICRO"),
+                    .child("KEYBOARD"),
             )
             .child(div().flex_1())
             .child(
@@ -2651,8 +2651,8 @@ impl OpenMicro {
                         if !this.host.mode_switch_pending {
                             if let Some(mode) = this.host.device_mode {
                                 let next = match mode {
-                                    DeviceMode::OpenMicro => DeviceMode::Codex,
-                                    DeviceMode::Codex => DeviceMode::OpenMicro,
+                                    DeviceMode::Keyboard => DeviceMode::Codex,
+                                    DeviceMode::Codex => DeviceMode::Keyboard,
                                 };
                                 this.host.set_device_mode(next);
                                 cx.notify();
@@ -2682,8 +2682,8 @@ impl OpenMicro {
                         if !this.host.mode_switch_pending {
                             if let Some(mode) = this.host.device_mode {
                                 let next = match mode {
-                                    DeviceMode::OpenMicro => DeviceMode::Codex,
-                                    DeviceMode::Codex => DeviceMode::OpenMicro,
+                                    DeviceMode::Keyboard => DeviceMode::Codex,
+                                    DeviceMode::Codex => DeviceMode::Keyboard,
                                 };
                                 this.host.set_device_mode(next);
                                 cx.notify();
@@ -2869,10 +2869,10 @@ impl OpenMicro {
                         info.app_version_str()
                     };
                     match info.app_valid {
-                        openmicro_layout::app_valid::VALID => {
+                        keyboard_layout::app_valid::VALID => {
                             tr("bootloader_app_valid").replace("{v}", version)
                         }
-                        openmicro_layout::app_valid::UNSTAMPED => {
+                        keyboard_layout::app_valid::UNSTAMPED => {
                             tr("bootloader_app_unstamped").replace("{v}", version)
                         }
                         _ => tr("bootloader_app_none").to_string(),
@@ -2887,7 +2887,7 @@ impl OpenMicro {
             };
             let can_boot = matches!(
                 &pad.info,
-                Ok(info) if info.app_valid == openmicro_layout::app_valid::VALID
+                Ok(info) if info.app_valid == keyboard_layout::app_valid::VALID
             );
             let busy = self.host.updating || self.host.firmware_downloading;
             let detail = if let Some(phase) = self.host.update_phase.as_ref().filter(|_| busy) {
@@ -2972,23 +2972,23 @@ impl OpenMicro {
                         self.host.app_update_error.as_deref().unwrap_or_default()
                     ),
                     AppUpdateDetailState::ManualDownloading => format!(
-                        "OpenMicro {} · {} {}%",
+                        "keyboard {} · {} {}%",
                         catalog.app.version,
                         tr("app_update_downloading_package"),
                         progress
                     ),
                     AppUpdateDetailState::ManualReady => format!(
-                        "OpenMicro {} · {}",
+                        "keyboard {} · {}",
                         catalog.app.version,
                         tr("app_update_ready")
                     ),
                     AppUpdateDetailState::SparkleActive => format!(
-                        "OpenMicro {} · {}",
+                        "keyboard {} · {}",
                         catalog.app.version,
                         tr("app_update_in_progress")
                     ),
                     AppUpdateDetailState::Available => format!(
-                        "OpenMicro {} · {}",
+                        "keyboard {} · {}",
                         catalog.app.version,
                         tr("app_update_available")
                     ),
@@ -3912,7 +3912,7 @@ impl OpenMicro {
             }
             Action::AppSettings => {
                 editor = editor.child(controls::status_rail(
-                    "OPENMICRO",
+                    "KEYBOARD",
                     "Pressing this control opens the Settings sheet.",
                     BadgeTone::Info,
                 ));
@@ -5188,7 +5188,7 @@ impl OpenMicro {
             .map(|(version, _)| version.clone())
             .or_else(|| {
                 bootloader_pad.map(|info| {
-                    if info.app_valid == openmicro_layout::app_valid::NONE
+                    if info.app_valid == keyboard_layout::app_valid::NONE
                         || info.app_version_str().is_empty()
                     {
                         tr("bootloader_app_none").to_string()
@@ -5756,7 +5756,7 @@ impl OpenMicro {
     }
 }
 
-impl Render for OpenMicro {
+impl Render for Keyboard {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         #[cfg(target_os = "macos")]
         if window.is_window_active() {
@@ -5764,7 +5764,7 @@ impl Render for OpenMicro {
         }
 
         div()
-            .id("openmicro-root")
+            .id("keyboard-root")
             .relative()
             .size_full()
             .flex()
@@ -5946,7 +5946,7 @@ fn set_dock_icon_visible(_: bool) {}
 #[cfg(target_os = "linux")]
 fn hyprland_eval(code: String) -> bool {
     if std::env::var_os("HYPRLAND_INSTANCE_SIGNATURE").is_none() {
-        eprintln!("openmicro window: Hyprland environment is unavailable");
+        eprintln!("keyboard window: Hyprland environment is unavailable");
         return false;
     }
     match std::process::Command::new("hyprctl")
@@ -5959,7 +5959,7 @@ fn hyprland_eval(code: String) -> bool {
             let succeeded = output.status.success() && stdout.trim() == "ok";
             if !succeeded {
                 eprintln!(
-                    "openmicro window: hyprctl status={} stdout={:?} stderr={:?}",
+                    "keyboard window: hyprctl status={} stdout={:?} stderr={:?}",
                     output.status,
                     stdout.trim(),
                     stderr.trim()
@@ -5968,7 +5968,7 @@ fn hyprland_eval(code: String) -> bool {
             succeeded
         }
         Err(error) => {
-            eprintln!("openmicro window: failed to execute hyprctl: {error}");
+            eprintln!("keyboard window: failed to execute hyprctl: {error}");
             false
         }
     }
@@ -5977,7 +5977,7 @@ fn hyprland_eval(code: String) -> bool {
 #[cfg(target_os = "linux")]
 fn hide_linux_window(window: &mut Window) {
     let code = format!(
-        "hl.dispatch(hl.dsp.window.move({{ workspace = \"special:openmicro\", window = \"pid:{}\", follow = false }}))",
+        "hl.dispatch(hl.dsp.window.move({{ workspace = \"special:keyboard\", window = \"pid:{}\", follow = false }}))",
         std::process::id()
     );
     if !hyprland_eval(code) {
@@ -6004,14 +6004,14 @@ pub fn run() {
         // runs the on_app_quit hook, which saves the config like the tray's
         // Quit does.
         cx.on_action(|_: &Quit, cx| cx.quit());
-        let main_view: std::rc::Rc<std::cell::RefCell<Option<Entity<OpenMicro>>>> =
+        let main_view: std::rc::Rc<std::cell::RefCell<Option<Entity<Keyboard>>>> =
             std::rc::Rc::new(std::cell::RefCell::new(None));
         let main_view_for_action = main_view.clone();
         cx.bind_keys([KeyBinding::new("cmd-q", Quit, None)]);
         #[cfg(target_os = "windows")]
         cx.bind_keys([KeyBinding::new("ctrl-q", Quit, None)]);
         cx.set_menus(vec![Menu {
-            name: "OpenMicro".into(),
+            name: "keyboard".into(),
             items: vec![
                 MenuItem::action(tr("mb_check_updates"), CheckForUpdates),
                 MenuItem::separator(),
@@ -6033,7 +6033,7 @@ pub fn run() {
                 // provide maximize/restore and Snap Layout behavior.
                 is_resizable: true,
                 window_min_size: Some(size(px(760.), px(460.))),
-                app_id: Some("ai.conol.openmicro".into()),
+                app_id: Some("ai.conol.keyboard".into()),
                 titlebar: Some(TitleBar::title_bar_options()),
                 ..Default::default()
             },
@@ -6050,7 +6050,7 @@ pub fn run() {
                     _window.minimize_window();
                     false
                 });
-                let view = cx.new(|cx| OpenMicro::new(window, cx));
+                let view = cx.new(|cx| Keyboard::new(window, cx));
                 hide_dashboard_on_start = {
                     let state = &view.read(cx).host;
                     should_hide_dashboard_on_start(
@@ -6076,7 +6076,7 @@ pub fn run() {
                 cx.new(|cx| Root::new(view, window, cx))
             },
         )
-        .expect("failed to open the OpenMicro window");
+        .expect("failed to open the keyboard window");
         // The menu action is app-global: the window may be hidden when it
         // fires, so surface it first and then drive the update check.
         cx.on_action(move |_: &CheckForUpdates, cx| {

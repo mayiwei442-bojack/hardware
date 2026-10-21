@@ -23,7 +23,7 @@
 | 超频仪器 | [`MacroPad_OverclockInstrument.blend`](modeling/assets/MacroPad_OverclockInstrument.blend) | ![超频仪器](modeling/overclock_instrument/renders/01_overclock_hero.png) |
 | 反叛玩具 | [`MacroPad_RebelToy.blend`](modeling/assets/MacroPad_RebelToy.blend) | ![反叛玩具](modeling/rebel_toy/renders/01_hero.png) |
 
-使用 Blender 打开 `.blend` 文件；成品印花贴图已内嵌。历史验收记录保留当时的场景名称和本机路径。
+使用 Blender 打开 `.blend` 文件；成品印花贴图已内嵌。历史验收记录保留当时的校验值和本机路径；可读项目名已统一替换，本次整理未重新执行 Blender 验收。
 
 ## 网站本地启动
 
@@ -37,12 +37,12 @@ npm run dev
 
 ## 制造资料
 
-- [Gerber 制造文件](device/hw/v1/fab/openmicro-gerbers.zip)
-- [BOM 元件清单](device/hw/v1/fab/openmicro-bom.csv)
-- [SMT 贴片坐标](device/hw/v1/fab/openmicro-smt.csv)
+- [Gerber 制造文件](device/hw/v1/fab/keyboard-gerbers.zip)
+- [BOM 元件清单](device/hw/v1/fab/keyboard-bom.csv)
+- [SMT 贴片坐标](device/hw/v1/fab/keyboard-smt.csv)
 - [打印与可编辑机械模型](device/hw/v1/mechanical/)
 - [制造说明](device/hw/v1/fab/README.md)
 
 ## 许可
 
-各部分的版权和许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 与目录内的许可证。
+V1 设计与相关衍生模型的适用许可见 [MIT 许可](device/LICENSE)。

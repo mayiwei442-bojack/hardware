@@ -1,5 +1,5 @@
 {
-  "file": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\modeling\\assets\\OpenMicroKbd_AcidAlloy.blend",
+  "file": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\modeling\\assets\\keyboard_AcidAlloy.blend",
   "info": {
     "PCB_Main": {
       "bounds": [
@@ -105,7 +105,7 @@
         null
       ]
     },
-    "OpenMicroRotator_SourceMesh": {
+    "keyboardRotator_SourceMesh": {
       "bounds": [
         [
           -35.575,
@@ -125,7 +125,7 @@
         "Control | warm white printed resin"
       ]
     },
-    "OpenMicroJoystickCap_SourceMesh": {
+    "keyboardJoystickCap_SourceMesh": {
       "bounds": [
         [
           20.575,

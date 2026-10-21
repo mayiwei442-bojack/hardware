@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.3" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>One-shot resume checkpoint, or re-audit completed Blender model.</Description>
+    <URI>\keyboard-20261001-0840-ResumeAudit</URI>
+  </RegistrationInfo>
+  <Principals>
+    <Principal id="Author">
+      <UserId>S-1-5-21-43950299-51322388-601215214-1001</UserId>
+      <LogonType>InteractiveToken</LogonType>
+    </Principal>
+  </Principals>
+  <Settings>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <ExecutionTimeLimit>PT12H</ExecutionTimeLimit>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <WakeToRun>true</WakeToRun>
+    <IdleSettings>
+      <Duration>PT10M</Duration>
+      <WaitTimeout>PT1H</WaitTimeout>
+      <StopOnIdleEnd>true</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+    <UseUnifiedSchedulingEngine>true</UseUnifiedSchedulingEngine>
+  </Settings>
+  <Triggers>
+    <TimeTrigger>
+      <StartBoundary>2026-10-01T08:40:00+08:00</StartBoundary>
+    </TimeTrigger>
+  </Triggers>
+  <Actions Context="Author">
+    <Exec>
+      <Command>C:\Users\myw\AppData\Local\Programs\Python\Python312\pythonw.exe</Command>
+      <Arguments>"C:\Users\myw\Documents\ChatGPT\硬件\modeling\tools\scheduled_modeling.py" second</Arguments>
+      <WorkingDirectory>C:\Users\myw\Documents\ChatGPT\硬件</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>

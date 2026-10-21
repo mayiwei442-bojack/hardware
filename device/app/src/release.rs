@@ -15,10 +15,10 @@ use std::time::Duration;
 use crate::events;
 
 pub const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const MANIFEST_URL: &str = match option_env!("OPENMICRO_UPDATE_MANIFEST_URL") {
+pub const MANIFEST_URL: &str = match option_env!("KEYBOARD_UPDATE_MANIFEST_URL") {
     Some(url) => url,
     None => {
-        "https://github.com/conol-ai/openmicrokbd/releases/latest/download/release-manifest.json"
+        "https://github.com/mayiwei442-bojack/hardware/releases/latest/download/release-manifest.json"
     }
 };
 
@@ -30,7 +30,7 @@ const FIRMWARE_DOWNLOAD_MIN: u64 = 192;
 /// (a combined bootloader + application image is at most exactly this
 /// long). Every published release so far is well under it.
 const FIRMWARE_DOWNLOAD_LIMIT: u64 =
-    (openmicro_layout::DATA_BASE - openmicro_layout::FLASH_BASE) as u64;
+    (keyboard_layout::DATA_BASE - keyboard_layout::FLASH_BASE) as u64;
 
 #[derive(Deserialize)]
 struct BundledFirmwareManifest {
@@ -115,13 +115,13 @@ impl ReleaseCatalog {
                 self.schema
             ));
         }
-        if self.product != "openmicrokbd" {
+        if self.product != "keyboard" {
             return Err(format!(
                 "release manifest is for product {:?}",
                 self.product
             ));
         }
-        if self.firmware.board != "openmicro-stm32f072cb" {
+        if self.firmware.board != "keyboard-stm32f072cb" {
             return Err(format!(
                 "release firmware is for board {:?}",
                 self.firmware.board
@@ -145,15 +145,15 @@ impl ReleaseCatalog {
         if let Some(layout) = self.firmware.layout {
             // The F072CB has 2 KiB pages; the application follows the
             // bootloader directly. Anything else is a manifest bug.
-            const PAGE: u32 = openmicro_layout::PAGE_SIZE;
+            const PAGE: u32 = keyboard_layout::PAGE_SIZE;
             if layout.boot_size % PAGE != 0
                 || layout.app_size % PAGE != 0
-                || layout.app_base != openmicro_layout::FLASH_BASE + layout.boot_size
+                || layout.app_base != keyboard_layout::FLASH_BASE + layout.boot_size
                 || layout
                     .app_base
                     .checked_add(layout.app_size)
                     .is_none_or(|end| {
-                        end > openmicro_layout::FLASH_BASE + openmicro_layout::FLASH_SIZE
+                        end > keyboard_layout::FLASH_BASE + keyboard_layout::FLASH_SIZE
                     })
             {
                 warnings.push(format!(
@@ -311,7 +311,7 @@ pub fn bundled_firmware() -> Result<Option<(String, PathBuf)>, String> {
     let Some(firmware_dir) = executable.parent().map(|directory| directory.join("firmware")) else {
         return Ok(None);
     };
-    let image = firmware_dir.join("openmicro-fw.bin");
+    let image = firmware_dir.join("keyboard-fw.bin");
     let manifest_path = firmware_dir.join("manifest.json");
     if !image.is_file() || !manifest_path.is_file() {
         return Ok(None);
@@ -351,7 +351,7 @@ fn agent() -> ureq::Agent {
         .timeout_connect(Duration::from_secs(10))
         .timeout_read(Duration::from_secs(30))
         .redirects(8)
-        .user_agent(&format!("OpenMicro/{APP_VERSION}"))
+        .user_agent(&format!("keyboard/{APP_VERSION}"))
         .build()
 }
 
@@ -398,7 +398,7 @@ fn download_asset(
 
     let cache = dirs::cache_dir()
         .unwrap_or_else(std::env::temp_dir)
-        .join("openmicro")
+        .join("keyboard")
         .join("updates");
     fs::create_dir_all(&cache).map_err(|e| format!("cannot create update cache: {e}"))?;
     let destination = cache.join(&asset.name);
@@ -579,8 +579,8 @@ mod tests {
     #[test]
     fn manifest_rejects_path_traversal_asset_names() {
         let asset = ReleaseAsset {
-            name: "../OpenMicro.dmg".into(),
-            url: "https://example.com/OpenMicro.dmg".into(),
+            name: "../keyboard.dmg".into(),
+            url: "https://example.com/keyboard.dmg".into(),
             sha256: "0".repeat(64),
             size: 1,
         };
@@ -611,34 +611,34 @@ mod tests {
     fn published_manifest_shape_deserializes_and_validates() {
         let manifest = serde_json::json!({
             "schema": 1,
-            "product": "openmicrokbd",
-            "release_url": "https://github.com/conol-ai/openmicrokbd/releases/tag/v0.3.0",
+            "product": "keyboard",
+            "release_url": "https://github.com/mayiwei442-bojack/hardware/releases/tag/v0.3.0",
             "app": {
                 "version": "0.3.0",
                 "macos": {
                     "aarch64": {
-                        "name": "OpenMicro-0.3.0-macos-aarch64.dmg",
-                        "url": "https://github.com/conol-ai/openmicrokbd/releases/download/v0.3.0/OpenMicro-0.3.0-macos-aarch64.dmg",
+                        "name": "keyboard-0.3.0-macos-aarch64.dmg",
+                        "url": "https://github.com/mayiwei442-bojack/hardware/releases/download/v0.3.0/keyboard-0.3.0-macos-aarch64.dmg",
                         "sha256": "a".repeat(64),
                         "size": 40_000_000
                     },
                     "x86_64": {
-                        "name": "OpenMicro-0.3.0-macos-x86_64.dmg",
-                        "url": "https://github.com/conol-ai/openmicrokbd/releases/download/v0.3.0/OpenMicro-0.3.0-macos-x86_64.dmg",
+                        "name": "keyboard-0.3.0-macos-x86_64.dmg",
+                        "url": "https://github.com/mayiwei442-bojack/hardware/releases/download/v0.3.0/keyboard-0.3.0-macos-x86_64.dmg",
                         "sha256": "b".repeat(64),
                         "size": 40_000_000
                     }
                 },
                 "windows": {
                     "aarch64": {
-                        "name": "OpenMicro-0.3.0-windows-aarch64.zip",
-                        "url": "https://github.com/conol-ai/openmicrokbd/releases/download/v0.3.0/OpenMicro-0.3.0-windows-aarch64.zip",
+                        "name": "keyboard-0.3.0-windows-aarch64.zip",
+                        "url": "https://github.com/mayiwei442-bojack/hardware/releases/download/v0.3.0/keyboard-0.3.0-windows-aarch64.zip",
                         "sha256": "d".repeat(64),
                         "size": 30_000_000
                     },
                     "x86_64": {
-                        "name": "OpenMicro-0.3.0-windows-x86_64.zip",
-                        "url": "https://github.com/conol-ai/openmicrokbd/releases/download/v0.3.0/OpenMicro-0.3.0-windows-x86_64.zip",
+                        "name": "keyboard-0.3.0-windows-x86_64.zip",
+                        "url": "https://github.com/mayiwei442-bojack/hardware/releases/download/v0.3.0/keyboard-0.3.0-windows-x86_64.zip",
                         "sha256": "e".repeat(64),
                         "size": 30_000_000
                     }
@@ -646,10 +646,10 @@ mod tests {
             },
             "firmware": {
                 "version": "0.3.1",
-                "board": "openmicro-stm32f072cb",
+                "board": "keyboard-stm32f072cb",
                 "protocol": 2,
-                "name": "openmicro-fw-0.3.1.bin",
-                "url": "https://github.com/conol-ai/openmicrokbd/releases/download/v0.3.0/openmicro-fw-0.3.1.bin",
+                "name": "keyboard-fw-0.3.1.bin",
+                "url": "https://github.com/mayiwei442-bojack/hardware/releases/download/v0.3.0/keyboard-fw-0.3.1.bin",
                 "sha256": "c".repeat(64),
                 "size": 28_000
             }
@@ -660,11 +660,11 @@ mod tests {
         // A pre-bootloader manifest carries neither optional field.
         assert_eq!(catalog.firmware.bootloader_version, None);
         assert_eq!(catalog.firmware.layout, None);
-        assert_eq!(catalog.firmware.asset.name, "openmicro-fw-0.3.1.bin");
+        assert_eq!(catalog.firmware.asset.name, "keyboard-fw-0.3.1.bin");
         if cfg!(all(target_os = "windows", target_arch = "x86_64")) {
             assert_eq!(
                 catalog.app_asset().expect("Windows asset").name,
-                "OpenMicro-0.3.0-windows-x86_64.zip"
+                "keyboard-0.3.0-windows-x86_64.zip"
             );
         }
 
@@ -737,7 +737,7 @@ mod tests {
             ),
             (
                 ["firmware", "board"].as_slice(),
-                serde_json::json!("openmicro-stm32f103"),
+                serde_json::json!("keyboard-stm32f103"),
                 "board",
             ),
             (
@@ -771,7 +771,7 @@ mod tests {
         assert!(FIRMWARE_DOWNLOAD_LIMIT >= 69_128);
         assert!(
             FIRMWARE_DOWNLOAD_LIMIT
-                >= u64::from(openmicro_layout::BOOT_SIZE + openmicro_layout::APP_SIZE)
+                >= u64::from(keyboard_layout::BOOT_SIZE + keyboard_layout::APP_SIZE)
         );
     }
 }

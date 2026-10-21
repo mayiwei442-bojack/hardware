@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Original pixel-art footer landscape for openmicrokbd.org, day + night.
+"""Original pixel-art footer landscape for keyboard site, day + night.
 
 Drawn from scratch at 384x256 (chunky 2px feature grid), upscaled x4 nearest
 to 1536x1024. Same geometry for both variants; only the palette changes.

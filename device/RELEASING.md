@@ -1,4 +1,4 @@
-# Releasing OpenMicro
+# Releasing keyboard
 
 The release workflow publishes both parts of the product from one GitHub
 Release:
@@ -6,12 +6,12 @@ Release:
 - notarized macOS DMGs for Apple Silicon and Intel;
 - signed Sparkle appcasts for Apple Silicon and Intel;
 - portable Windows ZIPs for Arm64 and x64;
-- the production STM32F072 firmware image `openmicro-fw-<ver>.bin` — the
+- the production STM32F072 firmware image `keyboard-fw-<ver>.bin` — the
   resident bootloader (first 24 KiB) and the application (from 0x08006000)
   in one file, flashable at 0x08000000 — with the factory programming `.hex`
   (same bytes with the load address embedded, for SWD/gang programmers at
-  manufacturing), the application's debug `openmicro-fw-<ver>.elf`, and the
-  bootloader's debug `openmicro-boot-<bootver>.elf` (neither ELF boots on
+  manufacturing), the application's debug `keyboard-fw-<ver>.elf`, and the
+  bootloader's debug `keyboard-boot-<bootver>.elf` (neither ELF boots on
   its own: the app is linked behind the bootloader, the bootloader has no app);
 - `release-manifest.json`, consumed by installed apps;
 - `SHA256SUMS` and GitHub artifact attestations.
@@ -122,16 +122,16 @@ suites, `fw-image.py selftest`, `test-bootloader.py selftest` — the same HID
 client the steps below use, driven against an in-process model of the
 bootloader — and the assembly dry run; CI runs the same script first), build
 the exact production image (`scripts/build-firmware.sh dist`), quit the
-OpenMicro app (it reacts to a pad in bootloader mode and would race the
+keyboard app (it reacts to a pad in bootloader mode and would race the
 scripts), and verify this sequence on a real pad. `scripts/test-bootloader.py`
 needs `python3 -m pip install hidapi` for the hardware steps (the selftest does
 not); on Linux it also needs the udev rules from
 `docs/linux-firmware-updates.md`, including the `1209:0002` line.
 
 1. **HID update round trip.**
-   `python3 scripts/test-bootloader.py cycle dist/openmicro-fw-<ver>.bin`
+   `python3 scripts/test-bootloader.py cycle dist/keyboard-fw-<ver>.bin`
    prints only PASS lines: the app acknowledges `ENTER_BOOT` (0x12), the pad
-   re-enumerates as `1209:0002` "OpenMicro Bootloader" (keys breathing amber,
+   re-enumerates as `1209:0002` "keyboard Bootloader" (keys breathing amber,
    underglow off), `BOOT_INFO` answers protocol 1 with the image's `app_base`,
    the application slice uploads with `UPDATE_BEGIN`/`UPDATE_DATA`/`UPDATE_END`
    all status 0 (the script prints the throughput; expect a few seconds for
@@ -140,7 +140,7 @@ not); on Linux it also needs the udev rules from
    equals `fw/Cargo.toml`.
 2. **Interrupted update recovery.**
    `python3 scripts/test-bootloader.py enter-boot`, then
-   `python3 scripts/test-bootloader.py upload dist/openmicro-fw-<ver>.bin --abort-after 40`,
+   `python3 scripts/test-bootloader.py upload dist/keyboard-fw-<ver>.bin --abort-after 40`,
    then unplug and replug the pad. It must come back as `1209:0002` on its own
    (`info` shows `app_valid 0`: the half-written image fails the CRC), a plain
    `upload` must succeed, and `run` must start the new firmware. Do it once
@@ -153,7 +153,7 @@ not); on Linux it also needs the udev rules from
    with the app running, and again with the bootloader running (after
    `enter-boot`): both times `0483:df11` appears in `dfu-util -l`. Return with
    the *combined* image —
-   `dfu-util -d 0483:df11 -a 0 -s 0x08000000:leave -D dist/openmicro-fw-<ver>.bin`
+   `dfu-util -d 0483:df11 -a 0 -s 0x08000000:leave -D dist/keyboard-fw-<ver>.bin`
    — and the pad comes back as `1209:0001` with the same version. Never flash
    an application slice or an `.elf` at 0x08000000: that overwrites the
    bootloader.
@@ -174,7 +174,7 @@ not); on Linux it also needs the udev rules from
    keymap loaded and no `fs.list` errors in `~/Library/Logs/input/main.log`.
    Hold KEY 03 (the first key of that row) while plugging in (amber blink)
    to return to `1209:0001`.
-7. **App path.** With the OpenMicro app running, Install the built image from
+7. **App path.** With the keyboard app running, Install the built image from
    the firmware sheet: the update runs over the bootloader with no driver
    prompt (also on Windows), the app reconnects, and it shows the new version.
 
@@ -226,7 +226,7 @@ a limit is crossed; quote the free bytes in the release notes:
 | region | limit | note |
 |---|---|---|
 | bootloader `.bin` | 24,064 bytes (the 24 KiB slot minus 512) | the headroom exists so a bootloader fix never has to move `APP_BASE`, which is baked into every application image |
-| application image | 86,016 bytes (84 KiB, 0x08006000..0x0801B000) | 0.10.0 needs 69,696 bytes with `DEFMT_LOG=off` (what every release build and `build-firmware.sh` use). Dev builds (`cargo run` over SWD) take `DEFMT_LOG` from `fw/.cargo/config.toml`, whose default is now `warn,openmicro_fw=info`: 85,264 bytes on 0.10.0, 752 bytes under the slot. The previous `info,openmicro_fw=debug` default linked 85,912 bytes with 104 bytes to spare; opt into it per invocation (`DEFMT_LOG=info,openmicro_fw=debug cargo build --release`) and expect it to stop fitting first. A `section .text will not fit in region FLASH` error on a dev build means the log level, not the release image, is over budget — lower it (or use `off`) before touching code |
+| application image | 86,016 bytes (84 KiB, 0x08006000..0x0801B000) | 0.10.0 needs 69,696 bytes with `DEFMT_LOG=off` (what every release build and `build-firmware.sh` use). Dev builds (`cargo run` over SWD) take `DEFMT_LOG` from `fw/.cargo/config.toml`, whose default is now `warn,keyboard_fw=info`: 85,264 bytes on 0.10.0, 752 bytes under the slot. The previous `info,keyboard_fw=debug` default linked 85,912 bytes with 104 bytes to spare; opt into it per invocation (`DEFMT_LOG=info,keyboard_fw=debug cargo build --release`) and expect it to stop fitting first. A `section .text will not fit in region FLASH` error on a dev build means the log level, not the release image, is over budget — lower it (or use `off`) before touching code |
 | combined `.bin` | must end below 0x0801B000 | the file slots and the config page above are never part of an image |
 
 ## Local release build
@@ -239,13 +239,13 @@ toolchain, `thumbv6m-none-eabi`, `llvm-tools-preview`, Xcode command-line tools,
 rustup target add thumbv6m-none-eabi
 rustup component add llvm-tools-preview
 scripts/test-firmware-host.sh    # layout, fw + boot host tests, fw-image.py + test-bootloader.py selftests, assembly dry run
-scripts/build-firmware.sh dist   # boot/ + fw/ -> dist/openmicro-fw-<firmware-version>.bin, .hex, both ELFs
-scripts/package-macos.sh dist dist/openmicro-fw-<firmware-version>.bin
+scripts/build-firmware.sh dist   # boot/ + fw/ -> dist/keyboard-fw-<firmware-version>.bin, .hex, both ELFs
+scripts/package-macos.sh dist dist/keyboard-fw-<firmware-version>.bin
 
 # Optional cross-build of the Intel DMG from an Apple Silicon Mac:
 rustup target add x86_64-apple-darwin
-OPENMICRO_MACOS_ARCH=x86_64 \
-  scripts/package-macos.sh dist dist/openmicro-fw-<firmware-version>.bin
+KEYBOARD_MACOS_ARCH=x86_64 \
+  scripts/package-macos.sh dist dist/keyboard-fw-<firmware-version>.bin
 ```
 
 For Windows, install the same Rust toolchain and Visual Studio's **Desktop
@@ -257,7 +257,7 @@ the firmware binary:
 rustup target add x86_64-pc-windows-msvc
 ./scripts/package-windows.ps1 `
   -OutputDir dist/windows `
-  -FirmwareBin dist/openmicro-fw-<firmware-version>.bin `
+  -FirmwareBin dist/keyboard-fw-<firmware-version>.bin `
   -Target x86_64-pc-windows-msvc
 
 # For Windows on Arm, change both occurrences of x86_64 to aarch64.
@@ -281,16 +281,16 @@ Useful local checks:
 ```sh
 cargo test --manifest-path app/Cargo.toml --locked --lib
 scripts/test-firmware-host.sh
-python3 scripts/fw-image.py info dist/openmicro-fw-<firmware-version>.bin
-python3 scripts/fw-image.py verify dist/openmicro-fw-<firmware-version>.bin
-hdiutil verify dist/OpenMicro-<app-version>-macos-<arch>.dmg
-codesign --verify --deep --strict dist/macos-<arch>/OpenMicro.app
-otool -L dist/macos-<arch>/OpenMicro.app/Contents/MacOS/OpenMicro
+python3 scripts/fw-image.py info dist/keyboard-fw-<firmware-version>.bin
+python3 scripts/fw-image.py verify dist/keyboard-fw-<firmware-version>.bin
+hdiutil verify dist/keyboard-<app-version>-macos-<arch>.dmg
+codesign --verify --deep --strict dist/macos-<arch>/keyboard.app
+otool -L dist/macos-<arch>/keyboard.app/Contents/MacOS/keyboard
 ```
 
 ```powershell
 cargo test --manifest-path app/Cargo.toml --locked --all-targets --target x86_64-pc-windows-msvc
-tar -tf dist/windows/OpenMicro-<app-version>-windows-x86_64.zip
+tar -tf dist/windows/keyboard-<app-version>-windows-x86_64.zip
 ```
 
 ## Publish
@@ -298,7 +298,7 @@ tar -tf dist/windows/OpenMicro-<app-version>-windows-x86_64.zip
 After tests, review, and the hardware gate:
 
 ```sh
-git tag -s v<app-version> -m "OpenMicro v<app-version>"
+git tag -s v<app-version> -m "keyboard v<app-version>"
 git push origin v<app-version>
 ```
 
@@ -314,9 +314,9 @@ After publication, verify both DMGs and both Windows ZIPs on the GitHub Release
 page and:
 
 ```text
-https://github.com/conol-ai/openmicrokbd/releases/latest/download/release-manifest.json
-https://github.com/conol-ai/openmicrokbd/releases/latest/download/appcast-aarch64.xml
-https://github.com/conol-ai/openmicrokbd/releases/latest/download/appcast-x86_64.xml
+https://github.com/mayiwei442-bojack/hardware/releases/latest/download/release-manifest.json
+https://github.com/mayiwei442-bojack/hardware/releases/latest/download/appcast-aarch64.xml
+https://github.com/mayiwei442-bojack/hardware/releases/latest/download/appcast-x86_64.xml
 ```
 
 Then launch the previous public app version and confirm both update prompts.

@@ -5,7 +5,7 @@
 //! `Slot` array synced over the vendor-HID protocol, see device.rs); what a
 //! slot *means* on the host — its `Action` — lives here, per machine. Stored
 //! as JSON under the OS config dir (e.g. ~/Library/Application
-//! Support/OpenMicro/config.json), the same path the pre-profile app used, so
+//! Support/keyboard/config.json), the same path the pre-profile app used, so
 //! `load()` transparently migrates the old `{ bindings: [...] }` schema.
 
 use serde::{Deserialize, Serialize};
@@ -213,7 +213,7 @@ pub struct InputConfig {
 #[serde(rename_all = "snake_case")]
 pub enum ProfileMode {
     #[default]
-    OpenMicro,
+    Keyboard,
     CodexMicro,
 }
 
@@ -786,7 +786,7 @@ pub enum ThemeSetting {
 pub struct AppConfig {
     pub active_profile: usize,
     #[serde(default)]
-    pub active_openmicro_profile: Option<usize>,
+    pub active_keyboard_profile: Option<usize>,
     #[serde(default)]
     pub active_codex_profile: Option<usize>,
     pub profiles: Vec<Profile>,
@@ -819,7 +819,7 @@ impl Default for AppConfig {
     fn default() -> Self {
         AppConfig {
             active_profile: 0,
-            active_openmicro_profile: Some(0),
+            active_keyboard_profile: Some(0),
             active_codex_profile: None,
             profiles: vec![default_codex_profile()],
             launch_at_login: true,
@@ -924,7 +924,7 @@ pub fn default_codex_profile() -> Profile {
     debug_assert_eq!(inputs.len(), SLOT_COUNT);
     Profile {
         name: "Codex".to_string(),
-        mode: ProfileMode::OpenMicro,
+        mode: ProfileMode::Keyboard,
         inputs,
         analog: AnalogTuning::default(),
         codex_overrides: Vec::new(),
@@ -1034,7 +1034,7 @@ fn fresh_name(existing: &[Profile], base: &str) -> String {
 pub fn empty_profile() -> Profile {
     Profile {
         name: ProfileTemplate::Empty.name().to_string(),
-        mode: ProfileMode::OpenMicro,
+        mode: ProfileMode::Keyboard,
         inputs: (0..SLOT_COUNT).map(|_| unbound_input()).collect(),
         analog: AnalogTuning::default(),
         codex_overrides: Vec::new(),
@@ -1134,7 +1134,7 @@ fn stock_keycap_profile(name: &str, keys: &[TemplateKey; KEY_SLOTS]) -> Profile 
     debug_assert_eq!(inputs.len(), SLOT_COUNT);
     Profile {
         name: name.to_string(),
-        mode: ProfileMode::OpenMicro,
+        mode: ProfileMode::Keyboard,
         inputs,
         analog: AnalogTuning::default(),
         codex_overrides: Vec::new(),
@@ -1328,7 +1328,7 @@ fn migrate_legacy(legacy: LegacyConfig) -> AppConfig {
     }
     AppConfig {
         active_profile: 0,
-        active_openmicro_profile: Some(0),
+        active_keyboard_profile: Some(0),
         active_codex_profile: None,
         profiles: vec![profile],
         launch_at_login: true,
@@ -1358,7 +1358,7 @@ fn parse_any(text: &str) -> Option<AppConfig> {
 // ---------------------------------------------------------------------------
 
 fn config_path() -> Option<PathBuf> {
-    Some(dirs::config_dir()?.join("OpenMicro").join("config.json"))
+    Some(dirs::config_dir()?.join("keyboard").join("config.json"))
 }
 
 /// Load the config, migrating the legacy schema if that's what's on disk.
@@ -1426,7 +1426,7 @@ pub fn import_from(path: &Path, mode: ImportMode, into: &mut AppConfig) -> Resul
     let text =
         std::fs::read_to_string(path).map_err(|e| format!("read {}: {e}", path.display()))?;
     let mut imported = parse_any(&text)
-        .ok_or_else(|| format!("{} is not an OpenMicro config file", path.display()))?;
+        .ok_or_else(|| format!("{} is not an keyboard config file", path.display()))?;
     sanitize(&mut imported);
 
     match mode {
@@ -2064,7 +2064,7 @@ mod tests {
     }
 
     #[test]
-    fn pre_mode_profiles_are_preserved_and_migrate_to_openmicro() {
+    fn pre_mode_profiles_are_preserved_and_migrate_to_keyboard() {
         let mut original = AppConfig::default();
         original.profiles[0].name = "My existing profile".into();
         original.profiles[0].inputs[0].label = "KEEP".into();
@@ -2075,7 +2075,7 @@ mod tests {
 
         let mut json = serde_json::to_value(original).expect("serialize old config");
         let root = json.as_object_mut().expect("config object");
-        root.remove("active_openmicro_profile");
+        root.remove("active_keyboard_profile");
         root.remove("active_codex_profile");
         for profile in root["profiles"].as_array_mut().expect("profiles") {
             let profile = profile.as_object_mut().expect("profile object");
@@ -2089,10 +2089,10 @@ mod tests {
         assert_eq!(migrated.profiles.len(), 1);
         assert_eq!(migrated.profiles[0].name, "My existing profile");
         assert_eq!(migrated.profiles[0].inputs, expected_inputs);
-        assert_eq!(migrated.profiles[0].mode, ProfileMode::OpenMicro);
+        assert_eq!(migrated.profiles[0].mode, ProfileMode::Keyboard);
         assert!(migrated.profiles[0].codex_overrides.is_empty());
         assert_eq!(migrated.active_profile, 0);
-        assert_eq!(migrated.active_openmicro_profile, None);
+        assert_eq!(migrated.active_keyboard_profile, None);
         assert_eq!(migrated.active_codex_profile, None);
     }
 
@@ -2100,11 +2100,11 @@ mod tests {
     fn sanitize_clamps_and_pads() {
         let mut cfg = AppConfig {
             active_profile: 7,
-            active_openmicro_profile: None,
+            active_keyboard_profile: None,
             active_codex_profile: None,
             profiles: vec![Profile {
                 name: "short".into(),
-                mode: ProfileMode::OpenMicro,
+                mode: ProfileMode::Keyboard,
                 inputs: vec![],
                 analog: AnalogTuning::default(),
                 codex_overrides: Vec::new(),

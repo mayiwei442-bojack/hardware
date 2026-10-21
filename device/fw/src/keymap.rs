@@ -154,12 +154,12 @@ pub const LED_PATTERN_RAINBOW: u8 = 0;
 pub const LED_PATTERN_SOLID: u8 = 1;
 
 /// Device modes on the wire (and in flash) — which USB identity the pad
-/// boots with. OPENMICRO is the pad as documented everywhere else; CODEX is
+/// boots with. KEYBOARD is the pad as documented everywhere else; CODEX is
 /// the opt-in Codex Micro compatibility mode (`codex.rs`). Switched by the
 /// boot chord or `SET_MODE`, and only ever takes effect on the next boot.
-pub const MODE_OPENMICRO: u8 = 0;
+pub const MODE_KEYBOARD: u8 = 0;
 pub const MODE_CODEX: u8 = 1;
-pub const DEFAULT_DEVICE_MODE: u8 = MODE_OPENMICRO;
+pub const DEFAULT_DEVICE_MODE: u8 = MODE_KEYBOARD;
 
 /// One chain's pattern: rainbow animation or a solid colour.
 #[derive(Clone, Copy)]
@@ -208,7 +208,7 @@ pub fn slot(i: usize) -> Slot {
     KEYMAP.lock(|k| k.borrow().slots[i])
 }
 
-/// In Codex compatibility mode, an untouched OpenMicro slot leaves the
+/// In Codex compatibility mode, an untouched keyboard slot leaves the
 /// native Codex/Work Louder binding in charge. A slot changed through the
 /// companion app explicitly overrides that one control with ordinary HID.
 pub fn codex_override(i: usize) -> Option<Slot> {
@@ -244,7 +244,7 @@ pub fn device_mode() -> u8 {
 }
 
 /// Set the boot identity in RAM (SAVE persists; a reset applies it).
-/// Unknown values fall back to OpenMicro mode.
+/// Unknown values fall back to keyboard mode.
 pub fn set_device_mode(mode: u8) {
     let mode = if mode <= MODE_CODEX {
         mode
@@ -268,10 +268,10 @@ const MAGIC: u32 = 0x4F4D_4B31; // "OMK1"
 /// blobs still load, with the fields they predate at their defaults.
 ///
 /// fw 0.8.0 spends v3's reserved byte on `device_mode` WITHOUT bumping the
-/// layout version: every v3/v4 blob ever written has 0 there (= OpenMicro
+/// layout version: every v3/v4 blob ever written has 0 there (= keyboard
 /// mode, the default), the checksum already covers it, and firmware that
 /// predates the field ignores it and writes 0 back on its next SAVE — so a
-/// downgrade falls back to OpenMicro mode instead of discarding the whole
+/// downgrade falls back to keyboard mode instead of discarding the whole
 /// saved keymap the way an unknown layout version would.
 const LAYOUT_VERSION: u16 = 4;
 /// Where v1 put the checksum: right after the slots.
@@ -372,7 +372,7 @@ pub fn load_from_flash() -> bool {
             DEFAULT_LED_BRIGHTNESS
         };
         // The byte only exists from v3 (in a v2 blob it is the checksum's
-        // high byte); an out-of-range value degrades to OpenMicro mode.
+        // high byte); an out-of-range value degrades to keyboard mode.
         k.device_mode = if version >= 3 && b[DEVICE_MODE_OFFSET] <= MODE_CODEX {
             b[DEVICE_MODE_OFFSET]
         } else {
@@ -457,7 +457,7 @@ pub fn factory_reset(flash: &mut Flash<'_, Blocking>) -> Result<(), ()> {
         k.key_pattern = DEFAULT_LED_PATTERN;
         k.ug_pattern = DEFAULT_LED_PATTERN;
         // The running identity does not change until the next boot, which
-        // then comes up in OpenMicro mode like a fresh unit.
+        // then comes up in keyboard mode like a fresh unit.
         k.device_mode = DEFAULT_DEVICE_MODE;
     });
     flash

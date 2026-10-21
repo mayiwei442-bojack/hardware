@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Builds the OpenMicro v1 firmware release artifacts into OUTPUT_DIR:
+# Builds the keyboard v1 firmware release artifacts into OUTPUT_DIR:
 #
-#   openmicro-fw-<ver>[-<features>].bin    bootloader + application, one image
+#   keyboard-fw-<ver>[-<features>].bin    bootloader + application, one image
 #                                          flashable at 0x08000000 (ROM DFU, SWD,
 #                                          or the app's one-time migration path)
-#   openmicro-fw-<ver>[-<features>].hex    the same bytes as Intel HEX with the
+#   keyboard-fw-<ver>[-<features>].hex    the same bytes as Intel HEX with the
 #                                          load address embedded, for the factory
-#   openmicro-fw-<ver>[-<features>].elf    application ELF with debug info
+#   keyboard-fw-<ver>[-<features>].elf    application ELF with debug info
 #                                          (linked at 0x08006000; does not boot alone)
-#   openmicro-boot-<bootver>[-<features>].elf  bootloader ELF with debug info
+#   keyboard-boot-<bootver>[-<features>].elf  bootloader ELF with debug info
 #
 # Since fw 0.10.0 the pad only starts an application whose header carries the
 # right length and CRC-32 (boot/ validates it before every jump), so this script
@@ -238,22 +238,22 @@ main() {
     mkdir -p "$output_dir"
     # The EXIT trap runs after main() has returned, so the directory it
     # removes must live in a global, not in one of main's locals.
-    WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/openmicro-build.XXXXXX")"
+    WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/keyboard-build.XXXXXX")"
     trap 'rm -rf "${WORK_DIR:-}"' EXIT
     work="$WORK_DIR"
 
-    fw_version="$(package_version "$REPO_ROOT/fw/Cargo.toml" openmicro-fw)"
-    boot_version="$(package_version "$REPO_ROOT/boot/Cargo.toml" openmicro-boot)"
+    fw_version="$(package_version "$REPO_ROOT/fw/Cargo.toml" keyboard-fw)"
+    boot_version="$(package_version "$REPO_ROOT/boot/Cargo.toml" keyboard-boot)"
 
     # The outputs are only written at the end, so anything with these names
     # in OUTPUT_DIR is from an earlier run. Remove it before anything else
     # can fail: a missing objcopy, a cargo error or a gate that dies below
     # must not leave yesterday's bytes behind under today's version for
     # package-macos.sh to pick up.
-    bin="$output_dir/openmicro-fw-$fw_version$variant.bin"
-    hex="$output_dir/openmicro-fw-$fw_version$variant.hex"
-    app_debug_elf="$output_dir/openmicro-fw-$fw_version$variant.elf"
-    boot_debug_elf="$output_dir/openmicro-boot-$boot_version$variant.elf"
+    bin="$output_dir/keyboard-fw-$fw_version$variant.bin"
+    hex="$output_dir/keyboard-fw-$fw_version$variant.hex"
+    app_debug_elf="$output_dir/keyboard-fw-$fw_version$variant.elf"
+    boot_debug_elf="$output_dir/keyboard-boot-$boot_version$variant.elf"
     rm -f "$bin" "$hex" "$app_debug_elf" "$boot_debug_elf"
 
     objcopy="$(find_objcopy)"
@@ -265,7 +265,7 @@ main() {
         cd "$REPO_ROOT/boot"
         cargo build --release --locked ${FW_FEATURES:+--features "$FW_FEATURES"}
     )
-    boot_elf="$REPO_ROOT/boot/target/thumbv6m-none-eabi/release/openmicro-boot"
+    boot_elf="$REPO_ROOT/boot/target/thumbv6m-none-eabi/release/keyboard-boot"
     [[ -f "$boot_elf" ]] || die "bootloader ELF not produced: $boot_elf"
     "$objcopy" -O binary "$boot_elf" "$work/boot.bin"
 
@@ -274,7 +274,7 @@ main() {
         cd "$REPO_ROOT/fw"
         DEFMT_LOG=off cargo build --release --locked ${FW_FEATURES:+--features "$FW_FEATURES"}
     )
-    app_elf="$REPO_ROOT/fw/target/thumbv6m-none-eabi/release/openmicro-fw"
+    app_elf="$REPO_ROOT/fw/target/thumbv6m-none-eabi/release/keyboard-fw"
     [[ -f "$app_elf" ]] || die "application ELF not produced: $app_elf"
     "$objcopy" -O binary "$app_elf" "$work/app.bin"
 

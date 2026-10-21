@@ -56,7 +56,7 @@ jobs:
               --locked \
               --no-deps \
               --format-version 1 |
-              jq -er '.packages[] | select(.name == "openmicro-app") | .version'
+              jq -er '.packages[] | select(.name == "keyboard-app") | .version'
           )"
           FIRMWARE_VERSION="$(
             cargo metadata \
@@ -64,7 +64,7 @@ jobs:
               --locked \
               --no-deps \
               --format-version 1 |
-              jq -er '.packages[] | select(.name == "openmicro-fw") | .version'
+              jq -er '.packages[] | select(.name == "keyboard-fw") | .version'
           )"
           BOOT_VERSION="$(
             cargo metadata \
@@ -72,7 +72,7 @@ jobs:
               --locked \
               --no-deps \
               --format-version 1 |
-              jq -er '.packages[] | select(.name == "openmicro-boot") | .version'
+              jq -er '.packages[] | select(.name == "keyboard-boot") | .version'
           )"
 
           if [[ "$APP_VERSION" != "${TAG#v}" ]]; then
@@ -145,17 +145,17 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/dist"
           ./scripts/build-firmware.sh "$GITHUB_WORKSPACE/dist"
 
-          test -f "dist/openmicro-fw-$FIRMWARE_VERSION.bin"
-          test -f "dist/openmicro-fw-$FIRMWARE_VERSION.elf"
-          test -f "dist/openmicro-fw-$FIRMWARE_VERSION.hex"
-          test -f "dist/openmicro-boot-$BOOT_VERSION.elf"
+          test -f "dist/keyboard-fw-$FIRMWARE_VERSION.bin"
+          test -f "dist/keyboard-fw-$FIRMWARE_VERSION.elf"
+          test -f "dist/keyboard-fw-$FIRMWARE_VERSION.hex"
+          test -f "dist/keyboard-boot-$BOOT_VERSION.elf"
 
       - name: Validate firmware memory bounds and vector table
         env:
           FIRMWARE_VERSION: ${{ needs.validate.outputs.firmware_version }}
         run: |
           set -euo pipefail
-          python3 - "dist/openmicro-fw-$FIRMWARE_VERSION.bin" <<'PY'
+          python3 - "dist/keyboard-fw-$FIRMWARE_VERSION.bin" <<'PY'
           import pathlib
           import struct
           import sys
@@ -185,7 +185,7 @@ jobs:
               f"SP=0x{stack_pointer:08x}, reset=0x{reset_vector:08x}"
           )
           PY
-          python3 scripts/fw-image.py verify "dist/openmicro-fw-$FIRMWARE_VERSION.bin"
+          python3 scripts/fw-image.py verify "dist/keyboard-fw-$FIRMWARE_VERSION.bin"
 
       - name: Read the flash layout out of the verified image
         id: layout
@@ -194,7 +194,7 @@ jobs:
           BOOT_VERSION: ${{ needs.validate.outputs.boot_version }}
         run: |
           set -euo pipefail
-          IMAGE="dist/openmicro-fw-$FIRMWARE_VERSION.bin"
+          IMAGE="dist/keyboard-fw-$FIRMWARE_VERSION.bin"
           INFO="$RUNNER_TEMP/image-info.json"
           python3 scripts/fw-image.py info --json "$IMAGE" > "$INFO"
           jq -e '.kind == "combined" and .boot.valid == true and .app.valid == true and .app.stamped == true' \
@@ -238,10 +238,10 @@ jobs:
         with:
           name: release-firmware
           path: |
-            dist/openmicro-fw-${{ needs.validate.outputs.firmware_version }}.bin
-            dist/openmicro-fw-${{ needs.validate.outputs.firmware_version }}.elf
-            dist/openmicro-fw-${{ needs.validate.outputs.firmware_version }}.hex
-            dist/openmicro-boot-${{ needs.validate.outputs.boot_version }}.elf
+            dist/keyboard-fw-${{ needs.validate.outputs.firmware_version }}.bin
+            dist/keyboard-fw-${{ needs.validate.outputs.firmware_version }}.elf
+            dist/keyboard-fw-${{ needs.validate.outputs.firmware_version }}.hex
+            dist/keyboard-boot-${{ needs.validate.outputs.boot_version }}.elf
           if-no-files-found: error
           compression-level: 0
           retention-days: 7
@@ -315,12 +315,12 @@ jobs:
           (
             cd app
             MACOSX_DEPLOYMENT_TARGET=11.0 \
-            OPENMICRO_FIRMWARE_VERSION="$FIRMWARE_VERSION" \
+            KEYBOARD_FIRMWARE_VERSION="$FIRMWARE_VERSION" \
               cargo build \
                 --release \
                 --locked \
                 --target "$RUST_TARGET" \
-                --bin openmicro-app
+                --bin keyboard-app
           )
 
       - name: Import Developer ID and notary credentials
@@ -346,9 +346,9 @@ jobs:
             fi
           done
 
-          CERTIFICATE_PATH="$RUNNER_TEMP/openmicro-developer-id.p12"
+          CERTIFICATE_PATH="$RUNNER_TEMP/keyboard-developer-id.p12"
           PRIVATE_KEY_PATH="$RUNNER_TEMP/AuthKey_${API_KEY_ID}.p8"
-          KEYCHAIN_PATH="$RUNNER_TEMP/openmicro-signing.keychain-db"
+          KEYCHAIN_PATH="$RUNNER_TEMP/keyboard-signing.keychain-db"
           KEYCHAIN_PASSWORD="$(openssl rand -hex 24)"
 
           {
@@ -402,24 +402,24 @@ jobs:
           FIRMWARE_VERSION: ${{ needs.validate.outputs.firmware_version }}
         run: |
           set -euo pipefail
-          FIRMWARE_BIN="$GITHUB_WORKSPACE/dist/firmware/openmicro-fw-$FIRMWARE_VERSION.bin"
+          FIRMWARE_BIN="$GITHUB_WORKSPACE/dist/firmware/keyboard-fw-$FIRMWARE_VERSION.bin"
           test -f "$FIRMWARE_BIN"
 
           REQUIRE_SIGNING=1 \
           MACOS_SIGN_IDENTITY="$MACOS_SIGN_IDENTITY" \
-          OPENMICRO_MACOS_ARCH="$ARCH" \
+          KEYBOARD_MACOS_ARCH="$ARCH" \
             ./scripts/package-macos.sh "$GITHUB_WORKSPACE/dist/macos" "$FIRMWARE_BIN"
 
-          APP_BUNDLE="$GITHUB_WORKSPACE/dist/macos/macos-$ARCH/OpenMicro.app"
+          APP_BUNDLE="$GITHUB_WORKSPACE/dist/macos/macos-$ARCH/keyboard.app"
           RESOURCES="$APP_BUNDLE/Contents/Resources"
-          EXECUTABLE="$APP_BUNDLE/Contents/MacOS/OpenMicro"
-          EMBEDDED_FIRMWARE="$RESOURCES/firmware/openmicro-fw.bin"
+          EXECUTABLE="$APP_BUNDLE/Contents/MacOS/keyboard"
+          EMBEDDED_FIRMWARE="$RESOURCES/firmware/keyboard-fw.bin"
           EMBEDDED_MANIFEST="$RESOURCES/firmware/manifest.json"
 
           test -x "$EXECUTABLE"
           test -f "$EMBEDDED_FIRMWARE"
           test -f "$EMBEDDED_MANIFEST"
-          test -f "$RESOURCES/OpenMicro.icns"
+          test -f "$RESOURCES/keyboard.icns"
           test -f "$RESOURCES/licenses/SimpleIcons-LICENSE.md"
           test -f "$RESOURCES/licenses/Sparkle-LICENSE.txt"
           test -f "$APP_BUNDLE/Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle"
@@ -440,7 +440,7 @@ jobs:
             echo "app bundle has the wrong Sparkle public key" >&2
             exit 1
           fi
-          for key in OpenMicroAutomaticUpdates SURequireSignedFeed SUVerifyUpdateBeforeExtraction; do
+          for key in keyboardAutomaticUpdates SURequireSignedFeed SUVerifyUpdateBeforeExtraction; do
             if [[ "$(plutil -extract "$key" raw "$APP_BUNDLE/Contents/Info.plist")" != "true" ]]; then
               echo "app bundle must enable $key" >&2
               exit 1
@@ -482,10 +482,10 @@ jobs:
           APP_VERSION: ${{ needs.validate.outputs.app_version }}
         run: |
           set -euo pipefail
-          APP_BUNDLE="$GITHUB_WORKSPACE/dist/macos/macos-$ARCH/OpenMicro.app"
+          APP_BUNDLE="$GITHUB_WORKSPACE/dist/macos/macos-$ARCH/keyboard.app"
           DMG_ROOT="$GITHUB_WORKSPACE/dist/macos/macos-$ARCH/dmg-root"
-          DMG="$GITHUB_WORKSPACE/dist/macos/OpenMicro-$APP_VERSION-macos-$ARCH.dmg"
-          APP_ZIP="$RUNNER_TEMP/OpenMicro-$APP_VERSION-$ARCH-notarize.zip"
+          DMG="$GITHUB_WORKSPACE/dist/macos/keyboard-$APP_VERSION-macos-$ARCH.dmg"
+          APP_ZIP="$RUNNER_TEMP/keyboard-$APP_VERSION-$ARCH-notarize.zip"
 
           notarize() {
             local artifact="$1"
@@ -532,11 +532,11 @@ jobs:
 
           rm -rf "$DMG_ROOT"
           mkdir -p "$DMG_ROOT"
-          ditto "$APP_BUNDLE" "$DMG_ROOT/OpenMicro.app"
+          ditto "$APP_BUNDLE" "$DMG_ROOT/keyboard.app"
           ln -s /Applications "$DMG_ROOT/Applications"
           rm -f "$DMG"
           hdiutil create \
-            -volname "OpenMicro" \
+            -volname "keyboard" \
             -srcfolder "$DMG_ROOT" \
             -fs HFS+ \
             -format UDZO \
@@ -563,21 +563,21 @@ jobs:
             --verbose=4 \
             "$DMG"
 
-          MOUNT_POINT="$RUNNER_TEMP/openmicro-$ARCH-mount"
+          MOUNT_POINT="$RUNNER_TEMP/keyboard-$ARCH-mount"
           mkdir -p "$MOUNT_POINT"
           cleanup_mount() {
             hdiutil detach "$MOUNT_POINT" >/dev/null 2>&1 || true
           }
           trap cleanup_mount EXIT
           hdiutil attach "$DMG" -readonly -nobrowse -mountpoint "$MOUNT_POINT"
-          codesign --verify --deep --strict --verbose=2 "$MOUNT_POINT/OpenMicro.app"
+          codesign --verify --deep --strict --verbose=2 "$MOUNT_POINT/keyboard.app"
           test -L "$MOUNT_POINT/Applications"
-          test -x "$MOUNT_POINT/OpenMicro.app/Contents/MacOS/OpenMicro"
-          test -f "$MOUNT_POINT/OpenMicro.app/Contents/Resources/firmware/openmicro-fw.bin"
-          test -f "$MOUNT_POINT/OpenMicro.app/Contents/Resources/firmware/manifest.json"
-          test -f "$MOUNT_POINT/OpenMicro.app/Contents/Resources/OpenMicro.icns"
-          test -f "$MOUNT_POINT/OpenMicro.app/Contents/Resources/licenses/SimpleIcons-LICENSE.md"
-          test -f "$MOUNT_POINT/OpenMicro.app/Contents/Resources/licenses/Sparkle-LICENSE.txt"
+          test -x "$MOUNT_POINT/keyboard.app/Contents/MacOS/keyboard"
+          test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/firmware/keyboard-fw.bin"
+          test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/firmware/manifest.json"
+          test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/keyboard.icns"
+          test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/licenses/SimpleIcons-LICENSE.md"
+          test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/licenses/Sparkle-LICENSE.txt"
           cleanup_mount
           trap - EXIT
 
@@ -595,9 +595,9 @@ jobs:
           fi
 
           SPARKLE_ROOT="$GITHUB_WORKSPACE/app/target/sparkle/2.9.6"
-          PRIVATE_KEY="$RUNNER_TEMP/openmicro-sparkle-ed25519"
-          UPDATES_DIR="$RUNNER_TEMP/openmicro-sparkle-updates-$ARCH"
-          DMG_NAME="OpenMicro-$APP_VERSION-macos-$ARCH.dmg"
+          PRIVATE_KEY="$RUNNER_TEMP/keyboard-sparkle-ed25519"
+          UPDATES_DIR="$RUNNER_TEMP/keyboard-sparkle-updates-$ARCH"
+          DMG_NAME="keyboard-$APP_VERSION-macos-$ARCH.dmg"
           DMG="$GITHUB_WORKSPACE/dist/macos/$DMG_NAME"
           APPCAST="$GITHUB_WORKSPACE/dist/macos/appcast-$ARCH.xml"
           ASSET_BASE="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG"
@@ -616,7 +616,7 @@ jobs:
           EXPECTED_PUBLIC_KEY="$(tr -d '\r\n' < app/macos/sparkle-public-key.txt)"
           ACTUAL_PUBLIC_KEY="$(swift scripts/sparkle-public-key.swift "$PRIVATE_KEY")"
           if [[ "$ACTUAL_PUBLIC_KEY" != "$EXPECTED_PUBLIC_KEY" ]]; then
-            echo "Sparkle private key does not match the public key embedded in OpenMicro" >&2
+            echo "Sparkle private key does not match the public key embedded in keyboard" >&2
             exit 1
           fi
 
@@ -668,10 +668,10 @@ jobs:
         if: always()
         run: |
           security delete-keychain \
-            "${SIGNING_KEYCHAIN:-$RUNNER_TEMP/openmicro-signing.keychain-db}" \
+            "${SIGNING_KEYCHAIN:-$RUNNER_TEMP/keyboard-signing.keychain-db}" \
             >/dev/null 2>&1 || true
           rm -f \
-            "$RUNNER_TEMP/openmicro-developer-id.p12" \
+            "$RUNNER_TEMP/keyboard-developer-id.p12" \
             "${NOTARY_PRIVATE_KEY:-$RUNNER_TEMP/not-configured-private-key}" \
             "${SPARKLE_PRIVATE_KEY_FILE:-$RUNNER_TEMP/not-configured-sparkle-key}"
 
@@ -680,7 +680,7 @@ jobs:
         with:
           name: release-macos-${{ matrix.arch }}
           path: |
-            dist/macos/OpenMicro-${{ needs.validate.outputs.app_version }}-macos-${{ matrix.arch }}.dmg
+            dist/macos/keyboard-${{ needs.validate.outputs.app_version }}-macos-${{ matrix.arch }}.dmg
             dist/macos/appcast-${{ matrix.arch }}.xml
           if-no-files-found: error
           compression-level: 0
@@ -767,7 +767,7 @@ jobs:
           FIRMWARE_VERSION: ${{ needs.validate.outputs.firmware_version }}
         run: |
           $ErrorActionPreference = "Stop"
-          $firmware = "dist/firmware/openmicro-fw-$env:FIRMWARE_VERSION.bin"
+          $firmware = "dist/firmware/keyboard-fw-$env:FIRMWARE_VERSION.bin"
           if (-not (Test-Path -LiteralPath $firmware -PathType Leaf)) {
             throw "Missing firmware image: $firmware"
           }
@@ -776,7 +776,7 @@ jobs:
             -FirmwareBin $firmware `
             -Target "${{ matrix.rust_target }}"
 
-          $package = "dist/windows/OpenMicro-${{ needs.validate.outputs.app_version }}-windows-${{ matrix.arch }}.zip"
+          $package = "dist/windows/keyboard-${{ needs.validate.outputs.app_version }}-windows-${{ matrix.arch }}.zip"
           if (-not (Test-Path -LiteralPath $package -PathType Leaf)) {
             throw "Missing Windows package: $package"
           }
@@ -785,7 +785,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-windows-${{ matrix.arch }}
-          path: dist/windows/OpenMicro-${{ needs.validate.outputs.app_version }}-windows-${{ matrix.arch }}.zip
+          path: dist/windows/keyboard-${{ needs.validate.outputs.app_version }}-windows-${{ matrix.arch }}.zip
           if-no-files-found: error
           compression-level: 0
           retention-days: 7
@@ -839,16 +839,16 @@ jobs:
             fi
           done
 
-          ARM_DMG="OpenMicro-$APP_VERSION-macos-aarch64.dmg"
-          INTEL_DMG="OpenMicro-$APP_VERSION-macos-x86_64.dmg"
+          ARM_DMG="keyboard-$APP_VERSION-macos-aarch64.dmg"
+          INTEL_DMG="keyboard-$APP_VERSION-macos-x86_64.dmg"
           ARM_APPCAST="appcast-aarch64.xml"
           INTEL_APPCAST="appcast-x86_64.xml"
-          WINDOWS_ARM_ZIP="OpenMicro-$APP_VERSION-windows-aarch64.zip"
-          WINDOWS_INTEL_ZIP="OpenMicro-$APP_VERSION-windows-x86_64.zip"
-          FIRMWARE_BIN="openmicro-fw-$FIRMWARE_VERSION.bin"
-          FIRMWARE_ELF="openmicro-fw-$FIRMWARE_VERSION.elf"
-          FIRMWARE_HEX="openmicro-fw-$FIRMWARE_VERSION.hex"
-          BOOT_ELF="openmicro-boot-$BOOT_VERSION.elf"
+          WINDOWS_ARM_ZIP="keyboard-$APP_VERSION-windows-aarch64.zip"
+          WINDOWS_INTEL_ZIP="keyboard-$APP_VERSION-windows-x86_64.zip"
+          FIRMWARE_BIN="keyboard-fw-$FIRMWARE_VERSION.bin"
+          FIRMWARE_ELF="keyboard-fw-$FIRMWARE_VERSION.elf"
+          FIRMWARE_HEX="keyboard-fw-$FIRMWARE_VERSION.hex"
+          BOOT_ELF="keyboard-boot-$BOOT_VERSION.elf"
 
           for asset in \
             "$ARM_DMG" \
@@ -911,7 +911,7 @@ jobs:
             --argjson app_size "$APP_SIZE" \
             '{
               schema: 1,
-              product: "openmicrokbd",
+              product: "keyboard",
               release_url: $release_url,
               app: {
                 version: $app_version,
@@ -946,7 +946,7 @@ jobs:
               },
               firmware: {
                 version: $firmware_version,
-                board: "openmicro-stm32f072cb",
+                board: "keyboard-stm32f072cb",
                 protocol: 2,
                 name: $firmware_name,
                 url: $firmware_url,
@@ -971,8 +971,8 @@ jobs:
             --argjson app_base "$APP_BASE" \
             --argjson app_size "$APP_SIZE" \
             '.schema == 1 and
-             .product == "openmicrokbd" and
-             .firmware.board == "openmicro-stm32f072cb" and
+             .product == "keyboard" and
+             .firmware.board == "keyboard-stm32f072cb" and
              .firmware.protocol == 2 and
              .firmware.bootloader_version == $boot_version and
              (.firmware.bootloader_version | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) and
@@ -1042,7 +1042,7 @@ jobs:
               --verify-tag \
               --draft \
               --generate-notes \
-              --title "OpenMicro $TAG"
+              --title "keyboard $TAG"
           fi
 
           gh release edit "$TAG" --draft=false --latest

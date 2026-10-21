@@ -3,12 +3,12 @@
 version = 4
 
 [[package]]
-name = "openmicro-boot-tests"
+name = "keyboard-boot-tests"
 version = "0.0.0"
 dependencies = [
- "openmicro-layout",
+ "keyboard-layout",
 ]
 
 [[package]]
-name = "openmicro-layout"
+name = "keyboard-layout"
 version = "0.1.0"

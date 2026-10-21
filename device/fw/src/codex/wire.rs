@@ -312,7 +312,7 @@ pub trait StreamSink {
     fn end(&mut self);
 }
 
-/// For callers with nothing to stream to (tests, the OpenMicro-only path).
+/// For callers with nothing to stream to (tests, the keyboard-only path).
 #[allow(dead_code)]
 pub struct NoSink;
 

@@ -2,11 +2,11 @@ import bpy,sys,json
 from mathutils import Vector
 sys.path.insert(0,r'C:\Users\myw\Documents\ChatGPT\硬件\modeling\tools')
 from model_helpers import *
-import openmicro_controls as ui
+import keyboard_controls as ui
 scene=bpy.context.scene;scene.frame_start=1;scene.frame_end=360;scene.render.fps=30
 ui.set_demo(bpy.context,False);bpy.ops.omk.reset_controls()
 def k(obj,prop,frame,value):
-    obj[prop]=value;obj.keyframe_insert(data_path=f'["{prop}"]',frame=frame,group='OpenMicroKbd Demo')
+    obj[prop]=value;obj.keyframe_insert(data_path=f'["{prop}"]',frame=frame,group='keyboard Demo')
 for obj,fields in ui.available_controls():
     for prop in fields:
         value=obj[prop]
@@ -36,7 +36,7 @@ objects=[obj for obj,fields in ui.available_controls()]+[cam]
 for obj in objects:
     ad=obj.animation_data;action=ad.action
     action.name='DEMO_'+obj.name
-    track=ad.nla_tracks.new();track.name='OpenMicroKbd Demo'
+    track=ad.nla_tracks.new();track.name='keyboard Demo'
     strip=track.strips.new(action.name,1,action)
     if action.slots and hasattr(strip,'action_slot'):strip.action_slot=action.slots[0]
     strip.blend_type='REPLACE';strip.extrapolation='NOTHING';track.mute=True

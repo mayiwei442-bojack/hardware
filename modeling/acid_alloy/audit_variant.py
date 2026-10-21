@@ -2,7 +2,7 @@ import bpy, pathlib, json, hashlib, struct, math, re, sys, bmesh
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 P=pathlib.Path(r'C:\Users\myw\Documents\ChatGPT\硬件\modeling');D=P/'acid_alloy'
-sys.path.insert(0,str(P/'tools'));import openmicro_controls as ui
+sys.path.insert(0,str(P/'tools'));import keyboard_controls as ui
 assert pathlib.Path(bpy.data.filepath)==P/'assets/MacroPad_AcidAlloy.blend'
 ui.set_demo(bpy.context,False);bpy.context.scene.frame_set(1);bpy.ops.omk.reset_controls();bpy.context.view_layer.update()
 base=json.loads((D/'baseline.json').read_text())
@@ -20,7 +20,7 @@ for name,old in base['objects'].items():
         sha=hashlib.sha256(b''.join(struct.pack('<3f',*v.co) for v in ob.data.vertices)).hexdigest()
         if sha!=old['mesh_hash']:
             report['changed_original_meshes'].append(name)
-            if not (re.match(r'SW\d+_(Cap$|Legend_)',name) or name=='OpenMicroRotator_SourceMesh'):
+            if not (re.match(r'SW\d+_(Cap$|Legend_)',name) or name=='keyboardRotator_SourceMesh'):
                 report['unexpected_geometry_changes'].append(name)
         if len(ob.data.vertices)!=old['vertices']:report['changed_vertex_counts'].append(name)
 
@@ -73,13 +73,13 @@ for num in range(3,16):
         report['cap_clearance_samples'].append({'key':num,'press':press,'intersections':hits})
     ctrl['press']=0.;ctrl.update_tag();bpy.context.view_layer.update()
 
-joy=bpy.data.objects['CTRL_Joystick'];cap=bpy.data.objects['OpenMicroJoystickCap_SourceMesh'];report['joystick']=[]
+joy=bpy.data.objects['CTRL_Joystick'];cap=bpy.data.objects['keyboardJoystickCap_SourceMesh'];report['joystick']=[]
 obstacles=[panel]+caps
 for x,y,p in [(0,0,0),(23,0,0),(-23,0,0),(0,23,0),(0,-23,0),(23,23,1),(-23,-23,1),(23,-23,1),(-23,23,1)]:
     joy['tilt_x_deg']=x;joy['tilt_y_deg']=y;joy['press']=p;joy.update_tag();bpy.context.view_layer.update();jt=tree(cap)
     report['joystick'].append({'pose':[x,y,p],'cap_intersections':[o.name for o in obstacles if jt.overlap(tree(o))]})
 bpy.ops.omk.reset_controls();bpy.context.view_layer.update()
-enc=bpy.data.objects['CTRL_Encoder'];knob=bpy.data.objects['OpenMicroRotator_SourceMesh'];report['encoder_panel']=[]
+enc=bpy.data.objects['CTRL_Encoder'];knob=bpy.data.objects['keyboardRotator_SourceMesh'];report['encoder_panel']=[]
 for angle in (0,30,60,90,120,180,270):
     enc['rotation_deg']=angle;enc['press']=1.;enc.update_tag();bpy.context.view_layer.update()
     report['encoder_panel'].append({'angle':angle,'intersections':len(tree(knob).overlap(pt))})

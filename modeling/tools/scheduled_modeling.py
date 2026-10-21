@@ -40,7 +40,7 @@ def checkpoint():
             log('checkpoint',json.loads(response.split(b'\0')[0]))
     except Exception as exc:log('checkpoint_error',str(exc))
 
-PROMPT='''继续用户授权的OpenMicroKbd精细可交互模型任务。工作目录是 {root}。
+PROMPT='''继续用户授权的keyboard精细可交互模型任务。工作目录是 {root}。
 首先读取 modeling/资料整理.md、建模计划.md、工作日志.md、progress.json。按计划使用已配置的官方 Blender MCP 工具制作；所有 Blender 场景操作通过 MCP。用源CAD/PCB/实拍而不是臆测。先生成并实际查看源CAD多视角参考，再制作正式资产。
 当前是{phase}次定时执行。完成接下来的一个完整资产批次：建模、保存、渲染、使用view_image实际审看、不合格返工再次审看，更新文件进度。每个小步骤保存，单次调用不要超过安全可恢复的工作量。不要仅做计划或以回复代替制作。模型有13独立可按键、带旋转/按压的旋钮、双轴/按压摇杆、触摸区域、13+8灯、可识别内部电子件、真实材质和可控解构层级，包含实际可用交互面板和示范动画。不要用扁平占位物冒充精细完成品。内部元件允许适度简化。
 保存 modeling/assets/MacroPad.blend、增量checkpoint和渲染到 modeling/renders；不会覆盖别的用户文件。不要提交/推送仓库，不要发送外部消息。保留原始资料。

@@ -1,4 +1,4 @@
-//! The OpenMicro companion app (makepad GUI) — PRD single-surface redesign.
+//! The keyboard companion app (makepad GUI) — PRD single-surface redesign.
 //!
 //! One surface, no tabs: a product header keeps profiles and connection
 //! state close; a board-like hardware map and a structured input inspector
@@ -40,7 +40,7 @@ use crate::release::{self, DownloadKind, ReleaseCatalog, ReleaseMsg};
 
 /// Release builds set this from `fw/Cargo.toml`; the fallback keeps ordinary
 /// local `cargo run` builds useful when no release environment is present.
-const LATEST_FW: &str = match option_env!("OPENMICRO_FIRMWARE_VERSION") {
+const LATEST_FW: &str = match option_env!("KEYBOARD_FIRMWARE_VERSION") {
     Some(version) => version,
     None => "0.4.0",
 };
@@ -1021,7 +1021,7 @@ live_design! {
     App = {{App}} {
         ui: <Root> {
             main_window = <Window> {
-                window: {inner_size: vec2(1120, 760), title: "OpenMicro"},
+                window: {inner_size: vec2(1120, 760), title: "keyboard"},
                 pass: {clear_color: (OM_BG)}
                 // Makepad uses a full-size transparent macOS titlebar. Its
                 // inherited caption bar was hidden, so traffic lights sat on
@@ -1057,7 +1057,7 @@ live_design! {
                             <AppMark> {width: 32, height: 32}
                             <View> {
                                 width: Fit, height: Fit,
-                                <Display> {text: "OpenMicro"}
+                                <Display> {text: "keyboard"}
                             }
                             <View> {
                                 width: 1, height: 24,
@@ -2018,7 +2018,7 @@ live_design! {
                                 <View> {
                                     width: Fill, height: Fit, flow: Down, spacing: 3,
                                     tr_firmware = <Display> {text: "Firmware"}
-                                    tr_safely_update_or_recover_your = <Small> {text: "Safely update or recover your OpenMicro"}
+                                    tr_safely_update_or_recover_your = <Small> {text: "Safely update or recover your keyboard"}
                                 }
                                 <Filler> {}
                                 fw_close = <ButtonGhost> {text: "Close"}
@@ -2720,7 +2720,7 @@ impl App {
                 self.state.image_expected_version = Some(version.clone());
                 self.ui
                     .label(id!(file_label))
-                    .set_text(cx, "openmicro-fw.bin");
+                    .set_text(cx, "keyboard-fw.bin");
                 self.ui.label(id!(file_meta)).set_text(
                     cx,
                     &format!("firmware {version} · bundled and SHA-256 verified"),
@@ -2943,23 +2943,23 @@ impl App {
                 let catalog = self.state.release.as_ref().unwrap();
                 let text = if self.state.app_downloading {
                     format!(
-                        "Downloading OpenMicro {}… {}%",
+                        "Downloading keyboard {}… {}%",
                         catalog.app.version,
                         (self.state.app_download_progress * 100.0).round() as u64
                     )
                 } else if self.state.app_download.is_some() {
                     format!(
-                        "OpenMicro {} is ready — the DMG has been downloaded and opened.",
+                        "keyboard {} is ready — the DMG has been downloaded and opened.",
                         catalog.app.version
                     )
                 } else if let Some(error) = &self.state.release_error {
                     format!(
-                        "OpenMicro {} is available, but the download failed: {error}",
+                        "keyboard {} is available, but the download failed: {error}",
                         catalog.app.version
                     )
                 } else {
                     format!(
-                        "OpenMicro {} is available (installed: {}).",
+                        "keyboard {} is available (installed: {}).",
                         catalog.app.version,
                         release::APP_VERSION
                     )
@@ -3047,7 +3047,7 @@ impl App {
             if let Some(catalog) = &self.state.release {
                 self.ui.label(id!(file_label)).set_text(
                     cx,
-                    &format!("OpenMicro firmware {}", catalog.firmware.version),
+                    &format!("keyboard firmware {}", catalog.firmware.version),
                 );
                 self.ui.label(id!(file_meta)).set_text(
                     cx,
@@ -3081,12 +3081,12 @@ impl App {
         let (rot_sync_color, rot_sync_text) = if self.state.connected {
             (
                 vec4(0.267, 0.820, 0.616, 1.0),
-                "Changes are written to OpenMicro and saved in its flash memory.",
+                "Changes are written to keyboard and saved in its flash memory.",
             )
         } else {
             (
                 vec4(0.949, 0.667, 0.298, 1.0),
-                "Saved in this profile · connect OpenMicro to write these choices to the keyboard.",
+                "Saved in this profile · connect keyboard to write these choices to the keyboard.",
             )
         };
         self.ui
@@ -4642,7 +4642,7 @@ impl App {
         }
         if self.ui.button(id!(export_btn)).clicked(actions) {
             if let Some(path) = rfd::FileDialog::new()
-                .set_file_name("openmicro-config.json")
+                .set_file_name("keyboard-config.json")
                 .save_file()
             {
                 let msg = match config::export_to(&path, &self.state.config) {
@@ -5128,7 +5128,7 @@ impl MatchEvent for App {
 
     fn handle_app_got_focus(&mut self, cx: &mut Cx) {
         // Permission changes happen in another app (System Settings). Refresh
-        // semantic banners and notes as soon as OpenMicro becomes active.
+        // semantic banners and notes as soon as keyboard becomes active.
         self.refresh_status(cx);
         self.refresh_editor(cx, false);
         if self.state.sheet == SheetKind::Settings {
@@ -5402,7 +5402,7 @@ impl MatchEvent for App {
                                     cx,
                                     path.file_name()
                                         .and_then(|name| name.to_str())
-                                        .unwrap_or("OpenMicro firmware"),
+                                        .unwrap_or("keyboard firmware"),
                                 );
                                 self.ui.label(id!(file_meta)).set_text(
                                     cx,
@@ -5981,7 +5981,7 @@ fn apply_launch_at_login(enable: bool) -> Result<(), String> {
     #[cfg(not(target_os = "macos"))]
     let app_path = exe.as_path();
     let auto = auto_launch::AutoLaunchBuilder::new()
-        .set_app_name("OpenMicro")
+        .set_app_name("keyboard")
         .set_app_path(&app_path.display().to_string())
         .build()
         .map_err(|e| e.to_string())?;

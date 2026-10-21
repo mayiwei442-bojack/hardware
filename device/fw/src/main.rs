@@ -1,6 +1,6 @@
-//! OpenMicro macropad firmware — STM32F072CBT6 + embassy.
+//! keyboard macropad firmware — STM32F072CBT6 + embassy.
 //!
-//! Pin map is the CoHDL design's (src/openmicro_parts.cohdl,
+//! Pin map is the CoHDL design's (src/keyboard_parts.cohdl,
 //! the position-aware GPIO assignment) — if the .cohdl changes, this table is
 //! the one to update:
 //!
@@ -13,7 +13,7 @@
 //!   JOY_SW   = PA15      (pull-up, active low; DEAD on the 2026-08 fab —
 //!              that revision's footprint paired the switch poles by column
 //!              instead of by row, shorting the line to GND through the
-//!              switch body; fixed in openmicro_parts.cohdl for the next spin)
+//!              switch body; fixed in keyboard_parts.cohdl for the next spin)
 //!   TOUCH    = PB9       (RC charge-time sensing, no external R)
 //!   LED_KEY  = PA8       (13x SK6812MINI-E per-key chain)
 //!   LED_UG   = PB14      (8x SK6812MINI-E perimeter underglow ring)
@@ -58,13 +58,13 @@
 //! flash map lives in memory.x and ../../layout/src/lib.rs.
 //!
 //! Device mode (keymap.rs `device_mode`, persisted with the keymap): the pad
-//! normally boots as OpenMicro (1209:0001, the composite above). In the
+//! normally boots as keyboard (1209:0001, the composite above). In the
 //! opt-in **Codex Micro compat mode** (codex.rs) it boots with the Codex
 //! Micro's USB identity plus a fifth HID interface speaking ChatGPT
 //! Desktop's device protocol, and every input is routed there instead of
 //! through the keymap (the vendor interface stays, so the app still works).
 //! Switch by holding a key while plugging in — the first key of the second
-//! row (slot 2, "KEY 03" in the app) → OpenMicro, the second key of that row
+//! row (slot 2, "KEY 03" in the app) → keyboard, the second key of that row
 //! (slot 3, "KEY 04") → Codex — or with `SET_MODE` from the app. The choice is saved and applies to every later
 //! boot; the underglow shows the mode's colour for a moment at power-up.
 
@@ -136,7 +136,7 @@ const POSITIONS: [[i8; 4]; 4] = [
 ];
 
 const FW_VERSION: &str = env!("CARGO_PKG_VERSION");
-/// `bcdDevice` for the OpenMicro identity, folded at compile time.
+/// `bcdDevice` for the keyboard identity, folded at compile time.
 const DEVICE_RELEASE: u16 = version_bcd(FW_VERSION);
 
 /// "a.b.c" -> USB bcdDevice (a in the high byte, b/c a nibble each), so the
@@ -205,7 +205,7 @@ const RAW_HID_DESC: &[u8] = &[
 //   [0x0E, kmode,kr,kg,kb, umode,ur,ug,ub] -> [0x0E, 0x01] (RAM; SAVE persists)
 //   [0x0F, index, enabled, r,g,b] -> [0x0F, 0x01] (RAM-only per-key override)
 //   [0x10]                         -> [0x10, mode] (running device mode:
-//                                     0 OpenMicro / 1 Codex Micro compat)
+//                                     0 keyboard / 1 Codex Micro compat)
 //   [0x11, mode, 'M','O','D','E']  -> [0x11, ok]; a CHANGED mode is persisted
 //                                     and the pad resets to re-enumerate in it
 //   [0x12, 'B','O','O','T']        -> [0x12, 0x01], then 50 ms later reset into
@@ -214,10 +214,10 @@ const RAW_HID_DESC: &[u8] = &[
 //   [0x20]                         -> [0x20, status, proto, boot maj, min,
 //                                     patch, app_base u32, app_size u32,
 //                                     app_valid, app_version[16]] (31 bytes,
-//                                     openmicro_layout::BootInfoReply; status
+//                                     keyboard_layout::BootInfoReply; status
 //                                     1 + zeros if no bootloader info block)
-const CMD_VERSION: u8 = openmicro_layout::op::VERSION;
-const CMD_ENTER_DFU: u8 = openmicro_layout::op::ENTER_DFU;
+const CMD_VERSION: u8 = keyboard_layout::op::VERSION;
+const CMD_ENTER_DFU: u8 = keyboard_layout::op::ENTER_DFU;
 const CMD_GET_KEYMAP: u8 = 0x03;
 const CMD_SET_KEYMAP: u8 = 0x04;
 const CMD_SAVE: u8 = 0x05;
@@ -233,10 +233,10 @@ const CMD_SET_LEDPATTERN: u8 = 0x0E;
 const CMD_SET_KEY_LED_OVERRIDE: u8 = 0x0F;
 const CMD_GET_MODE: u8 = 0x10;
 const CMD_SET_MODE: u8 = 0x11;
-const CMD_ENTER_BOOT: u8 = openmicro_layout::op::ENTER_BOOT;
-const CMD_BOOT_INFO: u8 = openmicro_layout::op::BOOT_INFO;
-const ENTER_DFU_KEY: &[u8; 4] = &openmicro_layout::ENTER_DFU_KEY;
-const ENTER_BOOT_KEY: &[u8; 4] = &openmicro_layout::ENTER_BOOT_KEY;
+const CMD_ENTER_BOOT: u8 = keyboard_layout::op::ENTER_BOOT;
+const CMD_BOOT_INFO: u8 = keyboard_layout::op::BOOT_INFO;
+const ENTER_DFU_KEY: &[u8; 4] = &keyboard_layout::ENTER_DFU_KEY;
+const ENTER_BOOT_KEY: &[u8; 4] = &keyboard_layout::ENTER_BOOT_KEY;
 const SAVE_KEY: &[u8; 4] = b"SAVE";
 const RESET_KEY: &[u8; 4] = b"RST!";
 const MODE_KEY: &[u8; 4] = b"MODE";
@@ -245,7 +245,7 @@ const EVENT_REPORT: u8 = 0x80;
 /// Boot identity (keymap::MODE_*), fixed for this power cycle: the USB
 /// descriptors are built from it once, so a change only lands after a reset.
 static DEVICE_MODE: core::sync::atomic::AtomicU8 =
-    core::sync::atomic::AtomicU8::new(keymap::MODE_OPENMICRO);
+    core::sync::atomic::AtomicU8::new(keymap::MODE_KEYBOARD);
 
 fn codex_mode() -> bool {
     DEVICE_MODE.load(core::sync::atomic::Ordering::Relaxed) == keymap::MODE_CODEX
@@ -256,8 +256,8 @@ fn codex_mode() -> bool {
 static SPLASH_UNTIL_MS: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
 static SPLASH_RGB: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
 static SPLASH_BLINK: core::sync::atomic::AtomicBool = core::sync::atomic::AtomicBool::new(false);
-/// OpenMicro mode shows the app's accent amber; Codex mode plain white.
-const MODE_RGB_OPENMICRO: u32 = 0xF5AE58;
+/// keyboard mode shows the app's accent amber; Codex mode plain white.
+const MODE_RGB_KEYBOARD: u32 = 0xF5AE58;
 const MODE_RGB_CODEX: u32 = 0xFFFFFF;
 
 fn splash(rgb: u32, blink: bool) {
@@ -286,7 +286,7 @@ async fn boot_chord(rows: &mut [Output<'static>; 4], cols: &[Input<'static>; 4])
     }
     rows[1].set_low();
     match (key2 == SAMPLES, key3 == SAMPLES) {
-        (true, false) => Some(keymap::MODE_OPENMICRO),
+        (true, false) => Some(keymap::MODE_KEYBOARD),
         (false, true) => Some(keymap::MODE_CODEX),
         _ => None,
     }
@@ -746,7 +746,7 @@ async fn main(spawner: Spawner) {
     // no critical section is open here.
     unsafe { cortex_m::interrupt::enable() };
     info!(
-        "OpenMicro fw v{}: clocks up (HSI48 -> 48 MHz core, CRS synced from USB SOF)",
+        "keyboard fw v{}: clocks up (HSI48 -> 48 MHz core, CRS synced from USB SOF)",
         FW_VERSION
     );
     let reason = boot::reason();
@@ -820,10 +820,10 @@ async fn main(spawner: Spawner) {
     let codex_mode = mode == keymap::MODE_CODEX;
     info!(
         "device mode: {}",
-        if codex_mode { "Codex Micro compat" } else { "OpenMicro" }
+        if codex_mode { "Codex Micro compat" } else { "keyboard" }
     );
     splash(
-        if codex_mode { MODE_RGB_CODEX } else { MODE_RGB_OPENMICRO },
+        if codex_mode { MODE_RGB_CODEX } else { MODE_RGB_KEYBOARD },
         changed,
     );
     if codex_mode {
@@ -843,7 +843,7 @@ async fn main(spawner: Spawner) {
         embassy_usb::Config::new(0x1209, 0x0001)
     };
     usb_config.manufacturer = Some(if codex_mode { codex::MANUFACTURER } else { "conol" });
-    usb_config.product = Some(if codex_mode { codex::PRODUCT } else { "OpenMicro" });
+    usb_config.product = Some(if codex_mode { codex::PRODUCT } else { "keyboard" });
     // Every unit reports its own serial: the MCU's factory-programmed
     // 96-bit unique ID, hex-encoded. Distinguishes pads when several are
     // plugged in, and gives support/logs a stable per-unit identity.
