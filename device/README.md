@@ -13,7 +13,7 @@ An open-source hardware recreation of OpenAI's **Codex Micro** macropad — 13 l
 
 **The PCB is written, not drawn.** The entire schematic is source code in [**CoHDL**](https://cohdl.org), an open-source, AI-native hardware description language. The compiler type-checks the design — units, pin-connection obligations, power integrity — and emits the netlist, BOM, footprints and layout constraints you can inspect under [`hw/v1/out/`](hw/v1/out/).
 
-🌐 **https://github.com/mayiwei442-bojack/hardware** · 🖨️ **[Printable case on MakerWorld](https://makerworld.com/en/models/3163016-keyboard#profileId-3599737)** ([中国站](https://makerworld.com.cn/zh/models/2838721-keyboard-kai-yuan-jian-pan)) · License: [MIT](LICENSE)
+🌐 **https://github.com/mayiwei442-bojack/hardware** · 🖨️ **[Printable case on MakerWorld](https://makerworld.com/en/models/3163016-keyboard#profileId-3599737)** ([中国站](https://makerworld.com.cn/zh/models/2838721-keyboard-kai-yuan-jian-pan))
 
 ## Designed in CoHDL
 
@@ -98,9 +98,6 @@ The enclosure is published as a ready-to-print model on MakerWorld, alongside th
 The print covers the case, the rotary knob and the joystick cap, plus the solder-assembly jig and the shipping package as a bonus from the same project. Recommended settings: 0.4 mm nozzle, 0.2 mm layer height, 3 walls, 15–20% infill, PLA or PETG (PETG for a daily driver), **no supports required**.
 
 Beyond the print you will need an assembled PCB, Choc V2-compatible keycaps, M2×4 female-female brass standoffs, M2×5 screws, and a USB-C cable.
-
-## License
-
 
 ---
 

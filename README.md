@@ -42,7 +42,3 @@ npm run dev
 - [SMT 贴片坐标](device/hw/v1/fab/keyboard-smt.csv)
 - [打印与可编辑机械模型](device/hw/v1/mechanical/)
 - [制造说明](device/hw/v1/fab/README.md)
-
-## 许可
-
-V1 设计与相关衍生模型的适用许可见 [MIT 许可](device/LICENSE)。

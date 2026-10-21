@@ -90,11 +90,9 @@ if (Test-Path -LiteralPath $archivePath) {
 }
 
 $firmwareDir = Join-Path $stageRoot "firmware"
-$licensesDir = Join-Path $stageRoot "licenses"
-New-Item -ItemType Directory -Force -Path $firmwareDir, $licensesDir | Out-Null
+New-Item -ItemType Directory -Force -Path $firmwareDir | Out-Null
 Copy-Item -LiteralPath $builtExecutable -Destination (Join-Path $stageRoot "keyboard.exe")
 Copy-Item -LiteralPath $firmwarePath -Destination (Join-Path $firmwareDir "keyboard-fw.bin")
-Copy-Item -LiteralPath (Join-Path $repoRoot "LICENSE") -Destination (Join-Path $licensesDir "keyboard-LICENSE.txt")
 
 $firmwareHash = (Get-FileHash -LiteralPath $firmwarePath -Algorithm SHA256).Hash.ToLowerInvariant()
 $firmwareManifest = [ordered]@{
@@ -107,7 +105,7 @@ $readme = @"
 keyboard $appVersion for Windows $architecture
 
 1. Extract this entire folder before running the app.
-2. Run keyboard.exe. The app, firmware folder, and licenses must stay together.
+2. Run keyboard.exe. The app and firmware folder must stay together.
 3. Firmware updates need no driver: the pad reboots into its own bootloader (a
    plain HID device) and keyboard installs the image over it. Only a pad still
    running firmware 0.9.0 or older gets that bootloader installed once through

@@ -90,7 +90,6 @@ chmod 755 "$CONTENTS/MacOS/keyboard"
 cp "$REPO_ROOT/app/macos/keyboard.icns" "$RESOURCES/keyboard.icns"
 ditto "$SPARKLE_ROOT/Sparkle.framework" "$FRAMEWORKS/Sparkle.framework"
 mkdir -p "$RESOURCES/licenses"
-cp "$REPO_ROOT/LICENSE" "$RESOURCES/licenses/keyboard-LICENSE.txt"
 cp "$SPARKLE_ROOT/LICENSE" "$RESOURCES/licenses/Sparkle-LICENSE.txt"
 sed \
     -e "s|@APP_VERSION@|$APP_VERSION|g" \

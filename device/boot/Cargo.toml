@@ -2,7 +2,6 @@
 name = "keyboard-boot"
 version = "1.0.0"
 edition = "2021"
-license = "MIT"
 description = "keyboard v1 resident bootloader (STM32F072CB): validates the application and offers a driverless USB HID update mode"
 publish = false
 

@@ -2,7 +2,6 @@
 name = "keyboard-app"
 version = "0.15.0"
 edition = "2021"
-license = "MIT"
 description = "keyboard companion app: profiles, key actions, firmware updates (GPUI)"
 build = "build.rs"
 

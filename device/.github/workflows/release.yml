@@ -420,7 +420,6 @@ jobs:
           test -f "$EMBEDDED_FIRMWARE"
           test -f "$EMBEDDED_MANIFEST"
           test -f "$RESOURCES/keyboard.icns"
-          test -f "$RESOURCES/licenses/SimpleIcons-LICENSE.md"
           test -f "$RESOURCES/licenses/Sparkle-LICENSE.txt"
           test -f "$APP_BUNDLE/Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle"
           plutil -lint "$APP_BUNDLE/Contents/Info.plist"
@@ -576,7 +575,6 @@ jobs:
           test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/firmware/keyboard-fw.bin"
           test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/firmware/manifest.json"
           test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/keyboard.icns"
-          test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/licenses/SimpleIcons-LICENSE.md"
           test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/licenses/Sparkle-LICENSE.txt"
           cleanup_mount
           trap - EXIT

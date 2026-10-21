@@ -2,7 +2,6 @@
 name = "keyboard-fw"
 version = "0.10.1"
 edition = "2021"
-license = "MIT"
 description = "keyboard macropad firmware (STM32F072CBT6, embassy)"
 
 [features]

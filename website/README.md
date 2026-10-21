@@ -41,8 +41,8 @@ npm run test:e2e
 
 详见 [素材接入说明](docs/assets.md)。
 
-## 文件与许可
+## 项目文件
 
-制造文件和打印模型链接指向本仓库的 `device/` 目录。预编译固件已归档到本仓库。V1 文件的适用许可见 [MIT 许可](../device/LICENSE)。
+制造文件和打印模型链接指向本仓库的 `device/` 目录。预编译固件已归档到本仓库。
 
 发布快照同时归档了 `public/assets/keyboard-exploded.glb`、`public/downloads/` 下的打印与制造文件，以及 `modeling/tools/export_hardware_web.py` 导出脚本。当前网站素材配置仍为 `pending`；文件归档与网站接入状态分别记录。
