@@ -1,0 +1,15 @@
+{
+  "pixels": {
+    "leftAlpha": 255,
+    "rightAlpha": 0
+  },
+  "phase": "ambient",
+  "overlayHidden": true,
+  "ambientOpacity": "0.48",
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "width": 1440,
+    "height": 1000
+  }
+}

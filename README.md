@@ -2,6 +2,20 @@
 
 本仓库包含 OpenMicroKbd 原始建模文件、建模记录和四个独立外观方案。四个方案均基于原始模型制作副本，保留已有器件和交互结构； Acid Alloy 按照既定范围新增一块遮盖 PCB 的盖板。
 
+## 酸性合金产品网站
+
+网站位于 [`website/`](website/README.md)，包含满屏像素开场、键盘二维贴图、硬件介绍、可交互工作台、七步制作流程和项目资料。界面以中文呈现，正式三维模型保留接入接口。
+
+```powershell
+cd website
+npm ci
+npm run dev
+```
+
+访问 `http://localhost:3100`。[素材接入说明](website/docs/assets.md) · [开场动效与贴图来源](website/docs/overview.md) · [检查记录](website/docs/acceptance.md)
+
+![酸性合金网站概览](website/artifacts/desktop-pixel-overview.png)
+
 ## Blender 文件
 
 | 版本 | 文件 | 方案说明 |
