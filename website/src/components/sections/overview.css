@@ -55,9 +55,12 @@
 }
 .overview-product figcaption { margin-top: -1.7vw; text-align: center; }
 .overview-product h1 {
-  font: 600 clamp(64px, 6.8vw, 116px)/1 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  letter-spacing: -.025em;
-  color: #f0f1ec;
+  font: 600 clamp(36px, 4.3vw, 72px)/1.2 'IBM Plex Mono', monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-indent: .1em;
+  color: #e1e9d8;
+  text-shadow: 2px 2px 0 #9673ff38;
 }
 @keyframes keyboardHover {
   0%, 100% { transform: translate3d(0, 5px, 0) rotate(-.6deg); }
@@ -66,7 +69,7 @@
 @media(max-width:760px) {
   .overview-product { left: 3vw; width: 94vw; top: calc(50% + 30px); }
   .overview-keyboard { max-height: 59svh; }
-  .overview-product h1 { font-size: clamp(58px, 15vw, 86px); }
+  .overview-product h1 { font-size: clamp(28px, 8.2vw, 48px); letter-spacing: .08em; text-indent: .08em; }
   .overview-product figcaption { margin-top: -2vw; }
   .overview-pixels { opacity: .36; }
 }

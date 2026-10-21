@@ -53,7 +53,7 @@ export function SmtWorkbench({value,onChange,onSubmit,quantity,done,color}:{valu
  return <div className="lab-panel smt-workbench">
   <div className="lab-panel-top"><span className="lab-badge">模拟订单</span><span className="mono">SMT 贴片配置</span><span className="lab-live">{done?'贴片已确认':value.dfm?'DFM 已通过':'等待确认'}</span></div>
   <LabSteps items={['关联 PCB','上传资料','物料匹配','贴装预览','DFM / 提交']} current={done?5:value.matched?4:value.parsed?2:1}/>
-  <div className="smt-order-link"><span>已关联 PCB 演示订单</span><strong>95 × 95 mm · 四层 · {quantity} 片</strong><label>贴片数量<input aria-label="贴片数量" type="number" min="1" max={quantity} value={value.quantity} onChange={event=>edit({quantity:Number(event.target.value)})}/></label></div>
+  <div className="smt-order-link"><span>PCB 样板参考参数</span><strong>95 × 95 mm · 四层 · {quantity} 片</strong><label>贴片数量<input aria-label="贴片数量" type="number" min="1" max={quantity} value={value.quantity} onChange={event=>edit({quantity:Number(event.target.value)})}/></label></div>
   <div className="file-pair"><FilePicker label="BOM / CSV" kind="bom" value={value.bom} preset="keyboard-bom.csv" onChange={bom=>edit({bom,parsed:false,matched:false,rotations:{}})}/><FilePicker label="CPL / CSV" kind="smt" value={value.cpl} preset="keyboard-smt.csv" onChange={cpl=>edit({cpl,parsed:false,matched:false,rotations:{}})}/></div>
   <p className="lab-hint">本工作台用项目随附 BOM / CPL 演示匹配与贴装。自选文件只作格式检查，不会被上传或用于真实采购。SW3–SW15、SW1 与 J1 不在 SMT 坐标中，留待手工装配。</p>
   {!value.parsed?<button className="btn primary" disabled={!value.bom||!value.cpl} onClick={()=>edit({parsed:true,selected:'U3',side:'B'})}>解析并匹配元件</button>:<>

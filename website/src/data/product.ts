@@ -23,4 +23,4 @@ export const hardware=[
  {id:'enclosure',name:'外壳' ,cn:'外壳与遮板',value:'02',unit:'外部组件',desc:'三维打印底壳与定制遮板。石墨外壳搭配酸绿面板。',type:'外观方案',specs:['定制 PCB 遮板','石墨黑 / 酸绿']},
 ];
 export const assemblyStages=['完整键盘','键帽分离','机械轴分离','遮板抬升','PCB 显露','底壳分离'];
-export const keyLabels=['待处理','新建','会话 1','会话 2','会话 3','会话 4','命令','确认','拒绝','终端','语音','侧栏','模式'];
+export const keyLabels=['待处理','新建','会话 1','会话 2','会话 3','会话 4','命令','确认','拒绝','终端','语音','侧聊','模型'];

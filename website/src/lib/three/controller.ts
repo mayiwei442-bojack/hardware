@@ -2,6 +2,7 @@ export type TouchAction = 'tap'|'left'|'right';
 export interface InputController {
  onKeyPress:(keyId:string)=>void;
  onEncoderRotate:(delta:number)=>void;
+ onEncoderPress?:()=>void;
  onJoystickMove:(x:number,y:number)=>void;
  onTouchPadAction:(action:TouchAction)=>void;
 }

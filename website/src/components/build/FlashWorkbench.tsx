@@ -22,7 +22,7 @@ export default function FlashWorkbench({value,onChange,onInvalidate,onComplete,d
   onInvalidate();
   onChange(old=>({...old,connected:!old.connected,phase:old.connected&&old.phase!=='idle'?'interrupted':old.phase==='interrupted'?'interrupted':'idle',progress:old.connected?old.progress:0}));
  }
- const status=phase==='writing'?'数据正在写入 STM32':phase==='interrupted'?'连接已断开，请重新连接后重试。':phase==='written'?'写入完成，请校验固件。':phase==='verifying'?'正在逐页校验写入内容…':phase==='verified'?'校验通过，可以重新启动。':phase==='booting'?'正在启动键盘…':phase==='booted'?'键盘已启动':connected?'演示设备已连接，请选择固件。':'将 SWD 连接线接到 PCB 的 J2 接口。';
+ const status=phase==='writing'?'数据正在写入 STM32':phase==='interrupted'?(connected?'烧录演示已中止，请重新烧录。':'连接已断开，请重新连接后重试。'):phase==='written'?'写入完成，请校验固件。':phase==='verifying'?'正在逐页校验写入内容…':phase==='verified'?'校验通过，可以重新启动。':phase==='booting'?'正在启动键盘…':phase==='booted'?'键盘已启动':connected?'演示设备已连接，请选择固件。':'将 SWD 连接线接到 PCB 的 J2 接口。';
  return <div className={`lab-panel flash-workbench flash-${phase}`}>
   <div className="lab-panel-top"><span className="lab-badge">交互演示</span><span className="mono">固件烧录工作台</span><span className={`lab-live ${connected?'':'offline'}`}>{connected?'SWD 已连接':'设备未连接'}</span></div>
   <LabSteps items={['接线','选择固件','写入','校验','启动']} current={phase==='booted'?5:['booting','verified'].includes(phase)?4:['written','verifying'].includes(phase)?3:phase==='writing'?2:connected?1:0}/>

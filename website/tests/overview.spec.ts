@@ -20,7 +20,7 @@ test('opening reveals once, pixels keep moving behind a full-screen minimal over
   await expect(page.locator('.overview-opening')).toBeHidden();
   await expect(hero.getByRole('heading')).toHaveText('Key board');
   await expect(hero.locator('a,button')).toHaveCount(0);
-  expect(await hero.innerText()).toBe('Key board');
+  expect(await hero.innerText()).toBe('KEY BOARD');
   expect(await hero.evaluate(el => Math.abs(el.clientHeight - window.innerHeight) <= 1)).toBeTruthy();
   expect(await hero.getByRole('img').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBeTruthy();
   const before = await pixelSignature(page);

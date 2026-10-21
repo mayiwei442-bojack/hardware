@@ -15,25 +15,17 @@ async function prepare(page:Page){
  const lab=page.locator('#build');
  await lab.getByRole('button',{name:'代码 ↓'}).click();
  await lab.getByRole('button',{name:'下载 ZIP ↓'}).click();
- await expect(lab.getByRole('button',{name:'下一步'})).toBeEnabled();
+ await expect(lab.locator('.step-feedback')).toContainText('已完成');
+ await lab.getByRole('button',{name:'下一步'}).click();
+ const [download]=await Promise.all([page.waitForEvent('download'),lab.getByRole('link',{name:'下载 Gerber 文件',exact:true}).click()]);
+ expect(download.suggestedFilename()).toBe('keyboard-gerbers.zip');
  await lab.getByRole('button',{name:'下一步'}).click();
  return lab;
 }
 
 // Catches submitting an unchecked order or carrying stale completion downstream.
-test('PCB and SMT require review, matching and DFM before completion',async({page})=>{
+test('Gerber download and SMT matching and DFM complete the fabrication stages',async({page})=>{
  const lab=await prepare(page);
- await expect(lab.getByRole('button',{name:'提交模拟 PCB 订单'})).toBeDisabled();
- await lab.getByRole('button',{name:'使用预设'}).click();
- await lab.getByLabel('板子数量').selectOption('10');
- await lab.getByRole('button',{name:'检查 PCB 订单'}).click();
- await expect(lab.getByRole('button',{name:'提交模拟 PCB 订单'})).toBeEnabled();
- await lab.getByLabel('阻焊颜色').selectOption('purple');
- await expect(lab.getByRole('button',{name:'提交模拟 PCB 订单'})).toBeDisabled();
- await lab.getByRole('button',{name:'检查 PCB 订单'}).click();
- await capture(page,'pcb');
- await lab.getByRole('button',{name:'提交模拟 PCB 订单'}).click();
- await lab.getByRole('button',{name:'下一步'}).click();
  await lab.getByRole('button',{name:'使用预设'}).nth(0).click();
  await lab.getByRole('button',{name:'使用预设'}).nth(1).click();
  await lab.getByRole('button',{name:'解析并匹配元件'}).click();
@@ -49,6 +41,7 @@ test('PCB and SMT require review, matching and DFM before completion',async({pag
  await lab.getByRole('button',{name:'运行 DFM 检查'}).click();
  await capture(page,'smt');
  await lab.getByRole('button',{name:'提交模拟 SMT 订单'}).click();
+ await expect(lab.locator('.step-feedback')).toContainText('已完成');
  await expect(lab.getByRole('button',{name:'下一步'})).toBeEnabled();
 });
 
@@ -58,10 +51,6 @@ test('assembly is reversible and interrupted flashing can be retried',async({pag
  const errors:string[]=[]; page.on('pageerror',error=>errors.push(error.message));
  page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
  const lab=await prepare(page);
- await lab.getByRole('button',{name:'使用预设'}).click();
- await lab.getByRole('button',{name:'检查 PCB 订单'}).click();
- await lab.getByRole('button',{name:'提交模拟 PCB 订单'}).click();
- await lab.getByRole('button',{name:'下一步'}).click();
  await expect(lab.getByRole('button',{name:'使用预设'})).toHaveCount(2);
  await lab.getByRole('button',{name:'使用预设'}).nth(0).click();
  await lab.getByRole('button',{name:'使用预设'}).nth(1).click();
@@ -69,6 +58,7 @@ test('assembly is reversible and interrupted flashing can be retried',async({pag
  await lab.getByRole('button',{name:'确认物料匹配'}).click();
  await lab.getByRole('button',{name:'运行 DFM 检查'}).click();
  await lab.getByRole('button',{name:'提交模拟 SMT 订单'}).click();
+ await expect(lab.locator('.step-feedback')).toContainText('已完成');
  await lab.getByRole('button',{name:'下一步'}).click();
  await expect(lab.getByRole('button',{name:'确认手工装配'})).toBeDisabled();
  await lab.getByRole('button',{name:'选择编码器'}).click();
@@ -76,7 +66,9 @@ test('assembly is reversible and interrupted flashing can be retried',async({pag
  await expect(lab.locator('.lab-message')).toContainText('不匹配');
  await lab.getByRole('button',{name:'选择机械轴'}).click();
  if(testInfo.project.name==='desktop'){
-  await lab.getByRole('button',{name:'选择机械轴'}).dragTo(lab.locator('.board-drawing'));
+  // Keep both endpoints visible: scrolling during mouse-down can start a different tray item.
+  await lab.locator('.assembly-desk').evaluate(element=>element.scrollIntoView({block:'center',behavior:'instant'}));
+  await lab.getByRole('button',{name:'选择机械轴'}).dragTo(lab.locator('.board-drawing'),{targetPosition:{x:20,y:20}});
   await expect(lab.locator('.lab-message')).toContainText('尚未对准');
  }
  await lab.getByRole('button',{name:'安装 SW03',exact:true}).click();
@@ -105,6 +97,7 @@ test('assembly is reversible and interrupted flashing can be retried',async({pag
  await lab.getByRole('button',{name:'确认手工装配'}).click();
  await lab.getByRole('button',{name:'下一步'}).click();
  await lab.getByRole('button',{name:'启动打印演示'}).click();
+ await expect(lab.locator('.step-feedback')).toContainText('已完成');
  await lab.getByRole('button',{name:'下一步'}).click();
  await expect(lab.getByRole('button',{name:'开始烧录'})).toBeDisabled();
  await lab.getByRole('button',{name:'点击连接'}).click();
@@ -128,4 +121,14 @@ test('assembly is reversible and interrupted flashing can be retried',async({pag
   await page.setViewportSize({width,height:1000});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
  }
+});
+
+// Leaving an active stage must never leave its unmounted timer permanently busy.
+test('free navigation interrupts flashing and permits retry',async({page})=>{
+ await page.goto('/#build');const lab=page.locator('#build');const nav=lab.getByRole('navigation',{name:'制作步骤'}).getByRole('button');
+ await nav.nth(5).click();await lab.getByRole('button',{name:'点击连接'}).click();await lab.getByRole('button',{name:'使用预设'}).click();await lab.getByRole('button',{name:'开始烧录'}).click();
+ await expect(lab.getByRole('progressbar',{name:'固件写入进度'})).toHaveAttribute('aria-valuenow',/[1-9]/);
+ await nav.nth(6).click();await expect(lab.locator('.step-feedback')).toContainText('上一项演示已取消');await nav.nth(5).click();await expect(lab.getByRole('button',{name:'重新烧录'})).toBeEnabled();
+ await expect(lab.getByRole('button',{name:'校验固件'})).toBeDisabled();await lab.getByRole('button',{name:'重新烧录'}).click();await expect(lab.getByRole('button',{name:'校验固件'})).toBeEnabled({timeout:15000});
+ await expect(lab.getByRole('progressbar',{name:'制作完成进度'})).toHaveAttribute('aria-valuenow','0');
 });
