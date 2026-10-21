@@ -1,7 +1,7 @@
 {
   "source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\modeling\\assets\\OpenMicroKbd_AcidAlloy.blend",
   "animation_source": "DEMO_OMK_ROOT_CTRL, frames 240..285",
-  "clip": "Scene",
+  "clip": "HardwareExplode",
   "frames": 46,
   "source_objects": 1026,
   "groups": [
@@ -24,18 +24,18 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        52.0
       ]
     },
     {
-      "name": "pcb_underside",
+      "name": "pcb",
       "part": "pcb",
-      "sources": 496,
-      "vertices": 52040,
+      "sources": 142,
+      "vertices": 14552,
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        38.0
       ]
     },
     {
@@ -46,7 +46,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -57,7 +57,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -68,7 +68,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -79,7 +79,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -90,7 +90,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -101,7 +101,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -112,7 +112,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -123,7 +123,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -134,7 +134,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -145,7 +145,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -156,7 +156,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -167,7 +167,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -178,7 +178,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -189,7 +189,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -200,7 +200,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -211,7 +211,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -222,7 +222,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -233,7 +233,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -244,7 +244,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -255,7 +255,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -266,7 +266,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -277,7 +277,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -288,7 +288,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -299,7 +299,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -310,7 +310,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -321,7 +321,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -332,7 +332,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -343,7 +343,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
       ]
     },
     {
@@ -354,7 +354,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        65.0
       ]
     },
     {
@@ -365,7 +365,18 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        95.0
+      ]
+    },
+    {
+      "name": "pcb_underside",
+      "part": "pcb",
+      "sources": 354,
+      "vertices": 37488,
+      "delta_mm": [
+        0.0,
+        0.0,
+        18.0
       ]
     },
     {
@@ -376,18 +387,29 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        38.0
+      ]
+    },
+    {
+      "name": "lighting",
+      "part": "lighting",
+      "sources": 88,
+      "vertices": 8908,
+      "delta_mm": [
+        0.0,
+        0.0,
+        38.0
       ]
     },
     {
       "name": "lighting_underside",
       "part": "lighting",
-      "sources": 231,
-      "vertices": 24438,
+      "sources": 143,
+      "vertices": 15530,
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        18.0
       ]
     },
     {
@@ -398,7 +420,7 @@
       "delta_mm": [
         0.0,
         0.0,
-        0.0
+        115.0
       ]
     }
   ],
@@ -409,186 +431,186 @@
     },
     {
       "frame": 2,
-      "explode": 0.0
+      "explode": 0.0014595335815101862
     },
     {
       "frame": 3,
-      "explode": 0.0
+      "explode": 0.005750342737883329
     },
     {
       "frame": 4,
-      "explode": 0.0
+      "explode": 0.012740742415189743
     },
     {
       "frame": 5,
-      "explode": 0.0
+      "explode": 0.022299040108919144
     },
     {
       "frame": 6,
-      "explode": 0.0
+      "explode": 0.03429355472326279
     },
     {
       "frame": 7,
-      "explode": 0.0
+      "explode": 0.04859260097146034
     },
     {
       "frame": 8,
-      "explode": 0.0
+      "explode": 0.06506447494029999
     },
     {
       "frame": 9,
-      "explode": 0.0
+      "explode": 0.08357750624418259
     },
     {
       "frame": 10,
-      "explode": 0.0
+      "explode": 0.10400000214576721
     },
     {
       "frame": 11,
-      "explode": 0.0
+      "explode": 0.12620027363300323
     },
     {
       "frame": 12,
-      "explode": 0.0
+      "explode": 0.15004663169384003
     },
     {
       "frame": 13,
-      "explode": 0.0
+      "explode": 0.17540743947029114
     },
     {
       "frame": 14,
-      "explode": 0.0
+      "explode": 0.20215089619159698
     },
     {
       "frame": 15,
-      "explode": 0.0
+      "explode": 0.2301454097032547
     },
     {
       "frame": 16,
-      "explode": 0.0
+      "explode": 0.25925928354263306
     },
     {
       "frame": 17,
-      "explode": 0.0
+      "explode": 0.28936076164245605
     },
     {
       "frame": 18,
-      "explode": 0.0
+      "explode": 0.3203182518482208
     },
     {
       "frame": 19,
-      "explode": 0.0
+      "explode": 0.35199999809265137
     },
     {
       "frame": 20,
-      "explode": 0.0
+      "explode": 0.38427436351776123
     },
     {
       "frame": 21,
-      "explode": 0.0
+      "explode": 0.4170095920562744
     },
     {
       "frame": 22,
-      "explode": 0.0
+      "explode": 0.45007404685020447
     },
     {
       "frame": 23,
-      "explode": 0.0
+      "explode": 0.48333606123924255
     },
     {
       "frame": 24,
-      "explode": 0.0
+      "explode": 0.5166639685630798
     },
     {
       "frame": 25,
-      "explode": 0.0
+      "explode": 0.5499260425567627
     },
     {
       "frame": 26,
-      "explode": 0.0
+      "explode": 0.5829904079437256
     },
     {
       "frame": 27,
-      "explode": 0.0
+      "explode": 0.6157256364822388
     },
     {
       "frame": 28,
-      "explode": 0.0
+      "explode": 0.6480000019073486
     },
     {
       "frame": 29,
-      "explode": 0.0
+      "explode": 0.6796817779541016
     },
     {
       "frame": 30,
-      "explode": 0.0
+      "explode": 0.710639238357544
     },
     {
       "frame": 31,
-      "explode": 0.0
+      "explode": 0.7407408356666565
     },
     {
       "frame": 32,
-      "explode": 0.0
+      "explode": 0.7698546648025513
     },
     {
       "frame": 33,
-      "explode": 0.0
+      "explode": 0.7978491187095642
     },
     {
       "frame": 34,
-      "explode": 0.0
+      "explode": 0.8245925903320312
     },
     {
       "frame": 35,
-      "explode": 0.0
+      "explode": 0.8499533534049988
     },
     {
       "frame": 36,
-      "explode": 0.0
+      "explode": 0.8737996816635132
     },
     {
       "frame": 37,
-      "explode": 0.0
+      "explode": 0.8960000276565552
     },
     {
       "frame": 38,
-      "explode": 0.0
+      "explode": 0.9164224863052368
     },
     {
       "frame": 39,
-      "explode": 0.0
+      "explode": 0.9349355697631836
     },
     {
       "frame": 40,
-      "explode": 0.0
+      "explode": 0.9514075517654419
     },
     {
       "frame": 41,
-      "explode": 0.0
+      "explode": 0.965706467628479
     },
     {
       "frame": 42,
-      "explode": 0.0
+      "explode": 0.9777010679244995
     },
     {
       "frame": 43,
-      "explode": 0.0
+      "explode": 0.9872591495513916
     },
     {
       "frame": 44,
-      "explode": 0.0
+      "explode": 0.994249701499939
     },
     {
       "frame": 45,
-      "explode": 0.0
+      "explode": 0.9985404014587402
     },
     {
       "frame": 46,
-      "explode": 0.0
+      "explode": 1.0
     }
   ],
-  "glb_bytes": 18034364,
+  "glb_bytes": 18040956,
   "downloads": [
     "acid-alloy-joystick-cap.stl",
     "acid-alloy-keycap-SW03.stl",
