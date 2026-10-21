@@ -1,0 +1,1052 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  validate:
+    name: Validate release tag
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      tag: ${{ steps.versions.outputs.tag }}
+      app_version: ${{ steps.versions.outputs.app_version }}
+      firmware_version: ${{ steps.versions.outputs.firmware_version }}
+      boot_version: ${{ steps.versions.outputs.boot_version }}
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate tag, versions, and source branch
+        id: versions
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+
+          TAG="$GITHUB_REF_NAME"
+          if [[ "$GITHUB_REF_TYPE" != "tag" ||
+                ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "release tags must have the stable form vMAJOR.MINOR.PATCH" >&2
+            exit 1
+          fi
+
+          APP_VERSION="$(
+            cargo metadata \
+              --manifest-path app/Cargo.toml \
+              --locked \
+              --no-deps \
+              --format-version 1 |
+              jq -er '.packages[] | select(.name == "keyboard-app") | .version'
+          )"
+          FIRMWARE_VERSION="$(
+            cargo metadata \
+              --manifest-path fw/Cargo.toml \
+              --locked \
+              --no-deps \
+              --format-version 1 |
+              jq -er '.packages[] | select(.name == "keyboard-fw") | .version'
+          )"
+          BOOT_VERSION="$(
+            cargo metadata \
+              --manifest-path boot/Cargo.toml \
+              --locked \
+              --no-deps \
+              --format-version 1 |
+              jq -er '.packages[] | select(.name == "keyboard-boot") | .version'
+          )"
+
+          if [[ "$APP_VERSION" != "${TAG#v}" ]]; then
+            echo "tag $TAG does not match app version $APP_VERSION" >&2
+            exit 1
+          fi
+          if [[ ! "$FIRMWARE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "firmware version must have the stable form MAJOR.MINOR.PATCH" >&2
+            exit 1
+          fi
+          if [[ ! "$BOOT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "bootloader version must have the stable form MAJOR.MINOR.PATCH" >&2
+            exit 1
+          fi
+
+          DEFAULT_REF="refs/remotes/origin/$DEFAULT_BRANCH"
+          if ! git show-ref --verify --quiet "$DEFAULT_REF"; then
+            echo "checkout did not contain origin/$DEFAULT_BRANCH" >&2
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" "$DEFAULT_REF"; then
+            echo "tagged commit is not on the repository default branch" >&2
+            exit 1
+          fi
+
+          {
+            echo "tag=$TAG"
+            echo "app_version=$APP_VERSION"
+            echo "firmware_version=$FIRMWARE_VERSION"
+            echo "boot_version=$BOOT_VERSION"
+          } >> "$GITHUB_OUTPUT"
+
+  firmware:
+    name: Build firmware
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    # What the built image says about itself (fw-image.py info --json on the
+    # verified combined image): the publish job writes these into the
+    # manifest instead of hard-coding the flash layout a second time.
+    outputs:
+      boot_version: ${{ steps.layout.outputs.boot_version }}
+      boot_slot_size: ${{ steps.layout.outputs.boot_slot_size }}
+      app_base: ${{ steps.layout.outputs.app_base }}
+      app_size: ${{ steps.layout.outputs.app_size }}
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the Rust firmware toolchain
+        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30
+        with:
+          toolchain: 1.92.0
+          targets: thumbv6m-none-eabi
+          components: llvm-tools-preview
+
+      - name: Run the host-side firmware tests
+        run: |
+          set -euo pipefail
+          ./scripts/test-firmware-host.sh
+
+      - name: Build raw firmware, debug ELF, and factory HEX
+        env:
+          FIRMWARE_VERSION: ${{ needs.validate.outputs.firmware_version }}
+          BOOT_VERSION: ${{ needs.validate.outputs.boot_version }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          ./scripts/build-firmware.sh "$GITHUB_WORKSPACE/dist"
+
+          test -f "dist/keyboard-fw-$FIRMWARE_VERSION.bin"
+          test -f "dist/keyboard-fw-$FIRMWARE_VERSION.elf"
+          test -f "dist/keyboard-fw-$FIRMWARE_VERSION.hex"
+          test -f "dist/keyboard-boot-$BOOT_VERSION.elf"
+
+      - name: Validate firmware memory bounds and vector table
+        env:
+          FIRMWARE_VERSION: ${{ needs.validate.outputs.firmware_version }}
+        run: |
+          set -euo pipefail
+          python3 - "dist/keyboard-fw-$FIRMWARE_VERSION.bin" <<'PY'
+          import pathlib
+          import struct
+          import sys
+
+          image_path = pathlib.Path(sys.argv[1])
+          image = image_path.read_bytes()
+          if not 192 <= len(image) <= 126 * 1024:
+              raise SystemExit(
+                  f"{image_path}: unsafe size {len(image)}; expected 192..129024 bytes"
+              )
+
+          stack_pointer, reset_vector = struct.unpack_from("<II", image)
+          reset_address = reset_vector & ~1
+          if stack_pointer & 3:
+              raise SystemExit(f"initial stack pointer is not aligned: 0x{stack_pointer:08x}")
+          if not 0x20000000 <= stack_pointer <= 0x20004000:
+              raise SystemExit(f"initial stack pointer is outside 16 KiB SRAM: 0x{stack_pointer:08x}")
+          if reset_vector & 1 == 0:
+              raise SystemExit(f"reset vector does not select Thumb state: 0x{reset_vector:08x}")
+          if not 0x08000000 <= reset_address < 0x0801F800:
+              raise SystemExit(
+                  f"reset vector is outside application flash: 0x{reset_vector:08x}"
+              )
+
+          print(
+              f"{image_path}: {len(image)} bytes, "
+              f"SP=0x{stack_pointer:08x}, reset=0x{reset_vector:08x}"
+          )
+          PY
+          python3 scripts/fw-image.py verify "dist/keyboard-fw-$FIRMWARE_VERSION.bin"
+
+      - name: Read the flash layout out of the verified image
+        id: layout
+        env:
+          FIRMWARE_VERSION: ${{ needs.validate.outputs.firmware_version }}
+          BOOT_VERSION: ${{ needs.validate.outputs.boot_version }}
+        run: |
+          set -euo pipefail
+          IMAGE="dist/keyboard-fw-$FIRMWARE_VERSION.bin"
+          INFO="$RUNNER_TEMP/image-info.json"
+          python3 scripts/fw-image.py info --json "$IMAGE" > "$INFO"
+          jq -e '.kind == "combined" and .boot.valid == true and .app.valid == true and .app.stamped == true' \
+            "$INFO" >/dev/null
+
+          IMAGE_BOOT_VERSION="$(jq -er '.boot.version' "$INFO")"
+          IMAGE_APP_VERSION="$(jq -er '.app.version' "$INFO")"
+          BOOT_SLOT_SIZE="$(jq -er '.boot.slot_size' "$INFO")"
+          APP_BASE="$(jq -er '.boot.app_base' "$INFO")"
+          APP_SIZE="$(jq -er '.boot.app_size' "$INFO")"
+
+          if [[ "$IMAGE_BOOT_VERSION" != "$BOOT_VERSION" ]]; then
+            echo "the image's bootloader info block says $IMAGE_BOOT_VERSION, boot/Cargo.toml says $BOOT_VERSION" >&2
+            exit 1
+          fi
+          if [[ "$IMAGE_APP_VERSION" != "$FIRMWARE_VERSION" ]]; then
+            echo "the image's application header says $IMAGE_APP_VERSION, fw/Cargo.toml says $FIRMWARE_VERSION" >&2
+            exit 1
+          fi
+          for value in "$BOOT_SLOT_SIZE" "$APP_BASE" "$APP_SIZE"; do
+            if [[ ! "$value" =~ ^[0-9]+$ ]]; then
+              echo "layout value is not an integer: '$value'" >&2
+              exit 1
+            fi
+          done
+          if (( APP_BASE != 0x08000000 + BOOT_SLOT_SIZE )); then
+            echo "app_base $APP_BASE is not flash base + boot slot ($BOOT_SLOT_SIZE)" >&2
+            exit 1
+          fi
+
+          echo "bootloader $IMAGE_BOOT_VERSION, boot slot $BOOT_SLOT_SIZE, app base $APP_BASE, app slot $APP_SIZE"
+          {
+            echo "boot_version=$IMAGE_BOOT_VERSION"
+            echo "boot_slot_size=$BOOT_SLOT_SIZE"
+            echo "app_base=$APP_BASE"
+            echo "app_size=$APP_SIZE"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-firmware
+          path: |
+            dist/keyboard-fw-${{ needs.validate.outputs.firmware_version }}.bin
+            dist/keyboard-fw-${{ needs.validate.outputs.firmware_version }}.elf
+            dist/keyboard-fw-${{ needs.validate.outputs.firmware_version }}.hex
+            dist/keyboard-boot-${{ needs.validate.outputs.boot_version }}.elf
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+          overwrite: true
+
+  macos:
+    name: Build macOS DMG (${{ matrix.arch }})
+    needs:
+      - validate
+      - firmware
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: aarch64
+            macho_arch: arm64
+            runner: macos-15
+            rust_target: aarch64-apple-darwin
+            uname: arm64
+          - arch: x86_64
+            macho_arch: x86_64
+            runner: macos-15-intel
+            rust_target: x86_64-apple-darwin
+            uname: x86_64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    environment: release
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Download firmware artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-firmware
+          path: dist/firmware
+          digest-mismatch: error
+
+      - name: Install the Rust app toolchain
+        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30
+        with:
+          toolchain: 1.92.0
+          targets: ${{ matrix.rust_target }}
+
+      - name: Test the host app
+        if: matrix.arch == 'aarch64'
+        env:
+          RUST_TARGET: ${{ matrix.rust_target }}
+        run: |
+          set -euo pipefail
+          cargo test \
+            --manifest-path app/Cargo.toml \
+            --locked \
+            --lib \
+            --target "$RUST_TARGET"
+
+      - name: Prebuild the tagged app
+        env:
+          EXPECTED_UNAME: ${{ matrix.uname }}
+          FIRMWARE_VERSION: ${{ needs.validate.outputs.firmware_version }}
+          RUST_TARGET: ${{ matrix.rust_target }}
+        run: |
+          set -euo pipefail
+          if [[ "$(uname -m)" != "$EXPECTED_UNAME" ]]; then
+            echo "runner architecture $(uname -m) does not match $EXPECTED_UNAME" >&2
+            exit 1
+          fi
+
+          (
+            cd app
+            MACOSX_DEPLOYMENT_TARGET=11.0 \
+            KEYBOARD_FIRMWARE_VERSION="$FIRMWARE_VERSION" \
+              cargo build \
+                --release \
+                --locked \
+                --target "$RUST_TARGET" \
+                --bin keyboard-app
+          )
+
+      - name: Import Developer ID and notary credentials
+        env:
+          CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_DEVELOPER_ID_P12_BASE64 }}
+          CERTIFICATE_P12_PASSWORD: ${{ secrets.MACOS_DEVELOPER_ID_P12_PASSWORD }}
+          API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          API_PRIVATE_KEY_P8_BASE64: ${{ secrets.APPLE_API_PRIVATE_KEY_P8_BASE64 }}
+        run: |
+          set -euo pipefail
+
+          for required in \
+            CERTIFICATE_P12_BASE64 \
+            CERTIFICATE_P12_PASSWORD \
+            API_KEY_ID \
+            API_ISSUER_ID \
+            API_PRIVATE_KEY_P8_BASE64
+          do
+            if [[ -z "${!required:-}" ]]; then
+              echo "required release secret $required is not configured" >&2
+              exit 1
+            fi
+          done
+
+          CERTIFICATE_PATH="$RUNNER_TEMP/keyboard-developer-id.p12"
+          PRIVATE_KEY_PATH="$RUNNER_TEMP/AuthKey_${API_KEY_ID}.p8"
+          KEYCHAIN_PATH="$RUNNER_TEMP/keyboard-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 24)"
+
+          {
+            echo "SIGNING_KEYCHAIN=$KEYCHAIN_PATH"
+            echo "NOTARY_PRIVATE_KEY=$PRIVATE_KEY_PATH"
+          } >> "$GITHUB_ENV"
+
+          printf '%s' "$CERTIFICATE_P12_BASE64" | base64 -D > "$CERTIFICATE_PATH"
+          printf '%s' "$API_PRIVATE_KEY_P8_BASE64" | base64 -D > "$PRIVATE_KEY_PATH"
+          chmod 600 "$CERTIFICATE_PATH" "$PRIVATE_KEY_PATH"
+          test -s "$CERTIFICATE_PATH"
+          test -s "$PRIVATE_KEY_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" \
+            -k "$KEYCHAIN_PATH" \
+            -P "$CERTIFICATE_P12_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security
+          security set-key-partition-list \
+            -S apple-tool:,apple: \
+            -s \
+            -k "$KEYCHAIN_PASSWORD" \
+            "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH"
+          security default-keychain -d user -s "$KEYCHAIN_PATH"
+
+          SIGN_IDENTITY="$(
+            security find-identity -v -p codesigning "$KEYCHAIN_PATH" |
+              sed -n 's/.*"\(Developer ID Application:.*\)"/\1/p' |
+              head -n 1
+          )"
+          if [[ -z "$SIGN_IDENTITY" ]]; then
+            echo "the certificate does not contain a Developer ID Application identity" >&2
+            exit 1
+          fi
+
+          {
+            echo "MACOS_SIGN_IDENTITY=$SIGN_IDENTITY"
+            echo "NOTARY_KEY_ID=$API_KEY_ID"
+            echo "NOTARY_ISSUER_ID=$API_ISSUER_ID"
+          } >> "$GITHUB_ENV"
+
+      - name: Stage a fail-closed Developer ID bundle
+        env:
+          ARCH: ${{ matrix.arch }}
+          MACHO_ARCH: ${{ matrix.macho_arch }}
+          APP_VERSION: ${{ needs.validate.outputs.app_version }}
+          FIRMWARE_VERSION: ${{ needs.validate.outputs.firmware_version }}
+        run: |
+          set -euo pipefail
+          FIRMWARE_BIN="$GITHUB_WORKSPACE/dist/firmware/keyboard-fw-$FIRMWARE_VERSION.bin"
+          test -f "$FIRMWARE_BIN"
+
+          REQUIRE_SIGNING=1 \
+          MACOS_SIGN_IDENTITY="$MACOS_SIGN_IDENTITY" \
+          KEYBOARD_MACOS_ARCH="$ARCH" \
+            ./scripts/package-macos.sh "$GITHUB_WORKSPACE/dist/macos" "$FIRMWARE_BIN"
+
+          APP_BUNDLE="$GITHUB_WORKSPACE/dist/macos/macos-$ARCH/keyboard.app"
+          RESOURCES="$APP_BUNDLE/Contents/Resources"
+          EXECUTABLE="$APP_BUNDLE/Contents/MacOS/keyboard"
+          EMBEDDED_FIRMWARE="$RESOURCES/firmware/keyboard-fw.bin"
+          EMBEDDED_MANIFEST="$RESOURCES/firmware/manifest.json"
+
+          test -x "$EXECUTABLE"
+          test -f "$EMBEDDED_FIRMWARE"
+          test -f "$EMBEDDED_MANIFEST"
+          test -f "$RESOURCES/keyboard.icns"
+          test -f "$RESOURCES/licenses/Sparkle-LICENSE.txt"
+          test -f "$APP_BUNDLE/Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle"
+          plutil -lint "$APP_BUNDLE/Contents/Info.plist"
+          if [[ "$(
+            plutil -extract CFBundleShortVersionString raw \
+              "$APP_BUNDLE/Contents/Info.plist"
+          )" != "$APP_VERSION" ]]; then
+            echo "app bundle version does not match the release tag" >&2
+            exit 1
+          fi
+          EXPECTED_FEED="https://github.com/$GITHUB_REPOSITORY/releases/latest/download/appcast-$ARCH.xml"
+          if [[ "$(plutil -extract SUFeedURL raw "$APP_BUNDLE/Contents/Info.plist")" != "$EXPECTED_FEED" ]]; then
+            echo "app bundle has the wrong Sparkle feed" >&2
+            exit 1
+          fi
+          if [[ "$(plutil -extract SUPublicEDKey raw "$APP_BUNDLE/Contents/Info.plist")" != "$(tr -d '\r\n' < app/macos/sparkle-public-key.txt)" ]]; then
+            echo "app bundle has the wrong Sparkle public key" >&2
+            exit 1
+          fi
+          for key in keyboardAutomaticUpdates SURequireSignedFeed SUVerifyUpdateBeforeExtraction; do
+            if [[ "$(plutil -extract "$key" raw "$APP_BUNDLE/Contents/Info.plist")" != "true" ]]; then
+              echo "app bundle must enable $key" >&2
+              exit 1
+            fi
+          done
+          jq -e \
+            --arg version "$FIRMWARE_VERSION" \
+            '.version == $version and
+             (.sha256 | test("^[0-9a-f]{64}$"))' \
+            "$EMBEDDED_MANIFEST" >/dev/null
+
+          if [[ "$(lipo -archs "$EXECUTABLE")" != "$MACHO_ARCH" ]]; then
+            echo "unexpected Mach-O architectures: $(lipo -archs "$EXECUTABLE")" >&2
+            exit 1
+          fi
+          otool -L "$EXECUTABLE" | grep -F \
+            "@rpath/Sparkle.framework/Versions/B/Sparkle"
+
+          EMBEDDED_SHA="$(shasum -a 256 "$EMBEDDED_FIRMWARE" | awk '{print $1}')"
+          MANIFEST_SHA="$(jq -er '.sha256' "$EMBEDDED_MANIFEST")"
+          if [[ "$EMBEDDED_SHA" != "$MANIFEST_SHA" ]]; then
+            echo "embedded firmware checksum does not match its manifest" >&2
+            exit 1
+          fi
+          if ! cmp -s "$FIRMWARE_BIN" "$EMBEDDED_FIRMWARE"; then
+            echo "app bundle does not contain the built firmware artifact" >&2
+            exit 1
+          fi
+
+          codesign --verify --deep --strict --verbose=2 "$APP_BUNDLE"
+          codesign -dvvv "$APP_BUNDLE" 2>&1 |
+            grep -F "Authority=Developer ID Application:"
+          codesign -dvvv "$APP_BUNDLE" 2>&1 |
+            grep -E 'flags=.*\(runtime\)'
+
+      - name: Notarize, staple, and verify the final DMG
+        env:
+          ARCH: ${{ matrix.arch }}
+          APP_VERSION: ${{ needs.validate.outputs.app_version }}
+        run: |
+          set -euo pipefail
+          APP_BUNDLE="$GITHUB_WORKSPACE/dist/macos/macos-$ARCH/keyboard.app"
+          DMG_ROOT="$GITHUB_WORKSPACE/dist/macos/macos-$ARCH/dmg-root"
+          DMG="$GITHUB_WORKSPACE/dist/macos/keyboard-$APP_VERSION-macos-$ARCH.dmg"
+          APP_ZIP="$RUNNER_TEMP/keyboard-$APP_VERSION-$ARCH-notarize.zip"
+
+          notarize() {
+            local artifact="$1"
+            local label="$2"
+            local result="$RUNNER_TEMP/$label-notary-result.json"
+            local log="$RUNNER_TEMP/$label-notary-log.json"
+            local submission_id
+
+            if ! xcrun notarytool submit "$artifact" \
+              --key "$NOTARY_PRIVATE_KEY" \
+              --key-id "$NOTARY_KEY_ID" \
+              --issuer "$NOTARY_ISSUER_ID" \
+              --wait \
+              --output-format json > "$result"
+            then
+              cat "$result" >&2 || true
+              return 1
+            fi
+            jq -e '.status == "Accepted"' "$result"
+            submission_id="$(jq -er '.id' "$result")"
+            jq '{id, status, message}' "$result"
+
+            if ! xcrun notarytool log "$submission_id" \
+              --key "$NOTARY_PRIVATE_KEY" \
+              --key-id "$NOTARY_KEY_ID" \
+              --issuer "$NOTARY_ISSUER_ID" > "$log"
+            then
+              echo "warning: accepted notarization log could not be downloaded" >&2
+            fi
+          }
+
+          codesign --verify --deep --strict --verbose=2 "$APP_BUNDLE"
+          codesign -dvvv "$APP_BUNDLE" 2>&1 |
+            grep -F "Authority=Developer ID Application:"
+          codesign -dvvv "$APP_BUNDLE" 2>&1 |
+            grep -E 'flags=.*\(runtime\)'
+
+          rm -f "$APP_ZIP"
+          ditto -c -k --sequesterRsrc --keepParent "$APP_BUNDLE" "$APP_ZIP"
+          notarize "$APP_ZIP" "app-$ARCH"
+          xcrun stapler staple "$APP_BUNDLE"
+          xcrun stapler validate "$APP_BUNDLE"
+          spctl --assess --type execute --verbose=4 "$APP_BUNDLE"
+
+          rm -rf "$DMG_ROOT"
+          mkdir -p "$DMG_ROOT"
+          ditto "$APP_BUNDLE" "$DMG_ROOT/keyboard.app"
+          ln -s /Applications "$DMG_ROOT/Applications"
+          rm -f "$DMG"
+          hdiutil create \
+            -volname "keyboard" \
+            -srcfolder "$DMG_ROOT" \
+            -fs HFS+ \
+            -format UDZO \
+            -ov \
+            "$DMG"
+          codesign \
+            --force \
+            --timestamp \
+            --keychain "$SIGNING_KEYCHAIN" \
+            --sign "$MACOS_SIGN_IDENTITY" \
+            "$DMG"
+          codesign --verify --strict --verbose=2 "$DMG"
+          hdiutil verify "$DMG"
+
+          notarize "$DMG" "dmg-$ARCH"
+          xcrun stapler staple "$DMG"
+          xcrun stapler validate "$DMG"
+          codesign --verify --strict --verbose=2 "$DMG"
+          hdiutil verify "$DMG"
+          spctl \
+            --assess \
+            --type open \
+            --context context:primary-signature \
+            --verbose=4 \
+            "$DMG"
+
+          MOUNT_POINT="$RUNNER_TEMP/keyboard-$ARCH-mount"
+          mkdir -p "$MOUNT_POINT"
+          cleanup_mount() {
+            hdiutil detach "$MOUNT_POINT" >/dev/null 2>&1 || true
+          }
+          trap cleanup_mount EXIT
+          hdiutil attach "$DMG" -readonly -nobrowse -mountpoint "$MOUNT_POINT"
+          codesign --verify --deep --strict --verbose=2 "$MOUNT_POINT/keyboard.app"
+          test -L "$MOUNT_POINT/Applications"
+          test -x "$MOUNT_POINT/keyboard.app/Contents/MacOS/keyboard"
+          test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/firmware/keyboard-fw.bin"
+          test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/firmware/manifest.json"
+          test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/keyboard.icns"
+          test -f "$MOUNT_POINT/keyboard.app/Contents/Resources/licenses/Sparkle-LICENSE.txt"
+          cleanup_mount
+          trap - EXIT
+
+      - name: Generate and verify the Sparkle appcast
+        env:
+          ARCH: ${{ matrix.arch }}
+          APP_VERSION: ${{ needs.validate.outputs.app_version }}
+          TAG: ${{ needs.validate.outputs.tag }}
+          SPARKLE_ED25519_PRIVATE_KEY: ${{ secrets.SPARKLE_ED25519_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$SPARKLE_ED25519_PRIVATE_KEY" ]]; then
+            echo "required release secret SPARKLE_ED25519_PRIVATE_KEY is not configured" >&2
+            exit 1
+          fi
+
+          SPARKLE_ROOT="$GITHUB_WORKSPACE/app/target/sparkle/2.9.6"
+          PRIVATE_KEY="$RUNNER_TEMP/keyboard-sparkle-ed25519"
+          UPDATES_DIR="$RUNNER_TEMP/keyboard-sparkle-updates-$ARCH"
+          DMG_NAME="keyboard-$APP_VERSION-macos-$ARCH.dmg"
+          DMG="$GITHUB_WORKSPACE/dist/macos/$DMG_NAME"
+          APPCAST="$GITHUB_WORKSPACE/dist/macos/appcast-$ARCH.xml"
+          ASSET_BASE="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG"
+          RELEASE_URL="https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG"
+
+          test -x "$SPARKLE_ROOT/bin/generate_appcast"
+          test -x "$SPARKLE_ROOT/bin/sign_update"
+          test -f "$DMG"
+          umask 077
+          printf '%s' "$SPARKLE_ED25519_PRIVATE_KEY" > "$PRIVATE_KEY"
+          chmod 600 "$PRIVATE_KEY"
+          {
+            echo "SPARKLE_PRIVATE_KEY_FILE=$PRIVATE_KEY"
+          } >> "$GITHUB_ENV"
+
+          EXPECTED_PUBLIC_KEY="$(tr -d '\r\n' < app/macos/sparkle-public-key.txt)"
+          ACTUAL_PUBLIC_KEY="$(swift scripts/sparkle-public-key.swift "$PRIVATE_KEY")"
+          if [[ "$ACTUAL_PUBLIC_KEY" != "$EXPECTED_PUBLIC_KEY" ]]; then
+            echo "Sparkle private key does not match the public key embedded in keyboard" >&2
+            exit 1
+          fi
+
+          mkdir -p "$UPDATES_DIR"
+          cp "$DMG" "$UPDATES_DIR/$DMG_NAME"
+          "$SPARKLE_ROOT/bin/generate_appcast" \
+            --ed-key-file "$PRIVATE_KEY" \
+            --download-url-prefix "$ASSET_BASE/" \
+            --link "$RELEASE_URL" \
+            --maximum-deltas 0 \
+            -o "$APPCAST" \
+            "$UPDATES_DIR"
+
+          xmllint --noout "$APPCAST"
+          grep -F "<sparkle:version>$APP_VERSION</sparkle:version>" "$APPCAST"
+          grep -F "$ASSET_BASE/$DMG_NAME" "$APPCAST"
+          grep -F "<sparkle:minimumSystemVersion>11.0.0</sparkle:minimumSystemVersion>" "$APPCAST"
+          if [[ "$ARCH" == "aarch64" ]]; then
+            grep -F "<sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>" "$APPCAST"
+          elif grep -q "sparkle:hardwareRequirements" "$APPCAST"; then
+            echo "Intel appcast unexpectedly has a hardware requirement" >&2
+            exit 1
+          fi
+
+          SIGNATURE="$(
+            sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p' "$APPCAST" |
+              head -n 1
+          )"
+          APPCAST_LENGTH="$(
+            sed -n 's/.*length="\([0-9]*\)".*/\1/p' "$APPCAST" |
+              head -n 1
+          )"
+          DMG_LENGTH="$(stat -f '%z' "$DMG")"
+          if [[ -z "$SIGNATURE" || "$APPCAST_LENGTH" != "$DMG_LENGTH" ]]; then
+            echo "Sparkle appcast signature metadata is incomplete" >&2
+            exit 1
+          fi
+          "$SPARKLE_ROOT/bin/sign_update" \
+            --verify \
+            --ed-key-file "$PRIVATE_KEY" \
+            "$DMG" \
+            "$SIGNATURE"
+          "$SPARKLE_ROOT/bin/sign_update" \
+            --verify \
+            --ed-key-file "$PRIVATE_KEY" \
+            "$APPCAST"
+
+      - name: Remove signing credentials
+        if: always()
+        run: |
+          security delete-keychain \
+            "${SIGNING_KEYCHAIN:-$RUNNER_TEMP/keyboard-signing.keychain-db}" \
+            >/dev/null 2>&1 || true
+          rm -f \
+            "$RUNNER_TEMP/keyboard-developer-id.p12" \
+            "${NOTARY_PRIVATE_KEY:-$RUNNER_TEMP/not-configured-private-key}" \
+            "${SPARKLE_PRIVATE_KEY_FILE:-$RUNNER_TEMP/not-configured-sparkle-key}"
+
+      - name: Upload notarized DMG
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-macos-${{ matrix.arch }}
+          path: |
+            dist/macos/keyboard-${{ needs.validate.outputs.app_version }}-macos-${{ matrix.arch }}.dmg
+            dist/macos/appcast-${{ matrix.arch }}.xml
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+          overwrite: true
+
+  windows:
+    name: Build Windows package (${{ matrix.arch }})
+    needs:
+      - validate
+      - firmware
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: aarch64
+            runner: windows-11-vs2026-arm
+            rust_target: aarch64-pc-windows-msvc
+          - arch: x86_64
+            runner: windows-2025-vs2026
+            rust_target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Download firmware artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-firmware
+          path: dist/firmware
+          digest-mismatch: error
+
+      - name: Install the Rust app toolchain
+        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30
+        with:
+          toolchain: 1.92.0
+          targets: ${{ matrix.rust_target }}
+
+      - name: Verify native build tools
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $actualArchitecture = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
+          $expectedArchitecture = if ("${{ matrix.arch }}" -eq "aarch64") { "arm64" } else { "x64" }
+          if ($actualArchitecture -ne $expectedArchitecture) {
+            throw "Runner architecture $actualArchitecture does not match $expectedArchitecture"
+          }
+          if ("${{ matrix.arch }}" -eq "aarch64") {
+            $clang = Get-Command clang.exe -ErrorAction SilentlyContinue
+            if (-not $clang) {
+              $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+              $installation = & $vswhere -latest -products * -property installationPath
+              $clang = Get-ChildItem `
+                -Path "$installation\VC\Tools\Llvm\ARM64\bin\clang.exe", "$installation\VC\Tools\Llvm\x64\bin\clang.exe" `
+                -ErrorAction SilentlyContinue |
+                Select-Object -First 1
+              if ($clang) {
+                $clangDirectory = Split-Path -Parent $clang.FullName
+                $env:Path = "$clangDirectory;$env:Path"
+                $clangDirectory | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+              }
+            }
+            Get-Command clang.exe -ErrorAction Stop | Format-List Source
+          }
+
+      - name: Test the host app
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          cargo test `
+            --manifest-path app/Cargo.toml `
+            --locked `
+            --lib `
+            --target "${{ matrix.rust_target }}"
+          if ($LASTEXITCODE -ne 0) { throw "Windows tests failed" }
+
+      - name: Build portable Windows package
+        shell: pwsh
+        env:
+          FIRMWARE_VERSION: ${{ needs.validate.outputs.firmware_version }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $firmware = "dist/firmware/keyboard-fw-$env:FIRMWARE_VERSION.bin"
+          if (-not (Test-Path -LiteralPath $firmware -PathType Leaf)) {
+            throw "Missing firmware image: $firmware"
+          }
+          ./scripts/package-windows.ps1 `
+            -OutputDir dist/windows `
+            -FirmwareBin $firmware `
+            -Target "${{ matrix.rust_target }}"
+
+          $package = "dist/windows/keyboard-${{ needs.validate.outputs.app_version }}-windows-${{ matrix.arch }}.zip"
+          if (-not (Test-Path -LiteralPath $package -PathType Leaf)) {
+            throw "Missing Windows package: $package"
+          }
+
+      - name: Upload Windows package
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-windows-${{ matrix.arch }}
+          path: dist/windows/keyboard-${{ needs.validate.outputs.app_version }}-windows-${{ matrix.arch }}.zip
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+          overwrite: true
+
+  publish:
+    name: Publish GitHub release
+    needs:
+      - validate
+      - firmware
+      - macos
+      - windows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: release
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: Download verified build artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+          digest-mismatch: error
+
+      - name: Generate updater manifest and checksums
+        env:
+          TAG: ${{ needs.validate.outputs.tag }}
+          APP_VERSION: ${{ needs.validate.outputs.app_version }}
+          FIRMWARE_VERSION: ${{ needs.validate.outputs.firmware_version }}
+          BOOT_VERSION: ${{ needs.validate.outputs.boot_version }}
+          # From the built image (firmware job), not typed in here.
+          IMAGE_BOOT_VERSION: ${{ needs.firmware.outputs.boot_version }}
+          BOOT_SLOT_SIZE: ${{ needs.firmware.outputs.boot_slot_size }}
+          APP_BASE: ${{ needs.firmware.outputs.app_base }}
+          APP_SIZE: ${{ needs.firmware.outputs.app_size }}
+        run: |
+          set -euo pipefail
+          if [[ "$IMAGE_BOOT_VERSION" != "$BOOT_VERSION" ]]; then
+            echo "firmware job reported bootloader $IMAGE_BOOT_VERSION, validate job $BOOT_VERSION" >&2
+            exit 1
+          fi
+          for value in "$BOOT_SLOT_SIZE" "$APP_BASE" "$APP_SIZE"; do
+            if [[ ! "$value" =~ ^[0-9]+$ ]]; then
+              echo "firmware job did not report an integer layout value: '$value'" >&2
+              exit 1
+            fi
+          done
+
+          ARM_DMG="keyboard-$APP_VERSION-macos-aarch64.dmg"
+          INTEL_DMG="keyboard-$APP_VERSION-macos-x86_64.dmg"
+          ARM_APPCAST="appcast-aarch64.xml"
+          INTEL_APPCAST="appcast-x86_64.xml"
+          WINDOWS_ARM_ZIP="keyboard-$APP_VERSION-windows-aarch64.zip"
+          WINDOWS_INTEL_ZIP="keyboard-$APP_VERSION-windows-x86_64.zip"
+          FIRMWARE_BIN="keyboard-fw-$FIRMWARE_VERSION.bin"
+          FIRMWARE_ELF="keyboard-fw-$FIRMWARE_VERSION.elf"
+          FIRMWARE_HEX="keyboard-fw-$FIRMWARE_VERSION.hex"
+          BOOT_ELF="keyboard-boot-$BOOT_VERSION.elf"
+
+          for asset in \
+            "$ARM_DMG" \
+            "$INTEL_DMG" \
+            "$ARM_APPCAST" \
+            "$INTEL_APPCAST" \
+            "$WINDOWS_ARM_ZIP" \
+            "$WINDOWS_INTEL_ZIP" \
+            "$FIRMWARE_BIN" \
+            "$FIRMWARE_ELF" \
+            "$FIRMWARE_HEX" \
+            "$BOOT_ELF"
+          do
+            if [[ ! -f "dist/$asset" ]]; then
+              echo "missing release asset: $asset" >&2
+              exit 1
+            fi
+          done
+
+          ARM_SHA="$(sha256sum "dist/$ARM_DMG" | awk '{print $1}')"
+          INTEL_SHA="$(sha256sum "dist/$INTEL_DMG" | awk '{print $1}')"
+          WINDOWS_ARM_SHA="$(sha256sum "dist/$WINDOWS_ARM_ZIP" | awk '{print $1}')"
+          WINDOWS_INTEL_SHA="$(sha256sum "dist/$WINDOWS_INTEL_ZIP" | awk '{print $1}')"
+          FIRMWARE_SHA="$(sha256sum "dist/$FIRMWARE_BIN" | awk '{print $1}')"
+          ARM_SIZE="$(stat -c '%s' "dist/$ARM_DMG")"
+          INTEL_SIZE="$(stat -c '%s' "dist/$INTEL_DMG")"
+          WINDOWS_ARM_SIZE="$(stat -c '%s' "dist/$WINDOWS_ARM_ZIP")"
+          WINDOWS_INTEL_SIZE="$(stat -c '%s' "dist/$WINDOWS_INTEL_ZIP")"
+          FIRMWARE_SIZE="$(stat -c '%s' "dist/$FIRMWARE_BIN")"
+          RELEASE_BASE="https://github.com/$GITHUB_REPOSITORY/releases"
+          ASSET_BASE="$RELEASE_BASE/download/$TAG"
+
+          jq -n \
+            --arg release_url "$RELEASE_BASE/tag/$TAG" \
+            --arg app_version "$APP_VERSION" \
+            --arg arm_name "$ARM_DMG" \
+            --arg arm_url "$ASSET_BASE/$ARM_DMG" \
+            --arg arm_sha "$ARM_SHA" \
+            --argjson arm_size "$ARM_SIZE" \
+            --arg intel_name "$INTEL_DMG" \
+            --arg intel_url "$ASSET_BASE/$INTEL_DMG" \
+            --arg intel_sha "$INTEL_SHA" \
+            --argjson intel_size "$INTEL_SIZE" \
+            --arg windows_arm_name "$WINDOWS_ARM_ZIP" \
+            --arg windows_arm_url "$ASSET_BASE/$WINDOWS_ARM_ZIP" \
+            --arg windows_arm_sha "$WINDOWS_ARM_SHA" \
+            --argjson windows_arm_size "$WINDOWS_ARM_SIZE" \
+            --arg windows_intel_name "$WINDOWS_INTEL_ZIP" \
+            --arg windows_intel_url "$ASSET_BASE/$WINDOWS_INTEL_ZIP" \
+            --arg windows_intel_sha "$WINDOWS_INTEL_SHA" \
+            --argjson windows_intel_size "$WINDOWS_INTEL_SIZE" \
+            --arg firmware_version "$FIRMWARE_VERSION" \
+            --arg firmware_name "$FIRMWARE_BIN" \
+            --arg firmware_url "$ASSET_BASE/$FIRMWARE_BIN" \
+            --arg firmware_sha "$FIRMWARE_SHA" \
+            --argjson firmware_size "$FIRMWARE_SIZE" \
+            --arg boot_version "$IMAGE_BOOT_VERSION" \
+            --argjson boot_size "$BOOT_SLOT_SIZE" \
+            --argjson app_base "$APP_BASE" \
+            --argjson app_size "$APP_SIZE" \
+            '{
+              schema: 1,
+              product: "keyboard",
+              release_url: $release_url,
+              app: {
+                version: $app_version,
+                macos: {
+                  aarch64: {
+                    name: $arm_name,
+                    url: $arm_url,
+                    sha256: $arm_sha,
+                    size: $arm_size
+                  },
+                  x86_64: {
+                    name: $intel_name,
+                    url: $intel_url,
+                    sha256: $intel_sha,
+                    size: $intel_size
+                  }
+                },
+                windows: {
+                  aarch64: {
+                    name: $windows_arm_name,
+                    url: $windows_arm_url,
+                    sha256: $windows_arm_sha,
+                    size: $windows_arm_size
+                  },
+                  x86_64: {
+                    name: $windows_intel_name,
+                    url: $windows_intel_url,
+                    sha256: $windows_intel_sha,
+                    size: $windows_intel_size
+                  }
+                }
+              },
+              firmware: {
+                version: $firmware_version,
+                board: "keyboard-stm32f072cb",
+                protocol: 2,
+                name: $firmware_name,
+                url: $firmware_url,
+                sha256: $firmware_sha,
+                size: $firmware_size,
+                bootloader_version: $boot_version,
+                layout: {
+                  boot_size: $boot_size,
+                  app_base: $app_base,
+                  app_size: $app_size
+                }
+              }
+            }' > dist/release-manifest.json
+          # schema 1 / protocol 2 stay: apps before 0.13.0 hard-reject anything
+          # else and ignore the two optional fields. The layout must be the
+          # image's own (the firmware job read it out of the info block) and
+          # must describe the STM32F072's 128 KiB of 2 KiB pages, with the
+          # published .bin fitting inside the two slots.
+          jq -e \
+            --arg boot_version "$IMAGE_BOOT_VERSION" \
+            --argjson boot_size "$BOOT_SLOT_SIZE" \
+            --argjson app_base "$APP_BASE" \
+            --argjson app_size "$APP_SIZE" \
+            '.schema == 1 and
+             .product == "keyboard" and
+             .firmware.board == "keyboard-stm32f072cb" and
+             .firmware.protocol == 2 and
+             .firmware.bootloader_version == $boot_version and
+             (.firmware.bootloader_version | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) and
+             .firmware.layout == {boot_size: $boot_size, app_base: $app_base, app_size: $app_size} and
+             .firmware.layout.boot_size > 0 and
+             .firmware.layout.boot_size % 2048 == 0 and
+             .firmware.layout.app_size > 0 and
+             .firmware.layout.app_size % 2048 == 0 and
+             .firmware.layout.app_base == 134217728 + .firmware.layout.boot_size and
+             .firmware.layout.app_base + .firmware.layout.app_size <= 134217728 + 131072 and
+             .firmware.size > .firmware.layout.boot_size and
+             .firmware.size <= .firmware.layout.boot_size + .firmware.layout.app_size' \
+            dist/release-manifest.json >/dev/null
+
+          (
+            cd dist
+            sha256sum \
+              "$ARM_DMG" \
+              "$INTEL_DMG" \
+              "$ARM_APPCAST" \
+              "$INTEL_APPCAST" \
+              "$WINDOWS_ARM_ZIP" \
+              "$WINDOWS_INTEL_ZIP" \
+              "$FIRMWARE_BIN" \
+              "$FIRMWARE_ELF" \
+              "$FIRMWARE_HEX" \
+              "$BOOT_ELF" \
+              release-manifest.json \
+              > SHA256SUMS
+            sha256sum --check SHA256SUMS
+          )
+
+      - name: Attest release artifacts
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: dist/*
+
+      - name: Create a draft, attach every asset, then publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.validate.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if RELEASE_JSON="$(
+            gh release view "$TAG" --json isDraft,assets 2>/dev/null
+          )"
+          then
+            if [[ "$(jq -r '.isDraft' <<< "$RELEASE_JSON")" != "true" ]]; then
+              echo "release $TAG is already published; refusing to mutate it" >&2
+              exit 1
+            fi
+            declare -A EXPECTED_ASSETS=()
+            while IFS= read -r path; do
+              EXPECTED_ASSETS["$(basename "$path")"]=1
+            done < <(find dist -maxdepth 1 -type f -print)
+            while IFS= read -r asset; do
+              if [[ -z "${EXPECTED_ASSETS[$asset]+present}" ]]; then
+                echo "removing stale draft asset: $asset"
+                gh release delete-asset "$TAG" "$asset" --yes
+              fi
+            done < <(jq -r '.assets[].name' <<< "$RELEASE_JSON")
+            gh release upload "$TAG" dist/* --clobber
+          else
+            gh release create "$TAG" dist/* \
+              --verify-tag \
+              --draft \
+              --generate-notes \
+              --title "keyboard $TAG"
+          fi
+
+          gh release edit "$TAG" --draft=false --latest
+          RELEASE_JSON="$(gh release view "$TAG" --json isDraft,url)"
+          if [[ "$(jq -r '.isDraft' <<< "$RELEASE_JSON")" != "false" ]]; then
+            echo "release $TAG did not publish successfully" >&2
+            exit 1
+          fi
+          jq -r '.url' <<< "$RELEASE_JSON"

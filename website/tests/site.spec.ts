@@ -13,7 +13,7 @@ test('five chapters, responsive navigation and the real hardware model',async({p
  expect(errors).toEqual([]);
 });
 test('virtual computer responds to all four input event types',async({page},testInfo)=>{
- await page.goto('/#try');const display=page.locator('.computer-screen');
+ await page.goto('/#try');await expect(page.locator('#hardware canvas')).toHaveCount(0);const display=page.locator('.computer-screen');
  await page.getByRole('button',{name:'K02 新建',exact:true}).click();await expect(page.getByLabel('代码编辑器')).toHaveValue(/New session/);await page.getByLabel('代码编辑器').fill('const edited = true;');
  await page.getByRole('button',{name:'旋钮顺时针'}).click();await expect(display).toHaveAttribute('data-screen','encoder');await expect(page.locator('.work-status')).toContainText('15px');
  await page.getByRole('button',{name:'摇杆右',exact:true}).click();await expect(display).toHaveAttribute('data-screen','joystick');await expect(page.locator('.navigation-files .selected')).toHaveText('input.ts');

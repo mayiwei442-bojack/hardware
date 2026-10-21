@@ -14,6 +14,7 @@ test('opening reveals once, pixels keep moving behind a full-screen minimal over
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
+  await expect(page.locator('#hardware canvas')).toHaveCount(0);
   const hero = page.locator('#overview');
   await expect(hero).toHaveAttribute('data-phase', 'ambient', {timeout: 6000});
   await expect(page.locator('.overview-opening')).toBeHidden();

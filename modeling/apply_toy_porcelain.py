@@ -2,8 +2,8 @@ import bpy,pathlib,hashlib,json
 P=pathlib.Path(r'C:\Users\myw\Documents\ChatGPT\硬件\modeling')
 assert variant in ('rebel_toy','electric_porcelain')
 toy=variant=='rebel_toy';D=P/variant
-source=P/'assets/OpenMicroKbd_AcidAlloy.blend'
-target=P/'assets'/('OpenMicroKbd_RebelToy.blend' if toy else 'OpenMicroKbd_ElectricPorcelain.blend')
+source=P/'assets/MacroPad_AcidAlloy.blend'
+target=P/'assets'/('MacroPad_RebelToy.blend' if toy else 'MacroPad_ElectricPorcelain.blend')
 assert not target.exists(),'Target exists; inspect before overwrite'
 assert not bpy.data.is_dirty,'Current scene has unsaved changes'
 source_hash=hashlib.sha256(source.read_bytes()).hexdigest()

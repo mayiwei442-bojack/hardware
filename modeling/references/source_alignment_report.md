@@ -1,10 +1,10 @@
-﻿# OpenMicroKbd V1 源 CAD 基准批次
+﻿# keyboard V1 源 CAD 基准批次
 
 日期：2026-10-01
 
 ## 输入与处理
 
-- 读取 `references/source_inventory.json` 与 `references/source_meshes.json`，从 `OpenMicroKbkCase.3mf`、`OpenMicroRotator.3mf`、`OpenMicroJoystickCap.3mf` 的顶点/三角面重建 Blender 网格。
+- 读取 `references/source_inventory.json` 与 `references/source_meshes.json`，从 `keyboardKbkCase.3mf`、`keyboardRotator.3mf`、`keyboardJoystickCap.3mf` 的顶点/三角面重建 Blender 网格。
 - 场景采用 Z-up、毫米坐标（`scale_length=0.001`）。外壳包络 99.4 × 99.4 × 12.6 mm；旋钮 15 × 15 × 20 mm；摇杆帽约 18 × 18 × 13 mm。
 - 旋钮和摇杆帽仅为参考展示而横向分离，不代表装配坐标。
 - KiCad USB-C 位于 (0,-45.64) mm，按项目 XY 约定映射至 Blender 后侧 +Y；已对照实拍。源网格的 USB 缺口在正交图中仍不够明确，外壳朝向待批次2复核。
@@ -13,7 +13,7 @@
 
 - 已建立 `OMK_ROOT`、外壳/PCB/按键/控件/电子/LED/紧固件/控制/工作室/源参考集合。
 - 正式网格 `Housing_Shell_V1` 直接复制源外壳三角网格，记录尺寸和源文件；参考对象隐藏保留。
-- 保存主文件 `assets/OpenMicroKbd.blend`，断点 `checkpoints/batch_01_formal_housing.blend`。当前场景无外部贴图依赖。
+- 保存主文件 `assets/MacroPad.blend`，断点 `checkpoints/batch_01_formal_housing.blend`。当前场景无外部贴图依赖。
 
 ## 视觉检查
 

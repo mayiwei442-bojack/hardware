@@ -9,7 +9,7 @@
     "06_materials_interaction_exploded_rig",
     "07_demo_reopen_visual_acceptance_delivery"
   ],
-  "next_action": "交付完成；在Blender打开主文件，N侧栏选择OpenMicroKbd。",
+  "next_action": "交付完成；在Blender打开主文件，N侧栏选择keyboard。",
   "known_issues": [],
   "render_paths": [
     "modeling/renders/batch_01_source_top.png",
@@ -241,5 +241,5 @@
   ],
   "updated_at": "2026-10-01T20:01:24.312847+08:00",
   "acceptance_report": "modeling/验收报告.md",
-  "blend_file": "modeling/assets/OpenMicroKbd.blend"
+  "blend_file": "modeling/assets/MacroPad.blend"
 }

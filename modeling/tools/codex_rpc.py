@@ -17,7 +17,7 @@ class CodexRPC:
                 try: self.incoming.put(json.loads(line))
                 except json.JSONDecodeError: pass
         threading.Thread(target=read, daemon=True).start()
-        self.request('initialize', {'clientInfo':{'name':'openmicro_modeling_scheduler','version':'1.0.0'},'capabilities':{'experimentalApi':True}})
+        self.request('initialize', {'clientInfo':{'name':'keyboard_modeling_scheduler','version':'1.0.0'},'capabilities':{'experimentalApi':True}})
         self.send({'method':'initialized','params':{}})
 
     def send(self, message):

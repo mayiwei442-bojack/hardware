@@ -6,7 +6,7 @@
 
 通过官方MCP只读读取当前场景，并对照原始640顶点外壳源网格：
 
-|检查|SRC_Case_OpenMicroKbkCase|Housing_Shell_V1|
+|检查|SRC_Case_keyboardKbkCase|Housing_Shell_V1|
 |---|---:|---:|
 |相对正确刚性变换的最大顶点误差|0 mm|0 mm|
 |有向体积|+64253.4117 mm³|+64253.4117 mm³|

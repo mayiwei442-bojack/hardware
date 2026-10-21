@@ -1,5 +1,5 @@
 {
-  "source": "openmicrokbd-review/app/src/config.rs:1153-1167 CODEX_KEYS",
+  "source": "device/app/src/config.rs:1153-1167 CODEX_KEYS",
   "profile": "Codex; configurable, Claude Code preset differs",
   "keys": [
     {

@@ -1,0 +1,65 @@
+[package]
+name = "keyboard-fw"
+version = "0.10.1"
+edition = "2021"
+description = "keyboard macropad firmware (STM32F072CBT6, embassy)"
+
+[features]
+# Prototype boards fabbed before the 2026-07-28 GPIO re-derivation: the old
+# pin map (encoder on PC13-PC15, per-key chain on PB4) and a 16-LED underglow
+# ring. Default build targets the current (v23) board.
+proto = []
+
+[dependencies]
+embassy-stm32 = { version = "0.2", features = [
+    "stm32f072cb",
+    "time-driver-any",
+    "exti",
+    "defmt",
+    # Raw register access for the cap-touch sense loop: the RC rise on PB9 is
+    # ~20 cycles, too short for the HAL's set_as_input() path to measure.
+    "unstable-pac",
+] }
+embassy-executor = { version = "0.7", features = [
+    "arch-cortex-m",
+    "executor-thread",
+    "defmt",
+] }
+embassy-time = { version = "0.4", features = ["defmt"] }
+embassy-usb = { version = "0.4", features = [
+    "defmt",
+    # Codex Micro compat mode adds a fifth HID interface (and its control
+    # handler) on top of keyboard + consumer + mouse + raw; the crate defaults
+    # cap both lists at exactly four.
+    "max-interface-count-5",
+    "max-handler-count-5",
+] }
+embassy-sync = { version = "0.6", features = ["defmt"] }
+embassy-futures = { version = "0.1" }
+
+usbd-hid = "0.8"
+
+# Bring-up logging over SWD (RTT). Compile it out with `DEFMT_LOG=off`;
+# the level is set in .cargo/config.toml.
+defmt = "0.3"
+defmt-rtt = "0.4"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
+
+cortex-m = { version = "0.7", features = ["critical-section-single-core"] }
+cortex-m-rt = "0.7"
+static_cell = "2"
+portable-atomic = { version = "1", features = ["critical-section"] }
+critical-section = "1"
+
+# The contract with the resident bootloader and the host: flash/RAM map,
+# image header, handoff words, BOOT_INFO reply (../layout, no_std, no deps).
+keyboard-layout = { path = "../layout" }
+
+[profile.release]
+debug = true
+lto = true
+opt-level = "s"
+codegen-units = 1
+
+[profile.dev]
+opt-level = 1

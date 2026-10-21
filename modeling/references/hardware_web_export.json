@@ -1,5 +1,5 @@
 {
-  "source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\modeling\\assets\\OpenMicroKbd_AcidAlloy.blend",
+  "source": "modeling/assets/MacroPad_AcidAlloy.blend",
   "animation_source": "DEMO_OMK_ROOT_CTRL, frames 240..285",
   "clip": "HardwareExplode",
   "frames": 46,
@@ -612,6 +612,7 @@
   ],
   "glb_bytes": 2860284,
   "downloads": [
+    "LICENSE.txt",
     "acid-alloy-joystick-cap.stl",
     "acid-alloy-keycap-SW03.stl",
     "acid-alloy-keycap-SW04.stl",
@@ -629,10 +630,11 @@
     "acid-alloy-keycaps.zip",
     "acid-alloy-knob.stl",
     "acid-alloy-panel.stl",
-    "openmicro-bom.csv",
-    "openmicro-gerbers.zip",
-    "openmicro-pcb-fabrication.zip",
-    "openmicro-smt.csv",
-    "OpenMicroKbkCase.3mf"
+    "keyboard-bom.csv",
+    "keyboard-fw-0.10.1.hex",
+    "keyboard-gerbers.zip",
+    "keyboard-pcb-fabrication.zip",
+    "keyboard-smt.csv",
+    "keyboardKbkCase.3mf"
   ]
 }

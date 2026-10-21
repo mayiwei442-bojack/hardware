@@ -1,0 +1,60 @@
+{
+  "description": "keyboard coding-agent activity lights for Codex",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook codex",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook codex",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook codex",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook codex",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook codex",
+            "timeout": 2
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -33,7 +33,7 @@ for num in range(3,16):
     caplayer.location=(0,0,0)
     for o in list(bpy.data.collections['04_Keycaps'].objects):
         if o.name.startswith(ref+'_'):keep_parent(o,caplayer)
-for part,pivot,name in (('OpenMicroRotator_SourceMesh','EC11_PressSlide','Encoder_KnobDetach'),('OpenMicroJoystickCap_SourceMesh','RKJXV_PressMotion','Joystick_CapDetach')):
+for part,pivot,name in (('keyboardRotator_SourceMesh','EC11_PressSlide','Encoder_KnobDetach'),('keyboardJoystickCap_SourceMesh','RKJXV_PressMotion','Joystick_CapDetach')):
     offset=layer(name,30,bpy.data.objects[pivot]);offset.location=(0,0,0)
     keep_parent(bpy.data.objects[part],offset)
 # Shaft follows axial press as well as both gimbal rotations.

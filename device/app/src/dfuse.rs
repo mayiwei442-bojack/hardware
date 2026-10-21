@@ -1,0 +1,290 @@
+//! Minimal DfuSe (ST extension of USB DFU 1.1, AN3156) client for the
+//! STM32F072 ROM bootloader — just enough to erase, program, and leave.
+//!
+//! The ROM bootloader enumerates as 0483:df11 with one DFU interface whose
+//! alt 0 is internal flash ("@Internal Flash /0x08000000/64*002Kg" on the
+//! F072: 64 pages x 2 KiB). DfuSe commands ride on DFU_DNLOAD wBlockNum 0:
+//! 0x41+addr = erase page, 0x21+addr = set address pointer; data blocks
+//! start at wBlockNum 2 with target = addr_ptr + (n-2)*transfer_size.
+
+use rusb::{Device, DeviceHandle, GlobalContext};
+use std::time::{Duration, Instant};
+
+const DFU_VID: u16 = 0x0483;
+const DFU_PID: u16 = 0xdf11;
+pub const WINDOWS_DFU_DRIVER_HELP_URL: &str = "https://zadig.akeo.ie/";
+const WINDOWS_DFU_DRIVER_REQUIRED: &str = "Windows DFU driver required";
+/// Final 2 KiB page (0x0801_F800..) stores the device keymap/config.
+const MAX_FIRMWARE_LEN: usize = 126 * 1024;
+
+const FLASH_BASE: u32 = 0x0800_0000;
+const PAGE_SIZE: usize = 2048;
+
+// DFU class requests.
+const DFU_DNLOAD: u8 = 1;
+const DFU_GETSTATUS: u8 = 3;
+const DFU_CLRSTATUS: u8 = 4;
+const DFU_ABORT: u8 = 6;
+
+// DFU states (of interest).
+const STATE_DFU_IDLE: u8 = 2;
+const STATE_DFU_DNBUSY: u8 = 4;
+const STATE_DFU_ERROR: u8 = 10;
+
+const TIMEOUT: Duration = Duration::from_secs(3);
+
+pub fn windows_driver_required(detail: &str) -> String {
+    format!(
+        "{WINDOWS_DFU_DRIVER_REQUIRED}: bind STM32 BOOTLOADER (0483:df11) to WinUSB. Open DFU driver setup below, choose Options > List All Devices in Zadig, select STM32 BOOTLOADER and WinUSB, install/replace the driver, then retry Install. {detail}"
+    )
+}
+
+pub fn is_windows_driver_required(error: &str) -> bool {
+    error.contains(WINDOWS_DFU_DRIVER_REQUIRED)
+}
+
+fn usb_access_error(operation: &str, error: rusb::Error) -> String {
+    #[cfg(target_os = "windows")]
+    if matches!(error, rusb::Error::Access | rusb::Error::NotSupported) {
+        return windows_driver_required(&format!("USB {operation} failed: {error}."));
+    }
+    format!("{operation}: {error}")
+}
+
+pub fn find_bootloader() -> Result<Option<Device<GlobalContext>>, String> {
+    let devices = rusb::devices().map_err(|e| format!("enumerate USB devices: {e}"))?;
+    let mut found = None;
+    for device in devices.iter() {
+        let matches = device
+            .device_descriptor()
+            .map(|desc| desc.vendor_id() == DFU_VID && desc.product_id() == DFU_PID)
+            .unwrap_or(false);
+        if matches {
+            if found.is_some() {
+                return Err(
+                    "more than one STM32 ROM DFU device is connected; disconnect the unrelated device"
+                        .into(),
+                );
+            }
+            found = Some(device);
+        }
+    }
+    Ok(found)
+}
+
+struct Dfu {
+    handle: DeviceHandle<GlobalContext>,
+    transfer_size: usize,
+}
+
+impl Dfu {
+    fn open(device: Device<GlobalContext>) -> Result<Self, String> {
+        let transfer_size = read_transfer_size(&device).unwrap_or(2048);
+        let handle = device
+            .open()
+            .map_err(|error| usb_access_error("open", error))?;
+        // Linux may have a kernel driver attached; macOS/Windows return
+        // NotSupported, which is fine.
+        let _ = handle.set_auto_detach_kernel_driver(true);
+        handle
+            .claim_interface(0)
+            .map_err(|error| usb_access_error("claim interface", error))?;
+        Ok(Dfu {
+            handle,
+            transfer_size,
+        })
+    }
+
+    /// (bStatus, bwPollTimeout ms, bState)
+    fn get_status(&self) -> Result<(u8, u64, u8), String> {
+        let mut buf = [0u8; 6];
+        let n = self
+            .handle
+            .read_control(0xA1, DFU_GETSTATUS, 0, 0, &mut buf, TIMEOUT)
+            .map_err(|e| format!("GETSTATUS: {e}"))?;
+        if n < 6 {
+            return Err("short GETSTATUS reply".into());
+        }
+        let poll_ms = u64::from(buf[1]) | u64::from(buf[2]) << 8 | u64::from(buf[3]) << 16;
+        Ok((buf[0], poll_ms, buf[4]))
+    }
+
+    fn clear_status(&self) -> Result<(), String> {
+        self.handle
+            .write_control(0x21, DFU_CLRSTATUS, 0, 0, &[], TIMEOUT)
+            .map_err(|e| format!("CLRSTATUS: {e}"))?;
+        Ok(())
+    }
+
+    fn abort(&self) -> Result<(), String> {
+        self.handle
+            .write_control(0x21, DFU_ABORT, 0, 0, &[], TIMEOUT)
+            .map_err(|e| format!("ABORT: {e}"))?;
+        Ok(())
+    }
+
+    /// Recover an interrupted ROM-DFU transaction and verify that the next
+    /// DfuSe command may start. Both CLRSTATUS and ABORT are state-changing
+    /// requests; some STM32 ROM revisions do not accept DNLOAD immediately
+    /// afterwards until GETSTATUS has observed dfuIDLE.
+    fn ensure_idle(&self) -> Result<(), String> {
+        for _ in 0..4 {
+            let (status, _, state) = self.get_status()?;
+            if status == 0 && state == STATE_DFU_IDLE {
+                return Ok(());
+            }
+            if state == STATE_DFU_ERROR || status != 0 {
+                self.clear_status()?;
+            } else {
+                self.abort()?;
+            }
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        let (status, _, state) = self.get_status()?;
+        Err(format!(
+            "DFU did not return to idle (status {status}, state {state})"
+        ))
+    }
+
+    fn dnload(&self, block: u16, data: &[u8]) -> Result<(), String> {
+        self.handle
+            .write_control(0x21, DFU_DNLOAD, block, 0, data, TIMEOUT)
+            .map_err(|e| format!("DNLOAD: {e}"))?;
+        Ok(())
+    }
+
+    /// DNLOAD then poll GETSTATUS through dfuDNBUSY until the device settles.
+    fn dnload_sync(&self, block: u16, data: &[u8], what: &str) -> Result<(), String> {
+        self.dnload(block, data)?;
+        let deadline = Instant::now() + Duration::from_secs(15);
+        loop {
+            let (status, poll_ms, state) = self.get_status()?;
+            if state == STATE_DFU_ERROR || status != 0 {
+                let _ = self.clear_status();
+                return Err(format!(
+                    "{what}: DFU error (status {status}, state {state})"
+                ));
+            }
+            if state != STATE_DFU_DNBUSY {
+                return Ok(());
+            }
+            if Instant::now() >= deadline {
+                let _ = self.abort();
+                return Err(format!("{what}: DFU busy timeout"));
+            }
+            // Broken bootloaders occasionally report an unreasonable 24-bit
+            // timeout. Poll at least once per second so cancellation/error
+            // handling cannot appear frozen indefinitely.
+            std::thread::sleep(Duration::from_millis(poll_ms.clamp(1, 1_000)));
+        }
+    }
+
+    fn erase_page(&self, addr: u32) -> Result<(), String> {
+        let a = addr.to_le_bytes();
+        self.dnload_sync(0, &[0x41, a[0], a[1], a[2], a[3]], "erase")
+    }
+
+    fn set_address(&self, addr: u32) -> Result<(), String> {
+        let a = addr.to_le_bytes();
+        self.dnload_sync(0, &[0x21, a[0], a[1], a[2], a[3]], "set address")
+    }
+
+    /// Zero-length DNLOAD -> manifest: the bootloader jumps to the address
+    /// pointer. The device drops off the bus mid-handshake, so errors after
+    /// the request itself are expected and ignored.
+    fn leave(&self) -> Result<(), String> {
+        self.dnload(0, &[])?;
+        let _ = self.get_status();
+        Ok(())
+    }
+}
+
+/// wTransferSize from the DFU functional descriptor (type 0x21), found in the
+/// interface's extra descriptor bytes.
+fn read_transfer_size(device: &Device<GlobalContext>) -> Option<usize> {
+    let config = device.config_descriptor(0).ok()?;
+    for interface in config.interfaces() {
+        for desc in interface.descriptors() {
+            let extra = desc.extra();
+            let mut i = 0;
+            while i + 1 < extra.len() {
+                let (len, dtype) = (extra[i] as usize, extra[i + 1]);
+                if dtype == 0x21 && len >= 9 && i + 7 < extra.len() {
+                    return Some(u16::from_le_bytes([extra[i + 5], extra[i + 6]]) as usize);
+                }
+                i += len.max(2);
+            }
+        }
+    }
+    None
+}
+
+/// Erase + program `image` at 0x08000000 and jump into it.
+/// `progress(phase, fraction)` is called throughout; fraction spans the whole
+/// operation (erase = first 30%, program = the rest).
+pub fn flash(
+    device: Device<GlobalContext>,
+    image: &[u8],
+    mut progress: impl FnMut(&str, f64),
+) -> Result<(), String> {
+    if image.len() > MAX_FIRMWARE_LEN {
+        return Err(format!(
+            "firmware is {} bytes; maximum before the reserved config page is {}",
+            image.len(),
+            MAX_FIRMWARE_LEN
+        ));
+    }
+    let dfu = Dfu::open(device)?;
+
+    // A previous interrupted attempt can leave the state machine in
+    // dfuDNLOAD-IDLE (or another non-idle state). Normalize it and observe
+    // dfuIDLE before starting a fresh DfuSe command.
+    dfu.ensure_idle()?;
+
+    let pages = image.len().div_ceil(PAGE_SIZE);
+    for p in 0..pages {
+        progress(
+            &format!("Erasing page {}/{pages}…", p + 1),
+            0.30 * (p as f64 / pages as f64),
+        );
+        dfu.erase_page(FLASH_BASE + (p * PAGE_SIZE) as u32)?;
+    }
+
+    let xfer = dfu.transfer_size;
+    let blocks = image.len().div_ceil(xfer);
+    dfu.set_address(FLASH_BASE)?;
+    for (i, chunk) in image.chunks(xfer).enumerate() {
+        progress(
+            &format!("Programming block {}/{blocks}…", i + 1),
+            0.30 + 0.70 * (i as f64 / blocks as f64),
+        );
+        dfu.dnload_sync((i + 2) as u16, chunk, "program")?;
+    }
+    progress("Starting the new firmware…", 1.0);
+
+    // Point the bootloader at the app and manifest out of DFU mode.
+    dfu.set_address(FLASH_BASE)?;
+    dfu.leave()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn windows_driver_guidance_is_machine_detectable_and_actionable() {
+        let message = windows_driver_required("USB open failed.");
+        assert!(is_windows_driver_required(&message));
+        assert!(message.contains("0483:df11"));
+        assert!(message.contains("WinUSB"));
+        assert!(message.contains("retry Install"));
+        assert!(!is_windows_driver_required("device unplugged"));
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn unsupported_windows_usb_backend_maps_to_driver_setup() {
+        let message = usb_access_error("open", rusb::Error::NotSupported);
+        assert!(is_windows_driver_required(&message));
+    }
+}

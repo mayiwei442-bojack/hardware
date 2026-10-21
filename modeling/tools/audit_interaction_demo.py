@@ -2,7 +2,7 @@ import bpy,sys,json,math
 from mathutils import Vector
 sys.path.insert(0,r'C:\Users\myw\Documents\ChatGPT\硬件\modeling\tools')
 from model_helpers import *
-import openmicro_controls as ui
+import keyboard_controls as ui
 ui.set_demo(bpy.context,False);bpy.ops.omk.reset_controls();bpy.context.view_layer.update()
 caps=[bpy.data.objects[f'SW{i:02d}_Cap'] for i in range(3,16)]
 keys=[]

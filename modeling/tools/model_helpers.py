@@ -92,7 +92,7 @@ def capsule_tube(name,w,h,wi,hi,y0,y1,z,mat,coll,parent=None):
 def save(name):
     bpy.context.view_layer.update()
     bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'checkpoints'/name))
-    bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'assets/OpenMicroKbd.blend'))
+    bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'assets/MacroPad.blend'))
 
 def camera(name,loc,target,scale=125):
     o=bpy.data.objects.get(name)

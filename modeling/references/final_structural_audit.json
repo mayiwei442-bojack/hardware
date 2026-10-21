@@ -543,12 +543,12 @@
       99.4000015258789,
       12.600000023841858
     ],
-    "OpenMicroRotator_SourceMesh": [
+    "keyboardRotator_SourceMesh": [
       15.0,
       14.996292114257812,
       20.00000035762787
     ],
-    "OpenMicroJoystickCap_SourceMesh": [
+    "keyboardJoystickCap_SourceMesh": [
       17.995468139648438,
       18.0,
       13.000000953674316

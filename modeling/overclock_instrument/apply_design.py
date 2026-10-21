@@ -1,12 +1,12 @@
 import bpy, pathlib, hashlib, json
 P=pathlib.Path(r'C:\Users\myw\Documents\ChatGPT\硬件\modeling')
 D=P/'overclock_instrument'
-source=P/'assets/OpenMicroKbd_AcidAlloy.blend'
-target=P/'assets/OpenMicroKbd_OverclockInstrument.blend'
+source=P/'assets/MacroPad_AcidAlloy.blend'
+target=P/'assets/MacroPad_OverclockInstrument.blend'
 assert pathlib.Path(bpy.data.filepath)==source
 assert not target.exists(), 'Target already exists; inspect before replacing'
 source_hash=hashlib.sha256(source.read_bytes()).hexdigest()
-original_hash=hashlib.sha256((P/'assets/OpenMicroKbd.blend').read_bytes()).hexdigest()
+original_hash=hashlib.sha256((P/'assets/MacroPad.blend').read_bytes()).hexdigest()
 names=list(bpy.data.objects.keys())
 bpy.ops.wm.save_as_mainfile(filepath=str(target))
 bpy.ops.omk.reset_controls();bpy.context.scene.frame_set(1)

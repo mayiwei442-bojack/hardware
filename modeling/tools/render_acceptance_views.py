@@ -2,7 +2,7 @@ import bpy,sys,math
 from mathutils import Vector
 sys.path.insert(0,r'C:\Users\myw\Documents\ChatGPT\硬件\modeling\tools')
 from model_helpers import *
-import openmicro_controls as ui
+import keyboard_controls as ui
 ui.set_demo(bpy.context,False);bpy.ops.omk.reset_controls()
 s=bpy.context.scene;s.render.engine='CYCLES';s.cycles.samples=48
 def render(name,cam,size):

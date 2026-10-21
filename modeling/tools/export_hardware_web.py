@@ -15,7 +15,7 @@ from collections import defaultdict
 from mathutils import Matrix, Vector
 import numpy as np
 
-BASE = Path(r'C:\Users\myw\Documents\ChatGPT\硬件')
+BASE = Path(bpy.data.filepath).resolve().parents[2]
 OUT = BASE / 'website/public/assets'
 DOWNLOADS = BASE / 'website/public/downloads'
 OUT.mkdir(parents=True, exist_ok=True)
@@ -241,23 +241,22 @@ try:
         stl(f'SW{num:02d}_Cap', filename)
         caps.append(filename)
     stl('AA_CoverPanel', 'acid-alloy-panel.stl')
+    # Renaming the .blend file does not rename its internal source mesh IDs.
     stl('OpenMicroRotator_SourceMesh', 'acid-alloy-knob.stl')
     stl('OpenMicroJoystickCap_SourceMesh', 'acid-alloy-joystick-cap.stl')
-    readme = 'Units: millimetres. Exported from OpenMicroKbd_AcidAlloy.blend, evaluated mesh at rest.\n13 keycaps SW03-SW15. STL contains geometry only, without printed graphics or colours.\nThese are source model exports. Check slicing, wall thickness and fit before printing.\n'
+    readme = 'Units: millimetres. Exported from MacroPad_AcidAlloy.blend, evaluated mesh at rest.\n13 keycaps SW03-SW15. STL contains geometry only, without printed graphics or colours.\nThese are source model exports. Check slicing, wall thickness and fit before printing.\n'
     with zipfile.ZipFile(DOWNLOADS/'acid-alloy-keycaps.zip','w',zipfile.ZIP_DEFLATED) as z:
         for filename in caps: z.write(DOWNLOADS/filename, filename)
         z.writestr('README.txt', readme)
-        z.write(BASE/'openmicrokbd-review/LICENSE', 'LICENSE.txt')
-    fab = BASE/'openmicrokbd-review/hw/v1/fab'
-    for name in ['openmicro-gerbers.zip','openmicro-bom.csv','openmicro-smt.csv']:
+        z.write(DOWNLOADS/'LICENSE.txt', 'LICENSE.txt')
+    fab = BASE/'device/hw/v1/fab'
+    for name in ['keyboard-gerbers.zip','keyboard-bom.csv','keyboard-smt.csv']:
         shutil.copyfile(fab/name, DOWNLOADS/name)
-    shutil.copyfile(BASE/'openmicrokbd-review/hw/v1/mechanical/OpenMicroKbkCase.3mf', DOWNLOADS/'OpenMicroKbkCase.3mf')
-    shutil.copyfile(BASE/'openmicrokbd-review/LICENSE', DOWNLOADS/'LICENSE.txt')
-    with zipfile.ZipFile(DOWNLOADS/'openmicro-pcb-fabrication.zip','w',zipfile.ZIP_DEFLATED) as z:
-        for name in ['openmicro-gerbers.zip','openmicro-bom.csv','openmicro-smt.csv','README.md']:
+    shutil.copyfile(BASE/'device/hw/v1/mechanical/keyboardKbkCase.3mf', DOWNLOADS/'keyboardKbkCase.3mf')
+    with zipfile.ZipFile(DOWNLOADS/'keyboard-pcb-fabrication.zip','w',zipfile.ZIP_DEFLATED) as z:
+        for name in ['keyboard-gerbers.zip','keyboard-bom.csv','keyboard-smt.csv','README.md']:
             z.write(fab/name, name)
-        z.write(BASE/'openmicrokbd-review/LICENSE', 'LICENSE.txt')
-    report = {'source':bpy.data.filepath, 'animation_source':'DEMO_OMK_ROOT_CTRL, frames 240..285',
+    report = {'source':Path(bpy.data.filepath).relative_to(BASE).as_posix(), 'animation_source':'DEMO_OMK_ROOT_CTRL, frames 240..285',
               'clip':'HardwareExplode', 'frames':46, 'source_objects':len(objects), 'groups':report_groups,
               'samples':[{'frame':f, 'explode':a} for f,a,_ in samples],
               'glb_bytes':(OUT/'keyboard-exploded.glb').stat().st_size,

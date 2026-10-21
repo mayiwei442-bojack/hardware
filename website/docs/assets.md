@@ -2,7 +2,7 @@
 
 首页已接入的透明二维图片使用 `assets.overviewImage` 配置，来源与提示词见 [概览说明](overview.md)。
 
-2026-10-21：硬件解构页已接入 `OpenMicroKbd_AcidAlloy.blend` 导出的正式模型和 `HardwareExplode` 动画，不再使用滑杆或待接入占位。导出、下载来源和验证说明见 [硬件解构](hardware.md)。其余场景的模型状态仍独立配置。
+2026-10-21：硬件解构页已接入 `MacroPad_AcidAlloy.blend` 导出的正式模型和 `HardwareExplode` 动画，不再使用滑杆或待接入占位。导出、下载来源和验证说明见 [硬件解构](hardware.md)。其余场景的模型状态仍独立配置。
 
 ## 模型
 

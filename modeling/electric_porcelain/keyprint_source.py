@@ -74,4 +74,4 @@ for idx,(sw,label) in enumerate(zip(order,labels),1):
   text((384,611),label,53 if len(label)<9 else 46)
  im.save(OUT/f'key_{sw:02d}.png')
  rows.append({'number':f'{idx:02d}','object':f'SW{sw:02d}_Cap','label':label,'function':meanings[idx-1],'pictogram':icons[idx-1]})
-(D/'keyprint_mapping.json').write_text(json.dumps({'source':'openmicrokbd-review/app/src/config.rs:1153-1167 CODEX_KEYS','profile':'Codex; configurable, Claude Code preset differs','keys':rows},ensure_ascii=False,indent=2),encoding='utf-8')
+(D/'keyprint_mapping.json').write_text(json.dumps({'source':'device/app/src/config.rs:1153-1167 CODEX_KEYS','profile':'Codex; configurable, Claude Code preset differs','keys':rows},ensure_ascii=False,indent=2),encoding='utf-8')

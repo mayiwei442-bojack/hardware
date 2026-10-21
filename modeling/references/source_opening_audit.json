@@ -1,5 +1,5 @@
 {
-  "source": "OpenMicroKbkCase.3mf",
+  "source": "keyboardKbkCase.3mf",
   "rigid_transform_mm": "(47.5-z, 47.5-x, y)",
   "first_hit_distance_mm": {
     "rear_center_port": 107.7,

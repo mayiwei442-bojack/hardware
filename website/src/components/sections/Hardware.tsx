@@ -38,7 +38,8 @@ export default function Hardware(){
  useEffect(()=>{
   const element=section.current;
   if(!element)return;
-  const observer=new IntersectionObserver(entries=>setNearby(entries[0].isIntersecting),{rootMargin:'1000px 0px'});
+  // Keep the hidden scene unloaded during the intro and below the fixed navigation.
+  const observer=new IntersectionObserver(entries=>setNearby(entries[0].isIntersecting&&entries[0].intersectionRatio>0),{rootMargin:'-100px 0px 0px',threshold:.001});
   observer.observe(element);
   return()=>observer.disconnect();
  },[]);
@@ -52,7 +53,7 @@ export default function Hardware(){
    const progress=Math.max(0,Math.min(1,-rect.top/(height*2.35)));
    controller.setProgress(progress);
    section.current.dataset.progress=progress.toFixed(3);
-   setActive(rect.top<height&&rect.bottom>0);
+   setActive(rect.top<height&&rect.bottom>100);
    if(selectedRef.current&&(progress<.99||rect.bottom<height*.25))setSelected(null);
   };
   const schedule=()=>{if(!frame)frame=requestAnimationFrame(update);};

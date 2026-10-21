@@ -72,7 +72,7 @@ test('scroll starts at a full viewport, reverses, focuses parts and downloads re
  const pcbEvent=page.waitForEvent('download');
  await page.getByRole('link',{name:/下载打板材料包/}).click();
  const pcb=await pcbEvent;
- expect(pcb.suggestedFilename()).toBe('openmicro-pcb-fabrication.zip');
+ expect(pcb.suggestedFilename()).toBe('keyboard-pcb-fabrication.zip');
  expect((await readFile((await pcb.path())!)).subarray(0,2).toString()).toBe('PK');
  await page.screenshot({path:`artifacts/hardware-${info.project.name}-pcb.png`});
  await page.keyboard.press('Escape');

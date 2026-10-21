@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://github.com/mayiwei442-bojack/hardware/sitemap.xml

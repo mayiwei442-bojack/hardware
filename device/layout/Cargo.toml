@@ -1,0 +1,10 @@
+[package]
+name = "keyboard-layout"
+version = "0.1.0"
+edition = "2021"
+description = "Flash/RAM layout, image header, handoff words and bootloader protocol shared by the keyboard v1 bootloader, firmware and host app"
+publish = false
+
+[dependencies]
+
+[workspace]

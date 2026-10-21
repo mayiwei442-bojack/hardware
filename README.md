@@ -1,10 +1,31 @@
-# OpenMicroKbd 建模与外观方案
+# ACID ALLOY / 酸性合金
 
-本仓库包含 OpenMicroKbd 原始建模文件、建模记录和四个独立外观方案。四个方案均基于原始模型制作副本，保留已有器件和交互结构； Acid Alloy 按照既定范围新增一块遮盖 PCB 的盖板。
+维护者：[@mayiwei442-bojack](https://github.com/mayiwei442-bojack)
 
-## 酸性合金产品网站
+多输入桌面控制器的外观设计、Blender 装配模型与交互展示网站。包含 13 个机械按键、旋钮、摇杆、触摸输入和 RGB 灯光的结构与展示资料。
 
-网站位于 [`website/`](website/README.md)，包含满屏像素开场、键盘二维贴图、硬件介绍、可交互工作台、七步制作流程和项目资料。界面以中文呈现，正式三维模型保留接入接口。
+## 项目文件
+
+| 目录 | 内容 |
+| --- | --- |
+| [`website/`](website/) | 五章节产品展示网站、二维交互工作台、七步制作流程演示、测试与截图 |
+| [`modeling/assets/`](modeling/assets/) | Blender 主模型、四种外观方案和阶段存档 |
+| [`modeling/`](modeling/) | 渲染、印花贴图、建模脚本、尺寸参考、验收记录和操作说明 |
+| [`device/`](device/) | 硬件设计、制造文件、打印模型、固件与配套工具 |
+
+## Blender 方案
+
+| 方案 | 文件 | 预览 |
+| --- | --- | --- |
+| 基础装配 | [`MacroPad.blend`](modeling/assets/MacroPad.blend) | 装配、器件和交互控制 |
+| 酸性合金 | [`MacroPad_AcidAlloy.blend`](modeling/assets/MacroPad_AcidAlloy.blend) | ![酸性合金](modeling/acid_alloy/renders/11_keyprints_hero.png) |
+| 电光瓷器 | [`MacroPad_ElectricPorcelain.blend`](modeling/assets/MacroPad_ElectricPorcelain.blend) | ![电光瓷器](modeling/electric_porcelain/renders/01_hero.png) |
+| 超频仪器 | [`MacroPad_OverclockInstrument.blend`](modeling/assets/MacroPad_OverclockInstrument.blend) | ![超频仪器](modeling/overclock_instrument/renders/01_overclock_hero.png) |
+| 反叛玩具 | [`MacroPad_RebelToy.blend`](modeling/assets/MacroPad_RebelToy.blend) | ![反叛玩具](modeling/rebel_toy/renders/01_hero.png) |
+
+使用 Blender 打开 `.blend` 文件；成品印花贴图已内嵌。历史验收记录保留当时的校验值和本机路径；可读项目名已统一替换，本次整理未重新执行 Blender 验收。
+
+## 网站本地启动
 
 ```powershell
 cd website
@@ -12,33 +33,12 @@ npm ci
 npm run dev
 ```
 
-访问 `http://localhost:3100`。[素材接入说明](website/docs/assets.md) · [开场动效与贴图来源](website/docs/overview.md) · [检查记录](website/docs/acceptance.md)
+浏览器打开 `http://localhost:3100`。网站目前以二维交互演示为主，正式 GLB、产品照片等素材的接入状态见 [`website/docs/assets.md`](website/docs/assets.md)。制作流程为浏览器内模拟。
 
-![酸性合金网站概览](website/artifacts/desktop-pixel-overview.png)
+## 制造资料
 
-## Blender 文件
-
-| 版本 | 文件 | 方案说明 |
-| --- | --- | --- |
-| 原始建模 | [`modeling/assets/OpenMicroKbd.blend`](modeling/assets/OpenMicroKbd.blend) | OpenMicroKbd 装配、器件和交互控制的原始建模版本 |
-| ① 酸性合金 | [`modeling/assets/OpenMicroKbd_AcidAlloy.blend`](modeling/assets/OpenMicroKbd_AcidAlloy.blend) | 荧酸绿实验面板、石墨外壳、紫色控制器、Codex 功能印花 |
-| ② 电光瓷器 | [`modeling/assets/OpenMicroKbd_ElectricPorcelain.blend`](modeling/assets/OpenMicroKbd_ElectricPorcelain.blend) | 釉白与钴蓝、冰青透光键帽、电路纹样 |
-| ③ 超频仪器 | [`modeling/assets/OpenMicroKbd_OverclockInstrument.blend`](modeling/assets/OpenMicroKbd_OverclockInstrument.blend) | 仪器白灰外壳、信号橙、增益刻度与校准印花 |
-| ④ 反叛玩具 | [`modeling/assets/OpenMicroKbd_RebelToy.blend`](modeling/assets/OpenMicroKbd_RebelToy.blend) | 奶黄紫色撞色、亮面塑料、涂鸦与棋盘图形 |
-
-## 预览
-
-| 方案 | 主视渲染 |
-| --- | --- |
-| 酸性合金 | ![酸性合金](modeling/acid_alloy/renders/11_keyprints_hero.png) |
-| 电光瓷器 | ![电光瓷器](modeling/electric_porcelain/renders/01_hero.png) |
-| 超频仪器 | ![超频仪器](modeling/overclock_instrument/renders/01_overclock_hero.png) |
-| 反叛玩具 | ![反叛玩具](modeling/rebel_toy/renders/01_hero.png) |
-
-## 项目资料
-
-- `modeling/`：原始模型、验收/操作文档、参考资料、过程检查点、渲染、材质与印花源文件。
-- `modeling/acid_alloy/`、`electric_porcelain/`、`overclock_instrument/`、`rebel_toy/`：各方案的交付说明、渲染、贴图和可复现的印花脚本。
-- Blender 自动保存文件（`.blend1`、`.blend2`）及 Acid Alloy 键帽印花调整前的临时备份不纳入版本控制。
-
-请使用 Blender 打开 `.blend` 文件。印花贴图已内嵌到各成品文件中。
+- [Gerber 制造文件](device/hw/v1/fab/keyboard-gerbers.zip)
+- [BOM 元件清单](device/hw/v1/fab/keyboard-bom.csv)
+- [SMT 贴片坐标](device/hw/v1/fab/keyboard-smt.csv)
+- [打印与可编辑机械模型](device/hw/v1/mechanical/)
+- [制造说明](device/hw/v1/fab/README.md)

@@ -1,7 +1,7 @@
 {
   "inventory": [
     {
-      "file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\openmicrokbd-review\\hw\\v1\\mechanical\\OpenMicroJoystickCap.3mf",
+      "file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\keyboard-review\\hw\\v1\\mechanical\\keyboardJoystickCap.3mf",
       "sha256": "fe2d25da1ed367d0b1181949ce8b453fad1df1b0163d79c262485bcbe6054d68",
       "objects": [
         {
@@ -39,7 +39,7 @@
       ]
     },
     {
-      "file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\openmicrokbd-review\\hw\\v1\\mechanical\\OpenMicroKbkCase.3mf",
+      "file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\keyboard-review\\hw\\v1\\mechanical\\keyboardKbkCase.3mf",
       "sha256": "13f17b96afc650675fda54fe6242e582de8ccffe1503c550830fa3e38006d185",
       "objects": [
         {
@@ -77,7 +77,7 @@
       ]
     },
     {
-      "file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\openmicrokbd-review\\hw\\v1\\mechanical\\OpenMicroRotator.3mf",
+      "file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\keyboard-review\\hw\\v1\\mechanical\\keyboardRotator.3mf",
       "sha256": "957c2a3e49f50fd16484ecbab47eeef05c11a37ec719bc06f136c241e7a4fc79",
       "objects": [
         {
@@ -115,7 +115,7 @@
       ]
     },
     {
-      "file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\openmicrokbd-review\\hw\\v1\\mechanical\\OpenMicroShippingPackage.3mf",
+      "file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\keyboard-review\\hw\\v1\\mechanical\\keyboardShippingPackage.3mf",
       "sha256": "4a3c5686a73dbec4aba69c518fe638d119e3a6f45e4695be97677e39bd6cf616",
       "objects": [
         {
@@ -281,7 +281,7 @@
       ]
     },
     {
-      "file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\openmicrokbd-review\\hw\\v1\\mechanical\\OpenMicroSolderTool.3mf",
+      "file": "C:\\Users\\myw\\Documents\\ChatGPT\\硬件\\keyboard-review\\hw\\v1\\mechanical\\keyboardSolderTool.3mf",
       "sha256": "1f2af393af2ab185965386fd7945f1d2630c361142e59d50df5f9de48d580436",
       "objects": [
         {
@@ -319,7 +319,7 @@
       ]
     },
     {
-      "file": "D:\\App\\OpenMicro.3mf",
+      "file": "D:\\App\\keyboard.3mf",
       "sha256": "e93031431578dd68214325dd9f400e440b2c2fc3d6dfe3463de1b27c9d13bbb7",
       "objects": [
         {
@@ -467,27 +467,27 @@
   ],
   "provided_zip": [
     {
-      "entry": "OpenMicroJoystickCap.3mf",
+      "entry": "keyboardJoystickCap.3mf",
       "bytes": 78177,
       "sha256": "fe2d25da1ed367d0b1181949ce8b453fad1df1b0163d79c262485bcbe6054d68"
     },
     {
-      "entry": "OpenMicroKbkCase.3mf",
+      "entry": "keyboardKbkCase.3mf",
       "bytes": 16763,
       "sha256": "13f17b96afc650675fda54fe6242e582de8ccffe1503c550830fa3e38006d185"
     },
     {
-      "entry": "OpenMicroRotator.3mf",
+      "entry": "keyboardRotator.3mf",
       "bytes": 140861,
       "sha256": "957c2a3e49f50fd16484ecbab47eeef05c11a37ec719bc06f136c241e7a4fc79"
     },
     {
-      "entry": "OpenMicroShippingPackage.3mf",
+      "entry": "keyboardShippingPackage.3mf",
       "bytes": 241936,
       "sha256": "4a3c5686a73dbec4aba69c518fe638d119e3a6f45e4695be97677e39bd6cf616"
     },
     {
-      "entry": "OpenMicroSolderTool.3mf",
+      "entry": "keyboardSolderTool.3mf",
       "bytes": 27233,
       "sha256": "1f2af393af2ab185965386fd7945f1d2630c361142e59d50df5f9de48d580436"
     }
@@ -740,7 +740,7 @@
       {
         "reference": "SW4",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "9.525",
           "-28.575"
@@ -927,7 +927,7 @@
       {
         "reference": "SW1",
         "value": "RotaryEC11",
-        "footprint": "openmicro-FP_Encoder_EC11",
+        "footprint": "keyboard-FP_Encoder_EC11",
         "at": [
           "-35.575",
           "-31.075"
@@ -1232,7 +1232,7 @@
       {
         "reference": "SW8",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "-28.575",
           "-9.525"
@@ -1419,7 +1419,7 @@
       {
         "reference": "SW15",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "28.575",
           "9.525"
@@ -1606,7 +1606,7 @@
       {
         "reference": "SW6",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "9.525",
           "28.575"
@@ -1907,7 +1907,7 @@
       {
         "reference": "SW10",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "9.525",
           "-9.525"
@@ -2205,7 +2205,7 @@
       {
         "reference": "SW7",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "28.575",
           "28.575"
@@ -2392,7 +2392,7 @@
       {
         "reference": "J1",
         "value": "ThumbPointer",
-        "footprint": "openmicro-FP_Joystick_RKJXV",
+        "footprint": "keyboard-FP_Joystick_RKJXV",
         "at": [
           "29.575",
           "-29.575",
@@ -3268,7 +3268,7 @@
       {
         "reference": "SW14",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "9.525",
           "9.525"
@@ -3455,7 +3455,7 @@
       {
         "reference": "H3",
         "value": "MountingHole",
-        "footprint": "openmicro-FP_MountingHole_M2",
+        "footprint": "keyboard-FP_MountingHole_M2",
         "at": [
           "42.5",
           "42.5"
@@ -3904,7 +3904,7 @@
       {
         "reference": "SW3",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "-9.525",
           "-28.575"
@@ -4091,7 +4091,7 @@
       {
         "reference": "SW9",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "-9.525",
           "-9.525"
@@ -4524,7 +4524,7 @@
       {
         "reference": "H1",
         "value": "MountingHole",
-        "footprint": "openmicro-FP_MountingHole_M2",
+        "footprint": "keyboard-FP_MountingHole_M2",
         "at": [
           "-42.5",
           "-42.5"
@@ -4727,7 +4727,7 @@
       {
         "reference": "SW12",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "-28.575",
           "9.525"
@@ -4914,7 +4914,7 @@
       {
         "reference": "H4",
         "value": "MountingHole",
-        "footprint": "openmicro-FP_MountingHole_M2",
+        "footprint": "keyboard-FP_MountingHole_M2",
         "at": [
           "-42.5",
           "42.5"
@@ -5601,7 +5601,7 @@
       {
         "reference": "SW13",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "-9.525",
           "9.525"
@@ -5902,7 +5902,7 @@
       {
         "reference": "TP1",
         "value": "CapTouchPad",
-        "footprint": "openmicro-FP_TouchPad",
+        "footprint": "keyboard-FP_TouchPad",
         "at": [
           "-28.575",
           "28.575"
@@ -6098,7 +6098,7 @@
       {
         "reference": "H2",
         "value": "MountingHole",
-        "footprint": "openmicro-FP_MountingHole_M2",
+        "footprint": "keyboard-FP_MountingHole_M2",
         "at": [
           "42.5",
           "-42.5"
@@ -6433,7 +6433,7 @@
       {
         "reference": "SW5",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "-9.525",
           "28.575"
@@ -6620,7 +6620,7 @@
       {
         "reference": "SW11",
         "value": "KeySwitch",
-        "footprint": "openmicro-FP_SW_Choc_V2",
+        "footprint": "keyboard-FP_SW_Choc_V2",
         "at": [
           "28.575",
           "-9.525"
