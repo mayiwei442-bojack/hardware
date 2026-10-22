@@ -15,12 +15,12 @@ use std::time::Duration;
 use crate::events;
 
 pub const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const MANIFEST_URL: &str = match option_env!("KEYBOARD_UPDATE_MANIFEST_URL") {
-    Some(url) => url,
-    None => {
-        "https://github.com/mayiwei442-bojack/hardware/releases/latest/download/release-manifest.json"
-    }
-};
+pub const MANIFEST_URL: &str = crate::brand::UPDATE_MANIFEST_URL;
+
+/// No update server is contacted until a MacroPad release channel is configured.
+pub fn updates_enabled() -> bool {
+    !MANIFEST_URL.is_empty()
+}
 
 const MANIFEST_LIMIT: u64 = 128 * 1024;
 const APP_DOWNLOAD_LIMIT: u64 = 512 * 1024 * 1024;
@@ -259,6 +259,9 @@ pub enum ReleaseMsg {
 
 /// Check for the newest stable release without delaying UI startup.
 pub fn spawn_catalog_check() {
+    if !updates_enabled() {
+        return;
+    }
     std::thread::spawn(|| match fetch_catalog(MANIFEST_URL) {
         Ok(catalog) => events::post(ReleaseMsg::Catalog(catalog)),
         Err(error) => events::post(ReleaseMsg::CatalogUnavailable(error)),
@@ -308,7 +311,10 @@ pub fn bundled_firmware() -> Result<Option<(String, PathBuf)>, String> {
         return Ok(None);
     };
     #[cfg(not(target_os = "macos"))]
-    let Some(firmware_dir) = executable.parent().map(|directory| directory.join("firmware")) else {
+    let Some(firmware_dir) = executable
+        .parent()
+        .map(|directory| directory.join("firmware"))
+    else {
         return Ok(None);
     };
     let image = firmware_dir.join("keyboard-fw.bin");
@@ -351,7 +357,7 @@ fn agent() -> ureq::Agent {
         .timeout_connect(Duration::from_secs(10))
         .timeout_read(Duration::from_secs(30))
         .redirects(8)
-        .user_agent(&format!("keyboard/{APP_VERSION}"))
+        .user_agent(&format!("{}/{APP_VERSION}", crate::brand::APP_NAME))
         .build()
 }
 
@@ -398,7 +404,7 @@ fn download_asset(
 
     let cache = dirs::cache_dir()
         .unwrap_or_else(std::env::temp_dir)
-        .join("keyboard")
+        .join(crate::brand::APP_NAME)
         .join("updates");
     fs::create_dir_all(&cache).map_err(|e| format!("cannot create update cache: {e}"))?;
     let destination = cache.join(&asset.name);

@@ -2,7 +2,7 @@
 //!
 //! Agent configuration is external state, not part of [`crate::config::AppConfig`].
 //! The Settings UI derives status from the target files each time it opens and
-//! installs only keyboard-owned hook entries or plugin scripts. Existing
+//! installs only MacroPad-owned hook entries or plugin scripts. Existing
 //! configuration is parsed structurally, backed up, and replaced atomically.
 
 use std::collections::HashSet;
@@ -15,10 +15,18 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 
-const DEFAULT_APP_BINARY: &str = "/Applications/keyboard.app/Contents/MacOS/keyboard";
-const MANAGED_MARKER: &str = "// Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.";
-const SHELL_MANAGED_MARKER: &str = "# Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.";
-const BATCH_MANAGED_MARKER: &str = "REM Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.";
+const DEFAULT_APP_BINARY: &str = "/Applications/MacroPad.app/Contents/MacOS/MacroPad";
+// Retain this exact historical installation path across host platforms.
+// Windows does not classify a POSIX-rooted path as absolute, so the generic
+// stale-path recognition below cannot recognize this previous default there.
+const LEGACY_DEFAULT_APP_BINARY: &str = "/Applications/keyboard.app/Contents/MacOS/keyboard";
+const UPSTREAM_DEFAULT_APP_BINARY: &str = "/Applications/OpenMicro.app/Contents/MacOS/OpenMicro";
+const MANAGED_MARKER: &str = "// Managed by MacroPad Settings. Remove this line before editing; marked files may be replaced on update.";
+const SHELL_MANAGED_MARKER: &str = "# Managed by MacroPad Settings. Remove this line before editing; marked files may be replaced on update.";
+const BATCH_MANAGED_MARKER: &str = "REM Managed by MacroPad Settings. Remove this line before editing; marked files may be replaced on update.";
+const PREVIOUS_MANAGED_MARKER: &str = "// Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.";
+const PREVIOUS_SHELL_MANAGED_MARKER: &str = "# Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.";
+const PREVIOUS_BATCH_MANAGED_MARKER: &str = "REM Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.";
 const LEGACY_MANAGED_MARKER: &str =
     "// Managed by keyboard Settings. Local changes may be replaced on update.";
 const LEGACY_SHELL_MANAGED_MARKER: &str =
@@ -111,13 +119,13 @@ impl InstallLayout {
         let home =
             dirs::home_dir().ok_or_else(|| "cannot locate the user home directory".to_string())?;
         let executable = env::current_exe()
-            .map_err(|error| format!("cannot locate the keyboard executable: {error}"))?;
+            .map_err(|error| format!("cannot locate the MacroPad executable: {error}"))?;
         validate_executable(&executable)?;
 
         let executable_text = path_text(&executable)?;
         if cfg!(target_os = "macos") && executable_text.contains("/AppTranslocation/") {
             return Err(
-                "keyboard is running from macOS App Translocation; move it to Applications and reopen it before installing hooks"
+                "MacroPad is running from macOS App Translocation; move it to Applications and reopen it before installing hooks"
                     .into(),
             );
         }
@@ -236,7 +244,9 @@ pub fn install_system(kind: IntegrationKind) -> Result<InstallReceipt, String> {
 
 fn inspect(layout: &InstallLayout, kind: IntegrationKind) -> IntegrationReport {
     let result = match kind {
-        IntegrationKind::Codex | IntegrationKind::ClaudeCode | IntegrationKind::Grok => inspect_json_hooks(layout, kind),
+        IntegrationKind::Codex | IntegrationKind::ClaudeCode | IntegrationKind::Grok => {
+            inspect_json_hooks(layout, kind)
+        }
         IntegrationKind::OpenCode => inspect_owned_template(
             &layout.opencode_plugin,
             &render_opencode_plugin(&layout.executable),
@@ -464,7 +474,7 @@ fn apply_writes(writes: Vec<PlannedWrite>) -> Result<(Vec<PathBuf>, Vec<PathBuf>
             Ok(false) => {
                 cleanup_staged(&staged);
                 return Err(format!(
-                    "{} changed while keyboard was preparing the installation; nothing was replaced",
+                    "{} changed while MacroPad was preparing the installation; nothing was replaced",
                     write.planned.snapshot.logical_path.display()
                 ));
             }
@@ -490,7 +500,7 @@ fn apply_writes(writes: Vec<PlannedWrite>) -> Result<(Vec<PathBuf>, Vec<PathBuf>
             cleanup_staged(&staged[index..]);
             return Err(partial_write_error(
                 format!(
-                    "{} changed before keyboard could replace it",
+                    "{} changed before MacroPad could replace it",
                     write.planned.snapshot.logical_path.display()
                 ),
                 &changed,
@@ -532,7 +542,7 @@ fn publish_staged(write: &StagedWrite) -> Result<Option<PathBuf>, String> {
         if !matches {
             let recovery = restore_displaced(&backup, &snapshot.resolved_path);
             return Err(format!(
-                "{} changed before keyboard could replace it; {recovery}",
+                "{} changed before MacroPad could replace it; {recovery}",
                 snapshot.logical_path.display()
             ));
         }
@@ -986,7 +996,7 @@ fn prune_managed_groups(
             changed = true;
         } else if contains_keyboard_hook_candidate(&group, kind, executable) {
             return Err(format!(
-                "the existing {event} keyboard hook was customized; remove it manually before installing"
+                "the existing {event} MacroPad hook was customized; remove it manually before installing"
             ));
         } else {
             retained.push(group);
@@ -1115,11 +1125,12 @@ fn is_managed_hook(command: &Value, kind: IntegrationKind, executable: &Path) ->
                 .is_some_and(|args| {
                     args.len() == 2
                         && args[0].as_str() == Some("agent-hook")
-                        && args[1].as_str() == Some(match kind {
-                            IntegrationKind::ClaudeCode => "claude-code",
-                            IntegrationKind::Grok => "grok",
-                            _ => unreachable!(),
-                        })
+                        && args[1].as_str()
+                            == Some(match kind {
+                                IntegrationKind::ClaudeCode => "claude-code",
+                                IntegrationKind::Grok => "grok",
+                                _ => unreachable!(),
+                            })
                 });
             (args_match && is_managed_binary_path(command_text, executable))
                 || managed_shell_invocation(
@@ -1163,13 +1174,16 @@ fn looks_like_keyboard_hook(command: &Value, kind: IntegrationKind, executable: 
                     .and_then(|args| args.first())
                     .and_then(Value::as_str)
                     .is_some_and(|first| {
-                            matches!(first, "agent-hook" | "claude-hook" | "claude-code-hook")
+                        matches!(first, "agent-hook" | "claude-hook" | "claude-code-hook")
                     });
             direct
                 || decoded_shell_invocation(command_text).is_some_and(|(program, arguments)| {
                     is_managed_binary_path(&program, executable)
-                        && (arguments.starts_with(if kind == IntegrationKind::Grok { "agent-hook grok" } else { "agent-hook claude" })
-                            || arguments.starts_with("claude-hook")
+                        && (arguments.starts_with(if kind == IntegrationKind::Grok {
+                            "agent-hook grok"
+                        } else {
+                            "agent-hook claude"
+                        }) || arguments.starts_with("claude-hook")
                             || arguments.starts_with("claude-code-hook"))
                 })
         }
@@ -1217,7 +1231,10 @@ fn decode_shell_word(word: &str) -> Option<String> {
     {
         return Some(word.into());
     }
-    if let Some(inner) = word.strip_prefix('"').and_then(|word| word.strip_suffix('"')) {
+    if let Some(inner) = word
+        .strip_prefix('"')
+        .and_then(|word| word.strip_suffix('"'))
+    {
         if !inner.is_empty() && !inner.contains(['"', '\r', '\n']) {
             return Some(inner.into());
         }
@@ -1229,7 +1246,11 @@ fn decode_shell_word(word: &str) -> Option<String> {
 
 fn is_managed_binary_path(candidate: &str, executable: &Path) -> bool {
     let candidate = Path::new(candidate);
-    if candidate == executable || candidate == Path::new(DEFAULT_APP_BINARY) {
+    if candidate == executable
+        || candidate == Path::new(DEFAULT_APP_BINARY)
+        || candidate == Path::new(LEGACY_DEFAULT_APP_BINARY)
+        || candidate == Path::new(UPSTREAM_DEFAULT_APP_BINARY)
+    {
         return true;
     }
     if !candidate.is_absolute() {
@@ -1243,10 +1264,11 @@ fn is_managed_binary_path(candidate: &str, executable: &Path) -> bool {
         name.eq_ignore_ascii_case("keyboard-app")
             || name.eq_ignore_ascii_case("keyboard-app.exe")
             || name.eq_ignore_ascii_case("keyboard.exe")
+            || name.eq_ignore_ascii_case("MacroPad.exe")
     }) {
         return true;
     }
-    file_name == Some("keyboard")
+    matches!(file_name, Some("MacroPad" | "keyboard"))
         && candidate
             .parent()
             .and_then(Path::file_name)
@@ -1279,14 +1301,16 @@ fn render_deep_code_script(executable: &Path) -> Result<Vec<u8>, String> {
     if cfg!(target_os = "windows") {
         let executable = path_text(executable)?;
         if executable.contains(['"', '\r', '\n']) {
-            return Err("the keyboard executable path cannot be represented in a batch file".into());
+            return Err(
+                "the MacroPad executable path cannot be represented in a batch file".into(),
+            );
         }
         // Percent signs are expanded by cmd.exe even inside a quoted SET
         // assignment; doubling them preserves a literal percent in a path.
         let executable = executable.replace('%', "%%");
         return replace_declaration(
             DEEP_CODE_WINDOWS_TEMPLATE,
-            "set \"KEYBOARD_BIN=C:\\Program Files\\keyboard\\keyboard.exe\"",
+            "set \"KEYBOARD_BIN=C:\\Program Files\\MacroPad\\MacroPad.exe\"",
             &format!("set \"KEYBOARD_BIN={executable}\""),
         );
     }
@@ -1333,7 +1357,7 @@ fn inspect_owned_template(
         Ok(InstallState::NeedsUpdate)
     } else {
         Err(format!(
-            "{} already exists and is not an unmodified keyboard integration",
+            "{} already exists and is not an unmodified MacroPad integration",
             path.display()
         ))
     }
@@ -1346,6 +1370,9 @@ fn has_managed_marker(text: &str) -> bool {
             MANAGED_MARKER
                 | SHELL_MANAGED_MARKER
                 | BATCH_MANAGED_MARKER
+                | PREVIOUS_MANAGED_MARKER
+                | PREVIOUS_SHELL_MANAGED_MARKER
+                | PREVIOUS_BATCH_MANAGED_MARKER
                 | LEGACY_MANAGED_MARKER
                 | LEGACY_SHELL_MANAGED_MARKER
         )
@@ -1360,6 +1387,12 @@ fn normalized_owned_template(text: &str, declaration_prefix: &str) -> Option<Str
         .replacen(&format!("{SHELL_MANAGED_MARKER}\n"), "", 1)
         .replacen(&format!("{BATCH_MANAGED_MARKER}\r\n"), "", 1)
         .replacen(&format!("{BATCH_MANAGED_MARKER}\n"), "", 1)
+        .replacen(&format!("{PREVIOUS_MANAGED_MARKER}\r\n"), "", 1)
+        .replacen(&format!("{PREVIOUS_MANAGED_MARKER}\n"), "", 1)
+        .replacen(&format!("{PREVIOUS_SHELL_MANAGED_MARKER}\r\n"), "", 1)
+        .replacen(&format!("{PREVIOUS_SHELL_MANAGED_MARKER}\n"), "", 1)
+        .replacen(&format!("{PREVIOUS_BATCH_MANAGED_MARKER}\r\n"), "", 1)
+        .replacen(&format!("{PREVIOUS_BATCH_MANAGED_MARKER}\n"), "", 1)
         .replacen(&format!("{LEGACY_MANAGED_MARKER}\r\n"), "", 1)
         .replacen(&format!("{LEGACY_MANAGED_MARKER}\n"), "", 1)
         .replacen(&format!("{LEGACY_SHELL_MANAGED_MARKER}\r\n"), "", 1)
@@ -1418,7 +1451,7 @@ fn inspect_deep_code(layout: &InstallLayout) -> Result<InstallState, String> {
         Some(Value::String(value)) if value == script_path => true,
         Some(_) => {
             return Err(format!(
-                "{} already configures a different notifier; keyboard will not replace it",
+                "{} already configures a different notifier; MacroPad will not replace it",
                 layout.deep_code_settings.display()
             ))
         }
@@ -1458,7 +1491,7 @@ fn install_deep_code(
         Some(Value::String(value)) if value == script_path => {}
         Some(_) => {
             return Err(format!(
-                "{} already configures a different notifier; keyboard will not replace it",
+                "{} already configures a different notifier; MacroPad will not replace it",
                 layout.deep_code_settings.display()
             ))
         }
@@ -1842,6 +1875,14 @@ mod tests {
                 "command": "/tmp/my-keyboard-wrapper",
                 "args": ["agent-hook", "claude-code"]
             }),
+            serde_json::json!({
+                "type": "command",
+                "command": "/Applications/keyboard.app/Contents/MacOS/keyboard-helper codex-hook"
+            }),
+            serde_json::json!({
+                "type": "command",
+                "command": "/Applications/keyboard.app/Contents/MacOS/keyboard codex-hook --quiet"
+            }),
         ] {
             assert!(!is_managed_hook(
                 &unrelated,
@@ -1860,6 +1901,16 @@ mod tests {
             "command": "/Applications/keyboard.app/Contents/MacOS/keyboard codex-hook"
         });
         assert!(is_managed_hook(&legacy, IntegrationKind::Codex, executable));
+
+        let upstream = serde_json::json!({
+            "type": "command",
+            "command": "/Applications/OpenMicro.app/Contents/MacOS/OpenMicro codex-hook"
+        });
+        assert!(is_managed_hook(
+            &upstream,
+            IntegrationKind::Codex,
+            executable
+        ));
     }
 
     #[test]
@@ -1935,7 +1986,7 @@ mod tests {
 
         fs::write(
             &layout.opencode_plugin,
-            installed.replace("export const KeyboardStatus", "export const LocallyEdited"),
+            installed.replace("export const keyboardStatus", "export const LocallyEdited"),
         )
         .unwrap();
         assert_eq!(
@@ -1949,7 +2000,7 @@ mod tests {
             let unowned_edit = installed_lf
                 .replace('\n', newline)
                 .replace(&format!("{MANAGED_MARKER}{newline}"), "")
-                .replace("export const KeyboardStatus", "export const LocallyEdited");
+                .replace("export const keyboardStatus", "export const LocallyEdited");
             fs::write(&layout.opencode_plugin, unowned_edit).unwrap();
             assert_eq!(
                 inspect(&layout, IntegrationKind::OpenCode).state,
@@ -2089,10 +2140,10 @@ mod tests {
         .expect_err("stale plan must fail");
         assert!(error.contains("changed"));
         assert_eq!(fs::read(&target).unwrap(), b"edited by another process");
-        assert!(!fs::read_dir(&root.0).unwrap().flatten().any(|entry| entry
-            .file_name()
-            .to_string_lossy()
-            .contains("keyboard-tmp")));
+        assert!(!fs::read_dir(&root.0)
+            .unwrap()
+            .flatten()
+            .any(|entry| entry.file_name().to_string_lossy().contains("keyboard-tmp")));
     }
 
     #[test]

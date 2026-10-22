@@ -1,4 +1,4 @@
-//! Stateless cartridge-theme controls for the GPUI frontend.
+//! Stateless MacroPad controls for the GPUI frontend.
 //!
 //! These helpers only describe appearance. Callers remain responsible for
 //! focus, keyboard handling, enabled-state policy, and application state.
@@ -12,13 +12,13 @@ use crate::pixel::{
 };
 use gpui::prelude::{FluentBuilder, InteractiveElement};
 use gpui::{
-    div, point, px, AnyElement, App, BoxShadow, ClickEvent, Div, ElementId, Hsla, ParentElement,
-    SharedString, StatefulInteractiveElement, Styled, Window,
+    div, point, px, AnyElement, App, BoxShadow, ClickEvent, Div, ElementId, Hsla, IntoElement,
+    ParentElement, SharedString, StatefulInteractiveElement, Styled, Window,
 };
 use gpui_component::StyledExt;
 
-const MONO_FONT: &str = "Monaco";
-const SYSTEM_FONT: &str = ".SystemUIFont";
+const MONO_FONT: &str = pixel::mono_font();
+const SYSTEM_FONT: &str = pixel::ui_font();
 
 fn hard_shadow(offset: f32) -> Vec<BoxShadow> {
     vec![BoxShadow {
@@ -56,115 +56,143 @@ pub fn keycap_device_cell(
     icon: Option<AnyElement>,
     detail: impl Into<SharedString>,
     visual: CellVisual,
+    cell: usize,
 ) -> Div {
     let label = label.into();
-    let detail = detail.into();
-
+    let _detail: SharedString = detail.into();
+    let colored_key = cell < 2;
+    let face = match cell {
+        0 => accent_color(),
+        1 => pixel::secondary_color(),
+        13..=15 => pixel::deck_color(),
+        _ if visual.live => success_soft_color(),
+        _ if visual.selected => accent_soft_color(),
+        _ => key_color(),
+    };
+    let foreground = if cell == 1 {
+        pixel::plate_ink_color()
+    } else if colored_key {
+        on_accent_color()
+    } else {
+        text_color()
+    };
     let outline = if visual.warning {
         danger_color()
-    } else if visual.live {
-        success_color()
-    } else if visual.selected {
+    } else if visual.selected || visual.live {
         accent_color()
     } else {
         border_color()
     };
-
-    let background = if visual.live {
-        success_soft_color()
-    } else if visual.selected {
-        accent_soft_color()
-    } else {
-        key_color()
+    let legend = match cell {
+        13 => "ENC".to_string(),
+        14 => "X / Y".to_string(),
+        15 => "TOUCH".to_string(),
+        _ => format!("{:02}", cell + 1),
     };
-
-    let foreground = if visual.selected {
-        accent_highlight_color()
-    } else {
-        text_color()
+    let glyph = icon.unwrap_or_else(|| {
+        div()
+            .font_family(pixel::mono_font())
+            .text_size(px(22.))
+            .child(match cell {
+                13 => "+".to_string(),
+                14 => "+".to_string(),
+                15 => "·".to_string(),
+                _ => format!("{:02}", cell + 1),
+            })
+            .into_any_element()
+    });
+    let control = div().flex().items_center().justify_center().child(glyph);
+    let control = match cell {
+        13 => control
+            .size(px(42.))
+            .rounded(px(24.))
+            .bg(gpui::rgb(0xc4cac5))
+            .text_color(pixel::plate_ink_color())
+            .border_2()
+            .border_color(gpui::rgb(0x7e8a7f))
+            .into_any_element(),
+        14 => control
+            .size(px(40.))
+            .rounded(px(24.))
+            .bg(pixel::secondary_color())
+            .text_color(pixel::plate_ink_color())
+            .border_2()
+            .border_color(gpui::rgb(0xb9a3ff))
+            .into_any_element(),
+        15 => control
+            .size(px(38.))
+            .rounded(px(22.))
+            .border_2()
+            .border_color(pixel::secondary_color())
+            .text_color(accent_color())
+            .into_any_element(),
+        _ => control
+            .size(px(32.))
+            .text_color(foreground)
+            .into_any_element(),
     };
-
-    let state_color = if visual.warning {
-        danger_color()
-    } else {
-        success_color()
-    };
-
-    let heading = div()
-        .w_full()
-        .flex()
-        .items_center()
-        .gap(px(7.))
-        .when(visual.warning || visual.live, |heading| {
-            heading.child(div().w(px(5.)).h(px(5.)).bg(state_color))
-        })
-        .child(
-            div()
-                .flex_1()
-                .min_w(px(0.))
-                .truncate()
-                .text_size(px(12.))
-                .font_family(SYSTEM_FONT)
-                .font_semibold()
-                .text_color(foreground)
-                .child(label),
-        );
-    let heading = if let Some(icon) = icon {
-        heading.child(
-            div()
-                .w(px(18.))
-                .h(px(18.))
-                .flex_shrink_0()
-                .flex()
-                .items_center()
-                .justify_center()
-                .child(icon),
-        )
-    } else {
-        heading
-    };
-
-    let cell = div()
+    div()
         .w(px(96.))
         .h(px(96.))
         .flex_none()
-        .p(px(10.))
+        .p(px(7.))
         .flex()
         .flex_col()
-        .gap(px(7.))
-        .bg(background)
-        .when(visual.selected || visual.live || visual.warning, |cell| {
-            cell.border_2().border_color(outline)
-        })
-        .rounded(px(2.))
+        .gap(px(3.))
+        .bg(face)
+        .border_1()
+        .border_color(outline)
+        .rounded(px(1.))
+        .shadow(hard_shadow(3.))
         .overflow_hidden()
-        .font_family(SYSTEM_FONT)
+        .font_family(pixel::ui_font())
         .text_color(foreground)
-        .child(heading)
+        .child(
+            div()
+                .w_full()
+                .flex()
+                .items_center()
+                .justify_between()
+                .font_family(pixel::mono_font())
+                .text_size(px(8.))
+                .child(legend)
+                .child(div().size(px(4.)).bg(if visual.live || visual.selected {
+                    foreground
+                } else {
+                    face
+                })),
+        )
         .child(
             div()
                 .flex_1()
-                .min_w(px(0.))
                 .flex()
                 .items_center()
-                .truncate()
-                .text_size(px(12.))
-                .text_color(muted_text_color())
-                .child(detail),
+                .justify_center()
+                .child(control),
         )
-        .hover(|style| {
-            style.bg(if visual.selected {
-                if visual.live {
-                    success_soft_color()
-                } else {
-                    accent_soft_color()
-                }
+        .child(
+            div()
+                .w_full()
+                .truncate()
+                .text_center()
+                .text_size(px(10.))
+                .font_semibold()
+                .child(label),
+        )
+        .when(visual.selected, |el| {
+            el.border_2().border_color(if cell == 0 {
+                pixel::plate_ink_color()
             } else {
-                raised_color()
+                accent_color()
             })
-        });
-
-    cell
+        })
+        .hover(move |el| {
+            el.border_color(if colored_key {
+                text_color()
+            } else {
+                accent_color()
+            })
+        })
 }
 
 /// A compact label/value pair for read-only inspector fields.
@@ -314,7 +342,7 @@ pub fn modal_frame() -> Div {
         .flex()
         .flex_col()
         .bg(panel_color())
-        .rounded(px(4.))
+        .rounded(px(1.))
         .shadow(hard_shadow(4.))
         .font_family(SYSTEM_FONT)
         .text_color(text_color())

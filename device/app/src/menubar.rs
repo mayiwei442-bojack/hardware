@@ -45,10 +45,13 @@ enum LinuxTrayCommand {
     },
 }
 
-/// The tray glyph: the rounded keycap with a transparent µ cutout, shipped as
+/// The tray glyph: the MacroPad input-grid mark, shipped as
 /// pre-decoded 96x96 RGBA so no image decoder is pulled in here.
 fn tray_icon() -> Option<Icon> {
     const S: u32 = 96;
+    #[cfg(target_os = "macos")]
+    const RGBA: &[u8] = include_bytes!("../resources/macropad-tray-template-96.rgba");
+    #[cfg(not(target_os = "macos"))]
     const RGBA: &[u8] = include_bytes!("../resources/tray-icon-96.rgba");
     debug_assert_eq!(RGBA.len(), (S * S * 4) as usize);
     Icon::from_rgba(RGBA.to_vec(), S, S).ok()
@@ -75,7 +78,7 @@ impl Menubar {
             TrayIconBuilder::new()
                 .with_icon(icon)
                 .with_icon_as_template(true)
-                .with_tooltip("keyboard")
+                .with_tooltip(crate::brand::APP_NAME)
                 .build()
                 .ok()
         });
@@ -105,7 +108,7 @@ impl Menubar {
                     TrayIconBuilder::new()
                         .with_icon(icon)
                         .with_icon_as_template(true)
-                        .with_tooltip("keyboard")
+                        .with_tooltip(crate::brand::APP_NAME)
                         .build()
                         .ok()
                 });

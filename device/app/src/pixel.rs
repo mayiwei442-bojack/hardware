@@ -1,4 +1,4 @@
-//! Midnight Cartridge (dark), Paper Cartridge (light), and small GPUI building blocks.
+//! MacroPad surfaces and shared GPUI building blocks.
 //!
 //! The theme deliberately keeps long-form text in the operating system UI
 //! font. Monaco is reserved for compact labels and readouts, so the interface
@@ -13,6 +13,36 @@ use gpui::{
     div, px, rgb, rgba, App, Div, Hsla, InteractiveElement, ParentElement, SharedString, Styled,
 };
 use gpui_component::{StyledExt, Theme, ThemeColor, ThemeMode};
+
+pub const fn ui_font() -> &'static str {
+    if cfg!(target_os = "windows") {
+        "Microsoft YaHei UI"
+    } else {
+        ".SystemUIFont"
+    }
+}
+
+pub const fn mono_font() -> &'static str {
+    if cfg!(target_os = "windows") {
+        "Consolas"
+    } else {
+        "Monaco"
+    }
+}
+
+/// Color of the physical front plate; independent of semantic button colors.
+pub fn faceplate_color() -> Hsla {
+    rgb(0xb3d84c).into()
+}
+
+pub fn secondary_color() -> Hsla {
+    rgb(0x9673ff).into()
+}
+
+/// Constant ink for bright physical materials in both application schemes.
+pub fn plate_ink_color() -> Hsla {
+    rgb(0x0b0e0d).into()
+}
 
 /// The resolved palette currently rendered by the single app window.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -69,82 +99,82 @@ struct Palette {
 }
 
 const DARK_PALETTE: Palette = Palette {
-    canvas: 0x090c12,
-    panel: 0x111722,
-    raised: 0x192233,
-    deck: 0x151d2b,
-    key: 0x202b3e,
-    border: 0x283449,
-    border_highlight: 0x465a78,
-    text: 0xf2ecdd,
-    muted_text: 0xa0abbc,
-    dim_text: 0x69778d,
-    accent: 0xf5ae58,
-    accent_highlight: 0xffd38a,
-    success: 0x61d6a5,
-    danger: 0xff667a,
-    focus: 0x82a7ff,
-    shadow: 0x05070d,
-    on_accent: 0x05070d,
-    hover: 0x222e43,
-    accent_soft: 0x352818,
-    success_soft: 0x12372b,
-    danger_soft: 0x3b1822,
-    info_soft: 0x172744,
-    danger_active: 0xd3485e,
-    danger_hover: 0xff7a8b,
-    drop_target: 0x82a7ff33,
-    info_active: 0x2eb5c0,
-    info_hover: 0x72e6ea,
-    active_fill: 0xf5ae5833,
-    primary_active: 0xd98e25,
-    primary_hover: 0xffd38a,
-    scrollbar: 0x10172500,
-    selection: 0xf5ae584d,
-    success_active: 0x36b681,
-    success_hover: 0x74e9b8,
-    overlay: 0x05070de6,
-    red_light: 0xffa0ac,
-    green_light: 0x9af1cc,
-    blue_light: 0xa5f1f3,
-    magenta: 0xc58cff,
-    magenta_light: 0xe0c2ff,
-    cyan_light: 0xa5f1f3,
+    canvas: 0x0b0e0d,
+    panel: 0x101511,
+    raised: 0x1a211a,
+    deck: 0x10150e,
+    key: 0x242925,
+    border: 0x303831,
+    border_highlight: 0x56634f,
+    text: 0xf0f1ec,
+    muted_text: 0xc4cac5,
+    dim_text: 0x929c94,
+    accent: 0xc6ff36,
+    accent_highlight: 0xd9ff87,
+    success: 0xc6ff36,
+    danger: 0xff7586,
+    focus: 0x9673ff,
+    shadow: 0x050805,
+    on_accent: 0x0b0e0d,
+    hover: 0x20271f,
+    accent_soft: 0x26351b,
+    success_soft: 0x22301b,
+    danger_soft: 0x3a1c25,
+    info_soft: 0x28203b,
+    danger_active: 0xd44e66,
+    danger_hover: 0xff92a0,
+    drop_target: 0x9673ff33,
+    info_active: 0x7853dc,
+    info_hover: 0xb29aff,
+    active_fill: 0xc6ff3626,
+    primary_active: 0xa8dd25,
+    primary_hover: 0xd9ff87,
+    scrollbar: 0x0b0e0d00,
+    selection: 0xc6ff363d,
+    success_active: 0xa8dd25,
+    success_hover: 0xd9ff87,
+    overlay: 0x050805e6,
+    red_light: 0xffa7b0,
+    green_light: 0xd9ff87,
+    blue_light: 0xbca6ff,
+    magenta: 0x9673ff,
+    magenta_light: 0xc2adff,
+    cyan_light: 0x9ad6c8,
 };
 
 const LIGHT_PALETTE: Palette = Palette {
-    canvas: 0xeae5d9,
-    panel: 0xf8f4ea,
-    raised: 0xe4ded2,
-    deck: 0xd8d1c4,
-    key: 0xfcf9f1,
-    border: 0xc8beae,
-    border_highlight: 0x817768,
-    text: 0x252a35,
-    muted_text: 0x4c5767,
-    dim_text: 0x566070,
-    accent: 0x914900,
-    accent_highlight: 0x713800,
+    canvas: 0xf0f1ec,
+    panel: 0xf9fbf5,
+    raised: 0xe4e9df,
+    deck: 0xd8e0d0,
+    key: 0xf7faf2,
+    border: 0xc6cec0,
+    border_highlight: 0x6f8068,
+    text: 0x1a241c,
+    muted_text: 0x485747,
+    dim_text: 0x566650,
+    accent: 0x486500,
+    accent_highlight: 0x344b00,
     success: 0x116a49,
     danger: 0xaa2942,
-    focus: 0x315ead,
-    shadow: 0x9a8f7e,
-    on_accent: 0xfff8ea,
-    hover: 0xd8d1c4,
-    accent_soft: 0xf4dfc2,
+    focus: 0x6741bd,
+    shadow: 0x919f86,
+    on_accent: 0xf7f9f0,
+    hover: 0xd8e0d0,
+    accent_soft: 0xe4f3c6,
     success_soft: 0xd9efe5,
     danger_soft: 0xf6dde2,
-    info_soft: 0xdce7f7,
+    info_soft: 0xebe3fb,
     danger_active: 0x7f1f32,
     danger_hover: 0xc23a52,
-    drop_target: 0x315ead33,
+    drop_target: 0x6741bd33,
     info_active: 0x244982,
     info_hover: 0x4474c3,
-    active_fill: 0x9149001f,
-    primary_active: 0x713800,
-    primary_hover: 0xa35300,
+    active_fill: 0x4865001f,
+    primary_active: 0x344b00,
+    primary_hover: 0x5c7d08,
     scrollbar: 0x00000000,
-    selection: 0x91490033,
+    selection: 0x48650033,
     success_active: 0x0c5137,
     success_hover: 0x18815c,
     overlay: 0x00000066,
@@ -428,12 +458,12 @@ pub fn install_theme(scheme: ColorScheme, cx: &mut App) {
         ColorScheme::Light => ThemeMode::Light,
         ColorScheme::Dark => ThemeMode::Dark,
     };
-    theme.font_family = ".SystemUIFont".into();
+    theme.font_family = ui_font().into();
     theme.font_size = px(13.);
-    theme.mono_font_family = "Monaco".into();
+    theme.mono_font_family = mono_font().into();
     theme.mono_font_size = px(12.);
-    theme.radius = px(3.);
-    theme.radius_lg = px(4.);
+    theme.radius = px(1.);
+    theme.radius_lg = px(2.);
     theme.shadow = false;
     theme.tile_grid_size = px(4.);
     theme.tile_shadow = false;
@@ -454,7 +484,9 @@ pub fn panel() -> Div {
         .gap(px(10.))
         .p(px(18.))
         .bg(panel_color())
-        .rounded(px(4.))
+        .border_1()
+        .border_color(border_color())
+        .rounded(px(1.))
         .text_color(text_color())
         .text_size(px(14.))
 }
@@ -466,13 +498,15 @@ pub fn panel() -> Div {
 pub fn raised_button_face(label: impl Into<SharedString>) -> Div {
     let label: SharedString = label.into();
     div()
-        .h(px(34.))
+        .h(px(37.))
         .px(px(11.))
         .flex()
         .items_center()
         .justify_center()
         .bg(raised_color())
-        .rounded(px(2.))
+        .border_1()
+        .border_color(border_color())
+        .rounded(px(1.))
         .text_color(text_color())
         .text_size(px(13.))
         .font_semibold()
@@ -520,24 +554,30 @@ pub fn badge(label: impl Into<SharedString>, tone: BadgeTone) -> Div {
         .rounded(px(3.))
         .text_color(foreground)
         .text_size(px(10.))
-        .font_family("Monaco")
+        .font_family(mono_font())
         .child(label)
 }
 
 /// A quiet 8-bit inspector-section heading.
-pub fn section_header(_number: usize, title: impl Into<SharedString>) -> Div {
+pub fn section_header(number: usize, title: impl Into<SharedString>) -> Div {
     let title: SharedString = title.into();
     div()
         .w_full()
         .flex()
         .items_center()
         .gap(px(8.))
-        .child(div().w(px(5.)).h(px(5.)).bg(accent_color()))
+        .child(
+            div()
+                .font_family(mono_font())
+                .text_size(px(10.))
+                .text_color(dim_text_color())
+                .child(format!("{number:02}")),
+        )
         .child(
             div()
                 .text_color(accent_highlight_color())
                 .text_size(px(11.))
-                .font_family("Monaco")
+                .font_family(mono_font())
                 .font_semibold()
                 .child(title),
         )

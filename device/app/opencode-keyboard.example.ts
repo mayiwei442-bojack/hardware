@@ -1,7 +1,7 @@
-// Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.
+// Managed by MacroPad Settings. Remove this line before editing; marked files may be replaced on update.
 import type { Plugin } from "@opencode-ai/plugin"
 
-const KEYBOARD = "/Applications/keyboard.app/Contents/MacOS/keyboard"
+const KEYBOARD = "/Applications/MacroPad.app/Contents/MacOS/MacroPad"
 
 type StatusEvent = {
   type: string
@@ -25,7 +25,7 @@ type StatusEvent = {
  */
 export const keyboardStatus: Plugin = async ({ $ }) => {
   // OpenCode emits session.error immediately before idle in some failure
-  // paths. Let keyboard's short error TTL own that transition instead of
+  // paths. Let MacroPad's short error TTL own that transition instead of
   // replacing red with green immediately.
   const suppressNextIdleSuccess = new Set<string>()
   // Current OpenCode emits both session.status and the deprecated

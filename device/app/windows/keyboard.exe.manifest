@@ -2,10 +2,10 @@
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
   <assemblyIdentity
     type="win32"
-    name="ai.conol.keyboard"
+    name="io.macropad.desktop"
     version="1.0.0.0"
     processorArchitecture="*" />
-  <description>keyboard companion app</description>
+  <description>MacroPad desktop controller</description>
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
       <requestedPrivileges>

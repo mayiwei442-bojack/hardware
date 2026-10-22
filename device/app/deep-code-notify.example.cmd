@@ -1,8 +1,8 @@
 @echo off
-REM Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.
+REM Managed by MacroPad Settings. Remove this line before editing; marked files may be replaced on update.
 REM Copy to %%USERPROFILE%%\.deepcode\keyboard-notify.cmd and set the
 REM `notify` key in %%USERPROFILE%%\.deepcode\settings.json to that path.
-set "KEYBOARD_BIN=C:\Program Files\keyboard\keyboard.exe"
+set "KEYBOARD_BIN=C:\Program Files\MacroPad\MacroPad.exe"
 
 set "light_status="
 if /I "%STATUS%"=="completed" set "light_status=success"

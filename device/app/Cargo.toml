@@ -2,7 +2,9 @@
 name = "keyboard-app"
 version = "0.15.0"
 edition = "2021"
-description = "keyboard companion app: profiles, key actions, firmware updates (GPUI)"
+license = "MIT"
+license-file = "../LICENSE"
+description = "MacroPad desktop controller: profiles, key actions, lighting, and firmware updates"
 build = "build.rs"
 
 [dependencies]

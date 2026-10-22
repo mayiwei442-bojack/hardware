@@ -1,0 +1,135 @@
+name: MacroPad macOS Apple Silicon
+
+on:
+  push:
+    branches: [codex/macropad-macos]
+    paths:
+      - .github/workflows/macropad-macos.yml
+      - device/app/**
+      - device/layout/**
+      - device/scripts/**
+      - device/LICENSE
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macropad-macos-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+    working-directory: device
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_BUILD_JOBS: 2
+  MACROPAD_MACOS_ARCH: arm64
+  MACROPAD_CREATE_APP_ZIP: "1"
+  MACROPAD_ENABLE_SPARKLE: "0"
+  REQUIRE_SIGNING: "0"
+
+jobs:
+  apple-silicon:
+    name: Build ARM64 app and DMG
+    if: github.ref == 'refs/heads/codex/macropad-macos'
+    # GitHub's standard macos-15 image is Apple Silicon. Do not use -intel.
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - name: Check out the approved source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Record the native build host
+        run: |
+          set -euo pipefail
+          mkdir -p dist/inputs dist/licenses dist/logs
+          test "$(uname -m)" = arm64
+          {
+            uname -a
+            sw_vers
+            xcodebuild -version
+            xcrun --show-sdk-version
+            git rev-parse HEAD
+          } | tee dist/logs/host.txt
+
+      - name: Select the reviewed Rust toolchain
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.99.1 --profile minimal --target aarch64-apple-darwin
+          rustup override set 1.99.1
+          { rustc -vV; cargo --version; } | tee dist/logs/rust-toolchain.txt
+          cargo fetch --locked --manifest-path app/Cargo.toml
+
+      - name: Download the fixed upstream firmware without flashing a device
+        run: |
+          set -euo pipefail
+          firmware=dist/inputs/keyboard-fw-0.10.1.bin
+          curl --fail --location --retry 3 --proto '=https' --tlsv1.2 \
+            https://github.com/conol-ai/openmicrokbd/releases/download/v0.15.0/openmicro-fw-0.10.1.bin \
+            --output "$firmware"
+          printf '%s  %s\n' \
+            18fa7f1ef748a1ece833fd288760e8407cc51d627a75bf27183c5ea2c914c12d \
+            "$firmware" | shasum -a 256 --check | tee dist/logs/firmware-sha256.txt
+
+      - name: Generate notices from the locked dependency sources
+        run: |
+          set -euo pipefail
+          before="$(shasum -a 256 app/Cargo.lock | awk '{print $1}')"
+          cargo install cargo-bundle-licenses --version 4.2.0 --locked
+          (
+            cd app
+            cargo bundle-licenses --format json --prefer MIT,Apache-2.0 \
+              --output ../dist/licenses/Rust-dependency-licenses.json
+            cargo metadata --locked --format-version 1 \
+              --filter-platform aarch64-apple-darwin \
+              > ../dist/logs/cargo-macos-metadata.json
+          ) 2>&1 | tee dist/logs/dependency-notices.txt
+          after="$(shasum -a 256 app/Cargo.lock | awk '{print $1}')"
+          test "$before" = "$after"
+
+      - name: Build and package MacroPad
+        env:
+          MACROPAD_DEPENDENCY_LICENSES_FILE: ${{ github.workspace }}/device/dist/licenses/Rust-dependency-licenses.json
+        run: |
+          set -euo pipefail
+          bash scripts/package-macos.sh "$PWD/dist" "$PWD/dist/inputs/keyboard-fw-0.10.1.bin" \
+            2>&1 | tee dist/logs/package-macos.txt
+
+      - name: Verify the app without launching it
+        run: |
+          set -euo pipefail
+          python3 scripts/verify-macos-bundle.py \
+            --bundle dist/macos-aarch64/MacroPad.app \
+            --metadata dist/logs/cargo-macos-metadata.json \
+            --native \
+            --report dist/logs/bundle-verification.json
+          hdiutil verify dist/MacroPad-*-macos-aarch64.dmg \
+            2>&1 | tee dist/logs/dmg-verification.txt
+          (cd dist && shasum -a 256 MacroPad-*-macos-aarch64.dmg MacroPad-*-macos-aarch64.app.zip) \
+            > dist/SHA256SUMS-macos-aarch64.txt
+
+      - name: Upload the verified Mac packages
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: MacroPad-macos-aarch64
+          path: |
+            device/dist/MacroPad-*-macos-aarch64.dmg
+            device/dist/MacroPad-*-macos-aarch64.app.zip
+            device/dist/SHA256SUMS-macos-aarch64.txt
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+      - name: Upload build and verification records
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: MacroPad-macos-build-records
+          path: device/dist/logs/
+          if-no-files-found: warn
+          retention-days: 14

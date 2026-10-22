@@ -57,7 +57,6 @@ const CELL_ENCODER: usize = 13;
 const CELL_JOYSTICK: usize = 14;
 const CELL_TOUCH: usize = 15;
 const ICON_PAGE_SIZE: usize = 30;
-const DISCORD_INVITE_URL: &str = "https://discord.gg/x7DXPvK66";
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 enum Sheet {
@@ -511,7 +510,7 @@ fn apply_launch_at_login(enable: bool) -> Result<(), String> {
     let app_path = exe.as_path();
     let mut builder = auto_launch::AutoLaunchBuilder::new();
     builder
-        .set_app_name("keyboard")
+        .set_app_name(crate::brand::APP_NAME)
         .set_app_path(&app_path.display().to_string());
     #[cfg(target_os = "macos")]
     builder.set_args(&["--hidden"]);
@@ -547,7 +546,7 @@ fn inspector_field(
             div()
                 .flex_shrink_0()
                 .text_size(px(10.))
-                .font_family("Monaco")
+                .font_family(pixel::mono_font())
                 .font_semibold()
                 .text_color(pixel::accent_highlight_color())
                 .child(label),
@@ -599,7 +598,7 @@ fn selection_card(
         content.child(
             div()
                 .truncate()
-                .font_family("Monaco")
+                .font_family(pixel::mono_font())
                 .text_size(px(9.))
                 .text_color(pixel::dim_text_color())
                 .child(subtitle),
@@ -647,7 +646,7 @@ fn tiny_button(label: impl Into<SharedString>) -> Div {
         .h(px(32.))
         .px(px(10.))
         .text_size(px(12.))
-        .font_family("Monaco")
+        .font_family(pixel::mono_font())
 }
 
 fn paging_button(label: impl Into<SharedString>, enabled: bool) -> Div {
@@ -662,7 +661,7 @@ fn paging_button(label: impl Into<SharedString>, enabled: bool) -> Div {
             .justify_center()
             .bg(pixel::canvas_color())
             .rounded(px(2.))
-            .font_family("Monaco")
+            .font_family(pixel::mono_font())
             .text_size(px(12.))
             .text_color(pixel::dim_text_color())
             .cursor_default()
@@ -678,7 +677,7 @@ fn icon_library_tab(label: impl Into<SharedString>, active: bool) -> Div {
         .items_center()
         .justify_center()
         .rounded(px(2.))
-        .font_family("Monaco")
+        .font_family(pixel::mono_font())
         .font_semibold()
         .text_size(px(11.))
         .text_color(if active {
@@ -767,9 +766,11 @@ fn profile_template_item(
     view: &Entity<Keyboard>,
 ) -> PopupMenuItem {
     let view = view.clone();
-    PopupMenuItem::element(move |_, _| div().cursor_pointer().child(label)).on_click(move |_, window, cx| {
-        view.update(cx, |this, cx| this.add_profile(template, window, cx));
-    })
+    PopupMenuItem::element(move |_, _| div().cursor_pointer().child(label)).on_click(
+        move |_, window, cx| {
+            view.update(cx, |this, cx| this.add_profile(template, window, cx));
+        },
+    )
 }
 
 fn profile_delete_item(
@@ -904,7 +905,6 @@ pub struct Keyboard {
     installed_apps: Vec<InstalledApp>,
     agent_integrations: Vec<IntegrationReport>,
     agent_integration_feedback: Option<(String, BadgeTone)>,
-    discord_open_error: Option<String>,
     app_updater: MacOsUpdater,
     app_updater_active: bool,
     icon_library: IconLibrary,
@@ -964,7 +964,6 @@ impl Keyboard {
             installed_apps: behaviors::installed_apps(),
             agent_integrations: Vec::new(),
             agent_integration_feedback: None,
-            discord_open_error: None,
             app_updater: MacOsUpdater::new(),
             app_updater_active: false,
             icon_library: IconLibrary::Lucide,
@@ -2039,7 +2038,7 @@ impl Keyboard {
             .gap(px(10.))
             .child(
                 div()
-                    .font_family("Monaco")
+                    .font_family(pixel::mono_font())
                     .text_size(px(11.))
                     .font_semibold()
                     .text_color(pixel::accent_highlight_color())
@@ -2122,7 +2121,7 @@ impl Keyboard {
                         .flex_1()
                         .min_w(px(0.))
                         .truncate()
-                        .font_family("Monaco")
+                        .font_family(pixel::mono_font())
                         .text_size(px(10.))
                         .text_color(pixel::dim_text_color())
                         .child(target)
@@ -2207,7 +2206,7 @@ impl Keyboard {
                         .rounded(px(2.))
                         .cursor_pointer()
                         .hover(|style| style.bg(pixel::key_color()))
-                        .font_family("Monaco")
+                        .font_family(pixel::mono_font())
                         .text_size(px(10.))
                         .text_color(pixel::text_color())
                         .id(("picker-key", row_index * 32 + col_index))
@@ -2615,11 +2614,11 @@ impl Keyboard {
             .gap(px(9.))
             .child(
                 div()
-                    .font_family("Monaco")
+                    .font_family(pixel::mono_font())
                     .font_semibold()
                     .text_size(px(12.))
                     .text_color(pixel::text_color())
-                    .child("KEYBOARD"),
+                    .child(crate::brand::APP_NAME),
             )
             .child(div().flex_1())
             .child(
@@ -2765,16 +2764,13 @@ impl Keyboard {
                                 window,
                                 cx,
                                 move |menu, _, _| {
-                                    ProfileTemplate::AGENTS.iter().fold(
-                                        menu,
-                                        |menu, template| {
-                                            menu.item(profile_template_item(
-                                                template.name(),
-                                                *template,
-                                                &templates,
-                                            ))
-                                        },
-                                    )
+                                    ProfileTemplate::AGENTS.iter().fold(menu, |menu, template| {
+                                        menu.item(profile_template_item(
+                                            template.name(),
+                                            *template,
+                                            &templates,
+                                        ))
+                                    })
                                 },
                             )
                             .item(profile_delete_item(
@@ -2788,8 +2784,9 @@ impl Keyboard {
                 .into_any_element()
             } else {
                 chrome_menu_button_slot(
-                    ChromeMenuButton::new("profile-actions", "ellipsis")
-                        .dropdown_menu_with_anchor(Corner::TopRight, move |menu, _, _| {
+                    ChromeMenuButton::new("profile-actions", "ellipsis").dropdown_menu_with_anchor(
+                        Corner::TopRight,
+                        move |menu, _, _| {
                             let new_view = codex_view.clone();
                             let delete_view = codex_view.clone();
                             menu.item(profile_template_item(
@@ -2802,7 +2799,8 @@ impl Keyboard {
                                 can_delete_profile,
                                 &delete_view,
                             ))
-                        }),
+                        },
+                    ),
                 )
                 .into_any_element()
             })
@@ -2972,23 +2970,23 @@ impl Keyboard {
                         self.host.app_update_error.as_deref().unwrap_or_default()
                     ),
                     AppUpdateDetailState::ManualDownloading => format!(
-                        "keyboard {} · {} {}%",
+                        "MacroPad {} · {} {}%",
                         catalog.app.version,
                         tr("app_update_downloading_package"),
                         progress
                     ),
                     AppUpdateDetailState::ManualReady => format!(
-                        "keyboard {} · {}",
+                        "MacroPad {} · {}",
                         catalog.app.version,
                         tr("app_update_ready")
                     ),
                     AppUpdateDetailState::SparkleActive => format!(
-                        "keyboard {} · {}",
+                        "MacroPad {} · {}",
                         catalog.app.version,
                         tr("app_update_in_progress")
                     ),
                     AppUpdateDetailState::Available => format!(
-                        "keyboard {} · {}",
+                        "MacroPad {} · {}",
                         catalog.app.version,
                         tr("app_update_available")
                     ),
@@ -3173,8 +3171,12 @@ impl Keyboard {
         let live = self.host.pressed_cells[cell];
         let icon = configured_icon_visual(
             if native_codex { "" } else { &input.icon },
-            15.,
-            if selected {
+            24.,
+            if cell == 1 || cell == CELL_ENCODER || cell == CELL_JOYSTICK {
+                pixel::plate_ink_color()
+            } else if cell == 0 {
+                pixel::on_accent_color()
+            } else if selected {
                 pixel::accent_color()
             } else {
                 pixel::muted_text_color()
@@ -3227,6 +3229,7 @@ impl Keyboard {
                 live,
                 warning,
             },
+            cell,
         )
         .id(("device-cell", cell))
         .cursor_pointer()
@@ -3234,68 +3237,188 @@ impl Keyboard {
     }
 
     fn render_device_map(&self, cx: &mut Context<Self>) -> Div {
-        let board = div()
-            .w(px(440.))
-            .flex_none()
+        let rows = [
+            [CELL_ENCODER, 0, 1, CELL_JOYSTICK],
+            [2, 3, 4, 5],
+            [6, 7, 8, 9],
+            [CELL_TOUCH, 10, 11, 12],
+        ];
+        let mut matrix = div()
+            .w_full()
             .flex()
             .flex_col()
             .gap(px(8.))
-            .p(px(16.))
-            .bg(pixel::deck_color())
-            .rounded(px(3.))
-            .child(
-                div()
-                    .w_full()
-                    .flex()
-                    .gap(px(8.))
-                    .child(self.render_device_cell(CELL_ENCODER, cx))
-                    .child(self.render_device_cell(0, cx))
-                    .child(self.render_device_cell(1, cx))
-                    .child(self.render_device_cell(CELL_JOYSTICK, cx)),
-            )
-            .child(
-                div()
-                    .w_full()
-                    .flex()
-                    .gap(px(8.))
-                    .child(self.render_device_cell(2, cx))
-                    .child(self.render_device_cell(3, cx))
-                    .child(self.render_device_cell(4, cx))
-                    .child(self.render_device_cell(5, cx)),
-            )
-            .child(
-                div()
-                    .w_full()
-                    .flex()
-                    .gap(px(8.))
-                    .child(self.render_device_cell(6, cx))
-                    .child(self.render_device_cell(7, cx))
-                    .child(self.render_device_cell(8, cx))
-                    .child(self.render_device_cell(9, cx)),
-            )
-            .child(
-                div()
-                    .w_full()
-                    .flex()
-                    .gap(px(8.))
-                    .child(self.render_device_cell(CELL_TOUCH, cx))
-                    .child(self.render_device_cell(10, cx))
-                    .child(self.render_device_cell(11, cx))
-                    .child(self.render_device_cell(12, cx)),
-            );
-
-        div()
-            .h_full()
-            .flex_1()
-            .min_w(px(440.))
-            .min_h(px(0.))
-            .overflow_hidden()
+            .p(px(8.))
+            .bg(pixel::deck_color());
+        for row in rows {
+            let mut line = div().w_full().flex().gap(px(8.));
+            for cell in row {
+                line = line.child(self.render_device_cell(cell, cx));
+            }
+            matrix = matrix.child(line);
+        }
+        let plate_label = |left: &'static str, right: &'static str| {
+            div()
+                .w_full()
+                .flex()
+                .items_center()
+                .justify_between()
+                .font_family(pixel::mono_font())
+                .font_semibold()
+                .text_size(px(10.))
+                .text_color(pixel::plate_ink_color())
+                .child(left)
+                .child(right)
+        };
+        let board = div()
+            .w(px(454.))
+            .flex_none()
+            .p(px(14.))
             .flex()
             .flex_col()
+            .gap(px(10.))
+            .rounded(px(8.))
+            .bg(pixel::faceplate_color())
+            .border_1()
+            .border_color(pixel::accent_color())
+            .child(plate_label("MACROPAD", "13 / 01"))
+            .child(matrix)
+            .child(plate_label("INPUT CONTROLLER", "USB-C"));
+        div().h_full().flex_1().min_w(px(472.)).min_h(px(0.)).child(
+            div()
+                .id("device-surface-scroll")
+                .size_full()
+                .overflow_y_scroll()
+                .child(
+                    div()
+                        .w_full()
+                        .p(px(8.))
+                        .flex()
+                        .flex_col()
+                        .items_center()
+                        .gap(px(16.))
+                        .child(
+                            div()
+                                .w(px(454.))
+                                .flex()
+                                .items_center()
+                                .justify_between()
+                                .font_family(pixel::mono_font())
+                                .text_size(px(10.))
+                                .text_color(pixel::dim_text_color())
+                                .child(tr("surface_title"))
+                                .child(pixel::badge(
+                                    if self.host.connected {
+                                        "USB / LIVE"
+                                    } else {
+                                        "LOCAL / EDIT"
+                                    },
+                                    if self.host.connected {
+                                        BadgeTone::Success
+                                    } else {
+                                        BadgeTone::Neutral
+                                    },
+                                )),
+                        )
+                        .child(board)
+                        .child(
+                            div()
+                                .w(px(454.))
+                                .text_size(px(11.))
+                                .text_color(pixel::dim_text_color())
+                                .child(tr("surface_hint")),
+                        ),
+                ),
+        )
+    }
+
+    fn render_workspace_heading(&self) -> Div {
+        div()
+            .w_full()
+            .px(px(28.))
+            .py(px(18.))
+            .flex()
             .items_center()
-            .justify_center()
-            .gap(px(12.))
-            .child(board)
+            .justify_between()
+            .border_b_1()
+            .border_color(pixel::border_color())
+            .child(
+                div()
+                    .flex()
+                    .flex_col()
+                    .gap(px(4.))
+                    .child(
+                        div()
+                            .font_family(pixel::mono_font())
+                            .text_size(px(9.))
+                            .text_color(pixel::accent_color())
+                            .child("01 / DESKTOP CONTROL"),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(25.))
+                            .font_semibold()
+                            .child(tr("workspace_title")),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(11.))
+                            .text_color(pixel::dim_text_color())
+                            .child(tr("workspace_note")),
+                    ),
+            )
+            .child(
+                div()
+                    .flex()
+                    .flex_col()
+                    .items_end()
+                    .gap(px(8.))
+                    .child(pixel::badge(tr("profile_ready"), BadgeTone::Accent))
+                    .child(
+                        div()
+                            .font_family(pixel::mono_font())
+                            .text_size(px(10.))
+                            .text_color(pixel::dim_text_color())
+                            .child(format!(
+                                "{} / {}",
+                                crate::brand::PLATFORM_LABEL,
+                                release::APP_VERSION
+                            )),
+                    ),
+            )
+    }
+
+    fn render_workspace_footer(&self) -> Div {
+        div()
+            .w_full()
+            .h(px(32.))
+            .flex_none()
+            .px(px(28.))
+            .flex()
+            .items_center()
+            .justify_between()
+            .border_t_1()
+            .border_color(pixel::border_color())
+            .font_family(pixel::mono_font())
+            .text_size(px(9.))
+            .text_color(pixel::dim_text_color())
+            .child(tr("workspace_footer"))
+            .child(
+                div()
+                    .flex()
+                    .items_center()
+                    .gap(px(7.))
+                    .child(div().size(px(4.)).bg(if self.host.connected {
+                        pixel::accent_color()
+                    } else {
+                        pixel::secondary_color()
+                    }))
+                    .child(if self.host.connected {
+                        tr("local_ready")
+                    } else {
+                        tr("offline_note")
+                    }),
+            )
     }
 
     fn render_rotator_editor(&self, cx: &mut Context<Self>) -> Div {
@@ -3912,7 +4035,7 @@ impl Keyboard {
             }
             Action::AppSettings => {
                 editor = editor.child(controls::status_rail(
-                    "KEYBOARD",
+                    "MACROPAD",
                     "Pressing this control opens the Settings sheet.",
                     BadgeTone::Info,
                 ));
@@ -4078,14 +4201,26 @@ impl Keyboard {
     fn render_inspector(&self, cx: &mut Context<Self>) -> Div {
         let Some(slot) = self.host.selected_slot else {
             return div()
-                .w(px(360.))
-                .min_w(px(340.))
+                .w(px(420.))
+                .min_w(px(360.))
+                .flex_1()
+                .min_h(px(0.))
+                .h_full()
+                .border_1()
+                .border_color(pixel::border_color())
+                .bg(pixel::panel_color())
                 .child(controls::empty_hint(
                     tr("choose_a_control"),
                     tr("select_a_key_dial_joystick_direction"),
                 ));
         };
         let cell = cell_for_slot(slot);
+        let selected_code = match cell {
+            CELL_ENCODER => "ENC".to_string(),
+            CELL_JOYSTICK => "X / Y".to_string(),
+            CELL_TOUCH => "TOUCH".to_string(),
+            _ => format!("K{:02}", cell + 1),
+        };
         let body = if cell == CELL_ENCODER {
             self.render_rotator_editor(cx)
         } else if cell == CELL_JOYSTICK {
@@ -4097,17 +4232,41 @@ impl Keyboard {
         };
 
         div()
-            .w(px(360.))
-            .min_w(px(340.))
+            .w(px(420.))
+            .min_w(px(360.))
+            .flex_1()
             .h_full()
             .min_h(px(0.))
             .overflow_hidden()
+            .flex()
+            .flex_col()
+            .bg(pixel::panel_color())
+            .border_1()
+            .border_color(pixel::border_color())
+            .child(
+                div()
+                    .w_full()
+                    .px(px(18.))
+                    .h(px(40.))
+                    .flex_none()
+                    .flex()
+                    .items_center()
+                    .justify_between()
+                    .border_b_1()
+                    .border_color(pixel::border_color())
+                    .font_family(pixel::mono_font())
+                    .text_size(px(10.))
+                    .text_color(pixel::accent_color())
+                    .child(tr("inspector_title"))
+                    .child(selected_code),
+            )
             .child(
                 div()
                     .id("inspector-scroll")
-                    .size_full()
+                    .w_full()
+                    .flex_1()
                     .min_h(px(0.))
-                    .py(px(8.))
+                    .p(px(16.))
                     .track_scroll(&self.inspector_scroll)
                     .overflow_y_scroll()
                     .child(body),
@@ -4127,7 +4286,7 @@ impl Keyboard {
         // things: the profile being edited, the app itself, the pad's own
         // settings, the coding-agent features, data and permissions, and
         // the community link last.
-        let app = settings_section(tr("settings_section_app"))
+        let app = settings_section(1, tr("settings_section_app"))
             .child(inspector_field(
                 tr("language_eyebrow"),
                 tr("language_applies"),
@@ -4166,19 +4325,15 @@ impl Keyboard {
                 })),
             )
             .child(
-                controls::toggle_face(
-                    tr("show_menubar_icon"),
-                    self.host.config.show_menubar,
-                    true,
-                )
-                .id("toggle-menubar")
-                .on_click(cx.listener(|this, _, _, cx| {
-                    this.host.config.show_menubar = !this.host.config.show_menubar;
-                    if let Some(menubar) = &mut this.host.menubar {
-                        menubar.set_visible(this.host.config.show_menubar);
-                    }
-                    this.commit(false, cx);
-                })),
+                controls::toggle_face(tr("show_menubar_icon"), self.host.config.show_menubar, true)
+                    .id("toggle-menubar")
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.host.config.show_menubar = !this.host.config.show_menubar;
+                        if let Some(menubar) = &mut this.host.menubar {
+                            menubar.set_visible(this.host.config.show_menubar);
+                        }
+                        this.commit(false, cx);
+                    })),
             )
             .when(cfg!(target_os = "macos"), |section| {
                 section.child(
@@ -4192,7 +4347,7 @@ impl Keyboard {
                 )
             });
 
-        let pad = settings_section(tr("settings_section_pad"))
+        let pad = settings_section(2, tr("settings_section_pad"))
             .child(inspector_field(
                 tr("backlight_brightness").to_uppercase(),
                 tr("dims_the_per_key_backlight_and"),
@@ -4237,7 +4392,7 @@ impl Keyboard {
                     })),
             ));
 
-        let agents = settings_section(tr("settings_section_agents"))
+        let agents = settings_section(3, tr("settings_section_agents"))
             .child(
                 div()
                     .text_size(px(12.))
@@ -4306,7 +4461,7 @@ impl Keyboard {
             ))
             .child(self.render_agent_integrations(cx));
 
-        let data = settings_section(tr("settings_section_data"))
+        let data = settings_section(4, tr("settings_section_data"))
             .child(
                 div()
                     .text_size(px(12.))
@@ -4364,56 +4519,15 @@ impl Keyboard {
                 .on_click(cx.listener(|this, _, window, cx| this.reset_factory(window, cx))),
             );
 
-        let community = settings_section(tr("settings_section_community"))
-            .child(inspector_field(
-                tr("community"),
-                tr("community_note"),
-                selection_card(
-                    configured_icon_visual("simple:discord", 20., pixel::accent_color())
-                        .unwrap_or_else(|| {
-                            lucide_icon_visual("messages-square", 20., pixel::accent_color())
-                        }),
-                    tr("join_discord"),
-                    Some(DISCORD_INVITE_URL.into()),
-                )
-                .id("join-discord")
-                .tab_index(0)
-                .focus(|style| {
-                    style
-                        .border_2()
-                        .border_color(pixel::focus_color())
-                        .bg(pixel::key_color())
-                })
-                .on_click(cx.listener(|this, _, _, cx| {
-                    match open::that(DISCORD_INVITE_URL) {
-                        Ok(()) => this.discord_open_error = None,
-                        Err(error) => {
-                            eprintln!("app: cannot open Discord invite: {error}");
-                            this.push_log(format!("cannot open Discord invite: {error}"));
-                            this.discord_open_error = Some(error.to_string());
-                        }
-                    }
-                    cx.notify();
-                })),
-            ))
-            .when_some(self.discord_open_error.clone(), |section, error| {
-                section.child(controls::status_rail(
-                    tr("discord_open_failed"),
-                    error,
-                    BadgeTone::Danger,
-                ))
-            });
-
         // Left: the section names as jump links; right: every section in
         // one scrolling column. The rail is not a tab bar — all options stay
         // on one page — and it highlights whichever section is at the top of
         // the view, so scrolling by hand keeps it in step.
-        let sections: [(Div, &str); 5] = [
+        let sections: [(Div, &str); 4] = [
             (app, "settings_section_app"),
             (pad, "settings_section_pad"),
             (agents, "settings_section_agents"),
             (data, "settings_section_data"),
-            (community, "settings_section_community"),
         ];
         let active = self.settings_scroll.top_item().min(sections.len() - 1);
         // The rail's viewport indicator: a slim track beside the labels whose
@@ -4467,7 +4581,7 @@ impl Keyboard {
                     .py(px(4.))
                     .cursor_pointer()
                     .text_size(px(10.))
-                    .font_family("Monaco")
+                    .font_family(pixel::mono_font())
                     .text_color(if is_active {
                         pixel::accent_highlight_color()
                     } else {
@@ -4734,7 +4848,7 @@ impl Keyboard {
             .child(
                 div()
                     .flex_shrink_0()
-                    .font_family("Monaco")
+                    .font_family(pixel::mono_font())
                     .text_size(px(10.))
                     .text_color(pixel::accent_highlight_color())
                     .child(behaviors::shortcut_chord_label(preset)),
@@ -4977,7 +5091,7 @@ impl Keyboard {
                     .child(entry.visual(selected))
                     .child(
                         div()
-                            .font_family("Monaco")
+                            .font_family(pixel::mono_font())
                             .text_size(px(9.))
                             .text_color(if selected {
                                 pixel::accent_highlight_color()
@@ -5131,7 +5245,7 @@ impl Keyboard {
                         div()
                             .flex_1()
                             .text_center()
-                            .font_family("Monaco")
+                            .font_family(pixel::mono_font())
                             .text_size(px(11.))
                             .text_color(pixel::muted_text_color())
                             .child(format!(
@@ -5402,7 +5516,7 @@ impl Keyboard {
                     .child(pixel::divider())
                     .child(
                         div()
-                            .font_family("Monaco")
+                            .font_family(pixel::mono_font())
                             .text_size(px(11.))
                             .font_semibold()
                             .text_color(pixel::accent_highlight_color())
@@ -5771,7 +5885,7 @@ impl Render for Keyboard {
             .flex_col()
             .overflow_hidden()
             .bg(pixel::canvas_color())
-            .font_family(".SystemUIFont")
+            .font_family(pixel::ui_font())
             .text_size(px(14.))
             .text_color(pixel::text_color())
             .capture_key_down(
@@ -5788,20 +5902,22 @@ impl Render for Keyboard {
                 }),
             )
             .child(self.render_header(cx))
+            .child(self.render_workspace_heading())
             .child(self.render_banners(cx))
             .child(
                 div()
                     .w_full()
                     .flex_1()
                     .min_h(px(0.))
-                    .p(px(12.))
+                    .p(px(16.))
                     .flex()
                     .items_start()
-                    .gap(px(12.))
+                    .gap(px(20.))
                     .overflow_hidden()
                     .child(self.render_device_map(cx))
                     .child(self.render_inspector(cx)),
             )
+            .child(self.render_workspace_footer())
             .when(self.recording != RecordTarget::None, |root| {
                 root.child(
                     div()
@@ -5813,7 +5929,7 @@ impl Render for Keyboard {
                         .flex()
                         .items_center()
                         .bg(pixel::accent_color())
-                        .font_family("Monaco")
+                        .font_family(pixel::mono_font())
                         .font_semibold()
                         .text_size(px(12.))
                         .text_color(pixel::on_accent_color())
@@ -6011,18 +6127,14 @@ pub fn run() {
         #[cfg(target_os = "windows")]
         cx.bind_keys([KeyBinding::new("ctrl-q", Quit, None)]);
         cx.set_menus(vec![Menu {
-            name: "keyboard".into(),
-            items: vec![
-                MenuItem::action(tr("mb_check_updates"), CheckForUpdates),
-                MenuItem::separator(),
-                MenuItem::action(tr("mb_quit"), Quit),
-            ],
+            name: crate::brand::APP_NAME.into(),
+            items: vec![MenuItem::action(tr("mb_quit"), Quit)],
         }]);
         let _ = cx.text_system().add_fonts(vec![Cow::Borrowed(
             &include_bytes!("../resources/lucide.ttf")[..],
         )]);
 
-        let bounds = Bounds::centered(None, size(px(820.), px(500.)), cx);
+        let bounds = Bounds::centered(None, size(px(1160.), px(800.)), cx);
         let hidden_launch = app_was_launched_hidden();
         let mut hide_dashboard_on_start = false;
         cx.open_window(
@@ -6032,12 +6144,13 @@ pub fn run() {
                 // the underlying native window style in sync so Windows can
                 // provide maximize/restore and Snap Layout behavior.
                 is_resizable: true,
-                window_min_size: Some(size(px(760.), px(460.))),
-                app_id: Some("ai.conol.keyboard".into()),
+                window_min_size: Some(size(px(1000.), px(700.))),
+                app_id: Some(crate::brand::APP_ID.into()),
                 titlebar: Some(TitleBar::title_bar_options()),
                 ..Default::default()
             },
             |window, cx| {
+                window.set_window_title(crate::brand::APP_NAME);
                 window.on_window_should_close(cx, |_window, _cx| {
                     #[cfg(target_os = "macos")]
                     {
@@ -6248,20 +6361,15 @@ mod tests {
             (crate::lucide::ICONS.len() - 1) / ICON_PAGE_SIZE
         );
     }
-
-    #[test]
-    fn discord_invite_uses_the_canonical_https_url() {
-        assert_eq!(DISCORD_INVITE_URL, "https://discord.gg/x7DXPvK66");
-    }
 }
 
 /// A titled block of the settings sheet: the accent section header the
 /// editor already uses, then its rows in a tight column.
-fn settings_section(title: impl Into<SharedString>) -> Div {
+fn settings_section(number: usize, title: impl Into<SharedString>) -> Div {
     div()
         .w_full()
         .flex()
         .flex_col()
         .gap(px(10.))
-        .child(pixel::section_header(0, title))
+        .child(pixel::section_header(number, title))
 }

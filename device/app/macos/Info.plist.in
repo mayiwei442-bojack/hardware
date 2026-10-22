@@ -5,23 +5,23 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleDisplayName</key>
-    <string>keyboard</string>
+    <string>MacroPad</string>
     <key>CFBundleExecutable</key>
-    <string>keyboard</string>
+    <string>MacroPad</string>
     <key>CFBundleIconFile</key>
-    <string>keyboard</string>
+    <string>MacroPad</string>
     <key>CFBundleIdentifier</key>
-    <string>org.keyboard.keyboard</string>
+    <string>io.macropad.desktop</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>keyboard</string>
+    <string>MacroPad</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
     <string>@APP_VERSION@</string>
     <key>CFBundleVersion</key>
-    <string>@APP_VERSION@</string>
+    <string>@BUILD_VERSION@</string>
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.utilities</string>
     <key>LSMinimumSystemVersion</key>
@@ -30,17 +30,7 @@
     <true/>
     <key>NSSupportsAutomaticGraphicsSwitching</key>
     <true/>
-    <key>keyboardAutomaticUpdates</key>
-    @KEYBOARD_AUTOMATIC_UPDATES@
-    <key>SUEnableAutomaticChecks</key>
+    <key>MacroPadAutomaticUpdates</key>
     <false/>
-    <key>SUFeedURL</key>
-    <string>@SPARKLE_FEED_URL@</string>
-    <key>SUPublicEDKey</key>
-    <string>@SPARKLE_PUBLIC_ED_KEY@</string>
-    <key>SURequireSignedFeed</key>
-    <true/>
-    <key>SUVerifyUpdateBeforeExtraction</key>
-    <true/>
 </dict>
 </plist>
