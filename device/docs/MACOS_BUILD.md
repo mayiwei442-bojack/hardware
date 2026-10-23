@@ -97,19 +97,19 @@ distribution policy and user approval are separate from successful compilation.
 The current Windows host can inspect the Python source and workflow syntax, and
 can inspect a future app's plist, resource files and ARM64 header. It cannot
 establish macOS compilation, native signatures, GUI behavior, accessibility
-permissions or real keyboard behavior. The first Mac run must supply that
-evidence before the package is described as verified on macOS.
+permissions or real keyboard behavior by itself. The authorized GitHub Mac
+build has now completed native compilation and static bundle checks; GUI and
+physical keyboard behavior remain unverified. See `MACOS_MACROPAD_VERIFICATION.md`
+for the exact source commit, successful run, artifact hashes and limits.
 
 ## Remote operation requiring approval
 
-No workflow run is started by preparing these files. To obtain a native Mac
-build, the pending remote operation is to push the reviewed local commit to
-`origin` as `refs/heads/codex/macropad-macos` in
-`mayiwei442-bojack/hardware`. That push uploads the included source to the public
-repository and triggers this workflow on a GitHub-hosted Mac. The intended
-result is an Actions artifact; no Release is published. The branch, exact commit
-and included diff must be shown before that push is approved. A later manual
-retry would dispatch `macropad-macos.yml` against that same branch only.
+The user approved uploading the reviewed source to the public repository
+`mayiwei442-bojack/hardware` on `refs/heads/codex/macropad-macos` and using a
+GitHub-hosted Mac to build it. The branch push triggered the workflow; source
+notice collection fixes were committed on that same branch. The result is an
+Actions artifact; no Release was published and the default branch was not
+changed. A later manual retry should select that same branch only.
 
 ## Sources checked for this workflow
 
