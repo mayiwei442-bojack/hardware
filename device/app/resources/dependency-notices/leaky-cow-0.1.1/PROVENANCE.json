@@ -1,0 +1,37 @@
+{
+  "package_name": "leaky-cow",
+  "package_version": "0.1.1",
+  "repository": "https://github.com/notriddle/rust-leaky-cow",
+  "source_commit": null,
+  "crate_archive_sha256": "40a8225d44241fd324a8af2806ba635fc7c8a7e9a7de4d5cf3ef54e71f5926fc",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "MIT",
+  "original_license_declaration": "MIT / Apache-2.0",
+  "original_authors": [
+    "Michael Howell <michael@notriddle.com>"
+  ],
+  "upstream_notice_status": "No standalone license text was shipped in this crate archive; original Cargo metadata and available README retained.",
+  "attribution_note": "Upstream declares this license but its crate archive ships no standalone license text. Standard SPDX text is included for reference and is not represented as recovered upstream text. Authors and license declarations are copied from the original Cargo manifest; no copyright year or holder statement is invented.",
+  "files": [
+    {
+      "file": "SPDX-MIT.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5"
+    },
+    {
+      "file": "Cargo.toml.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "Cargo.toml",
+      "source_url": "https://static.crates.io/crates/leaky-cow/leaky-cow-0.1.1.crate",
+      "sha256": "cd5e595a4b4eede02b0c1b96bb86eb3860bf660fafd7ca6eb0f92b96d9e733f5"
+    },
+    {
+      "file": "README.md.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "README.md",
+      "source_url": "https://static.crates.io/crates/leaky-cow/leaky-cow-0.1.1.crate",
+      "sha256": "de022877415d090896cc7050408bdd2973fd34816f654327b139e32b9e6ddf44"
+    }
+  ]
+}

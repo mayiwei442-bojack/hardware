@@ -1,0 +1,36 @@
+{
+  "package_name": "hexf-parse",
+  "package_version": "0.2.1",
+  "source_commit": "4225763d744183d720f575ae96d04161b4d08ea0",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "repository": "https://github.com/lifthrasiir/hexf",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "CC0-1.0",
+  "upstream_notice_status": "Package archive contains a license declaration but no standalone license text. The original source Cargo manifest and available README are retained.",
+  "attribution_note": "Upstream package declares CC0-1.0 but ships no standalone license; standard CC0-1.0 text from the pinned SPDX license-list-data commit is included for reference. This is not recovered upstream copyright or license text. Authors are copied verbatim from Cargo metadata; no copyright year or author attribution has been invented.",
+  "authors_from_manifest": [
+    "Kang Seonghoon <public+rust@mearie.org>"
+  ],
+  "files": [
+    {
+      "file": "SPDX-CC0-1.0-REFERENCE.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/CC0-1.0.txt",
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+      "origin": "canonical-spdx-reference"
+    },
+    {
+      "file": "UPSTREAM-Cargo.toml",
+      "crate_source_path": "Cargo.toml",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/hexf-parse/0.2.1/download",
+      "sha256": "dd7274968556f3f3309df5615d94437ec4e4823777cc440f91177b2170cbe2a7"
+    },
+    {
+      "file": "UPSTREAM-Cargo.toml.orig",
+      "crate_source_path": "Cargo.toml.orig",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/hexf-parse/0.2.1/download",
+      "sha256": "4a56dbdbc12054fd33b7a2634a45cbbe6fe12f5e6f4081002cbfa527f7220c70"
+    }
+  ]
+}

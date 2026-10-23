@@ -25,11 +25,15 @@ The prepared workflow:
    checks SHA-256
    `18fa7f1ef748a1ece833fd288760e8407cc51d627a75bf27183c5ea2c914c12d`.
    It only bundles this image; it does not flash a connected keyboard.
-5. Generates Rust dependency notices from the dependency sources on the Mac
-   runner with pinned `cargo-bundle-licenses` 4.2.0. It also records target-filtered
-   Cargo metadata so the bundle verifier can compare normal dependencies with
-   the notice inventory. A missing license text stops package verification for
-   review; a Windows notice inventory is not substituted.
+5. Generates Rust dependency notices from the actual locked source files on
+   the Mac runner using `collect-dependency-licenses.py`. Target-filtered Cargo
+   metadata determines which runtime and build dependencies are included. The
+   inventory preserves original license text, source paths and SHA-256 digests.
+   If a published crate omitted a standalone license file, a version-pinned
+   upstream notice is retained where available. Otherwise its original Cargo
+   declaration and authors accompany an explicitly labelled SPDX standard
+   reference; that text is not presented as a recovered upstream notice.
+   Missing or unverified notice sources stop packaging for review.
 6. Builds the release app, packages `MacroPad.app`, and produces an ARM64 DMG and
    an app ZIP. Sparkle and automatic update feeds are disabled by default.
 7. Checks the plist, ARM64 Mach-O header, app icon, firmware digest and license
@@ -59,14 +63,14 @@ curl --fail --location \
 printf '%s  %s\n' \
   18fa7f1ef748a1ece833fd288760e8407cc51d627a75bf27183c5ea2c914c12d \
   dist/inputs/keyboard-fw-0.10.1.bin | shasum -a 256 --check
-cargo install cargo-bundle-licenses --version 4.2.0 --locked
 (
   cd app
-  cargo bundle-licenses --format json --prefer MIT,Apache-2.0 \
-    --output ../dist/licenses/Rust-dependency-licenses.json
   cargo metadata --locked --format-version 1 --filter-platform aarch64-apple-darwin \
     > ../dist/logs/cargo-macos-metadata.json
 )
+python3 scripts/collect-dependency-licenses.py \
+  --metadata dist/logs/cargo-macos-metadata.json \
+  --output dist/licenses/Rust-dependency-licenses.json
 MACROPAD_MACOS_ARCH=arm64 \
 MACROPAD_CREATE_APP_ZIP=1 \
 MACROPAD_ENABLE_SPARKLE=0 \
@@ -112,5 +116,3 @@ retry would dispatch `macropad-macos.yml` against that same branch only.
 - [GitHub-hosted runner labels and architecture](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
 - [Official checkout v7.0.1](https://github.com/actions/checkout/releases/tag/v7.0.1)
 - [Official upload-artifact v7.0.2](https://github.com/actions/upload-artifact/releases/tag/v7.0.2)
-- [cargo-bundle-licenses 4.2.0 CLI source](https://github.com/sstadick/cargo-bundle-licenses/blob/v4.2.0/src/main.rs)
-- [License inventory dependency traversal](https://github.com/sstadick/cargo-bundle-licenses/blob/v4.2.0/src/package_loader.rs)

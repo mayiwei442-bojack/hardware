@@ -1,0 +1,14 @@
+{
+  "package_name": "tree-sitter-json",
+  "package_version": "0.24.8",
+  "source_commit": "ee35a6ebefcef0c5c416c0d1ccec7370cfca5a24",
+  "repository": "https://github.com/tree-sitter/tree-sitter-json",
+  "crate_vcs_source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\device\\.tools\\cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tree-sitter-json-0.24.8\\.cargo_vcs_info.json",
+  "files": [
+    {
+      "file": "LICENSE",
+      "source_url": "https://raw.githubusercontent.com/tree-sitter/tree-sitter-json/ee35a6ebefcef0c5c416c0d1ccec7370cfca5a24/LICENSE",
+      "sha256": "2e0110e07abef7c2548b26ec9d6969775617ca539a0dc8dbeeb14d6452c711d1"
+    }
+  ]
+}

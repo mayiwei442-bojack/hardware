@@ -1,0 +1,19 @@
+{
+  "package_name": "lyon_tessellation",
+  "package_version": "1.0.20",
+  "source_commit": "7fa75ea8eea36255cae2abcf709900b0c7a5c309",
+  "repository": "https://github.com/nical/lyon",
+  "source_path_in_vcs": "crates/tessellation",
+  "files": [
+    {
+      "file": "LICENSE-APACHE",
+      "source_url": "https://raw.githubusercontent.com/nical/lyon/7fa75ea8eea36255cae2abcf709900b0c7a5c309/LICENSE-APACHE",
+      "sha256": "216486f29671a4262efe32af6d84a75bef398127f8c5f369b5c8305983887a06"
+    },
+    {
+      "file": "LICENSE-MIT",
+      "source_url": "https://raw.githubusercontent.com/nical/lyon/7fa75ea8eea36255cae2abcf709900b0c7a5c309/LICENSE-MIT",
+      "sha256": "80f275e90d799911ed3830a7f242a2ef5a4ade2092fe0aa07bfb2d2cf2f2b95e"
+    }
+  ]
+}

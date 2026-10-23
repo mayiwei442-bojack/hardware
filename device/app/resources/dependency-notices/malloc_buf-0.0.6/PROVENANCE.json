@@ -1,0 +1,30 @@
+{
+  "package_name": "malloc_buf",
+  "package_version": "0.0.6",
+  "repository": "https://github.com/SSheldon/malloc_buf",
+  "source_commit": "a7811e5f4c6f9685dd57ad9bfe34e9bf6b0ba4f9",
+  "crate_archive_sha256": "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "MIT",
+  "original_license_declaration": "MIT",
+  "original_authors": [
+    "Steven Sheldon"
+  ],
+  "upstream_notice_status": "No standalone license text was shipped in this crate archive; original Cargo metadata and available README retained.",
+  "attribution_note": "Upstream declares this license but its crate archive ships no standalone license text. Standard SPDX text is included for reference and is not represented as recovered upstream text. Authors and license declarations are copied from the original Cargo manifest; no copyright year or holder statement is invented.",
+  "files": [
+    {
+      "file": "SPDX-MIT.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5"
+    },
+    {
+      "file": "Cargo.toml.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "Cargo.toml",
+      "source_url": "https://static.crates.io/crates/malloc_buf/malloc_buf-0.0.6.crate",
+      "sha256": "d87624d9d117489bd49dbaeb70077a0721e00ac2a76eb371faec818a92da5661"
+    }
+  ]
+}

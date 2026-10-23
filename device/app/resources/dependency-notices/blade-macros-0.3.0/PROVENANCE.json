@@ -1,0 +1,33 @@
+{
+  "package_name": "blade-macros",
+  "package_version": "0.3.0",
+  "source_commit": "875b9c87e15e83ed48414c094f9a2b3fb189925d",
+  "repository": "https://github.com/kvark/blade",
+  "declared_license": "MIT",
+  "source_path_in_repository": "blade-macros",
+  "version_evidence": {
+    "type": "published_crate_cargo_vcs_info",
+    "cargo_vcs_info": {
+      "git": {
+        "sha1": "875b9c87e15e83ed48414c094f9a2b3fb189925d"
+      },
+      "path_in_vcs": "blade-macros"
+    },
+    "cargo_vcs_info_sha256": "5dacbbe3e73d4584ef122472daf00b0b7d0214636b74677eebd7f628536cc4cc"
+  },
+  "registry_package": {
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "sha256": "27142319e2f4c264581067eaccb9f80acccdde60d8b4bf57cc50cd3152f109ca",
+    "cached_archive_sha256_verified": true
+  },
+  "files": [
+    {
+      "file": "LICENSE",
+      "source_url": "https://raw.githubusercontent.com/kvark/blade/875b9c87e15e83ed48414c094f9a2b3fb189925d/LICENSE",
+      "sha256": "8e9e23a134d00ae1760811ca60482b2e98b2db9154ffda66e58791796aa24ca1",
+      "git_blob_sha1": "8d8caa9025867a4d58247b7c92c206ddb079ec24",
+      "git_blob_identity_verified": true
+    }
+  ],
+  "recovery_note": "Unmodified license file from the exact published package repository revision; that package omitted its workspace-root license text."
+}

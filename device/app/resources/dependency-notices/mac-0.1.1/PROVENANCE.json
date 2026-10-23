@@ -1,0 +1,37 @@
+{
+  "package_name": "mac",
+  "package_version": "0.1.1",
+  "repository": "https://github.com/reem/rust-mac.git",
+  "source_commit": "66afc663b68a65633ea165c742b5a9c6734581c2",
+  "crate_archive_sha256": "c41e0c4fef86961ac6d6f8a82609f55f31b05e4fce149ac5710e439df7619ba4",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "MIT",
+  "original_license_declaration": "MIT/Apache-2.0",
+  "original_authors": [
+    "Jonathan Reem <jonathan.reem@gmail.com>"
+  ],
+  "upstream_notice_status": "No standalone license text was shipped in this crate archive; original Cargo metadata and available README retained.",
+  "attribution_note": "Upstream declares this license but its crate archive ships no standalone license text. Standard SPDX text is included for reference and is not represented as recovered upstream text. Authors and license declarations are copied from the original Cargo manifest; no copyright year or holder statement is invented.",
+  "files": [
+    {
+      "file": "SPDX-MIT.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5"
+    },
+    {
+      "file": "Cargo.toml.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "Cargo.toml",
+      "source_url": "https://static.crates.io/crates/mac/mac-0.1.1.crate",
+      "sha256": "6d465c5e5a4b3e197049e9fb7393b2f996c1c654e6ded700afce046fac2f7969"
+    },
+    {
+      "file": "README.md.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "README.md",
+      "source_url": "https://static.crates.io/crates/mac/mac-0.1.1.crate",
+      "sha256": "8edb7a912d295acf1e1cfeafdd19a6813a63b301c7bbfda3c67f65509bd8d8cc"
+    }
+  ]
+}

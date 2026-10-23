@@ -1,0 +1,42 @@
+{
+  "package_name": "workspace-hack",
+  "package_version": "0.1.0",
+  "repository": "https://github.com/facebookincubator/cargo-guppy",
+  "source_commit": null,
+  "crate_archive_sha256": "beffa227304dbaea3ad6a06ac674f9bc83a3dec3b7f63eeb442de37e7cb6bb01",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "CC0-1.0",
+  "original_license_declaration": "CC0-1.0",
+  "original_authors": [],
+  "upstream_notice_status": "No standalone license text was shipped in this crate archive; original Cargo metadata and available README retained.",
+  "attribution_note": "Upstream declares this license but its crate archive ships no standalone license text. Standard SPDX text is included for reference and is not represented as recovered upstream text. Authors and license declarations are copied from the original Cargo manifest; no copyright year or holder statement is invented.",
+  "files": [
+    {
+      "file": "SPDX-CC0-1.0.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/CC0-1.0.txt",
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    },
+    {
+      "file": "Cargo.toml.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "Cargo.toml",
+      "source_url": "https://static.crates.io/crates/workspace-hack/workspace-hack-0.1.0.crate",
+      "sha256": "feb84d0b09919f94b4b759e22a439e75365ee5c0b6d8ffb3af992eed86d200a3"
+    },
+    {
+      "file": "Cargo.toml.orig.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "Cargo.toml.orig",
+      "source_url": "https://static.crates.io/crates/workspace-hack/workspace-hack-0.1.0.crate",
+      "sha256": "65ecde059b4a46f1c71e2b1de82bd11d7a51b4ea2da3823170caa80ed2bb0ed7"
+    },
+    {
+      "file": "README.md.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "README.md",
+      "source_url": "https://static.crates.io/crates/workspace-hack/workspace-hack-0.1.0.crate",
+      "sha256": "c85e81b068631828edc677b4ae90c51191e620ac3b98c6d0b43a7bf068278afd"
+    }
+  ]
+}

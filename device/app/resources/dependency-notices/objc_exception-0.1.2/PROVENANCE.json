@@ -1,0 +1,36 @@
+{
+  "package_name": "objc_exception",
+  "package_version": "0.1.2",
+  "source_commit": "c86ad3a52984461fc5c63980d12e8ceed847854c",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "repository": "http://github.com/SSheldon/rust-objc-exception",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "MIT",
+  "upstream_notice_status": "Package archive contains a license declaration but no standalone license text. The original source Cargo manifest and available README are retained.",
+  "attribution_note": "Upstream package declares MIT but ships no standalone license; standard MIT text from the pinned SPDX license-list-data commit is included for reference. This is not recovered upstream copyright or license text. Authors are copied verbatim from Cargo metadata; no copyright year or author attribution has been invented.",
+  "authors_from_manifest": [
+    "Steven Sheldon"
+  ],
+  "files": [
+    {
+      "file": "SPDX-MIT-REFERENCE.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5",
+      "origin": "canonical-spdx-reference"
+    },
+    {
+      "file": "UPSTREAM-Cargo.toml",
+      "crate_source_path": "Cargo.toml",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/objc_exception/0.1.2/download",
+      "sha256": "4c7727c5464280a94b263b3fbabd775838ce86794834b1adab9bfeefc8a2b731"
+    },
+    {
+      "file": "UPSTREAM-Cargo.toml.orig",
+      "crate_source_path": "Cargo.toml.orig",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/objc_exception/0.1.2/download",
+      "sha256": "2926e2f6211cb546e43cfc5769eebf0e4561816800ed77ddff88c71a8fdb2a0d"
+    }
+  ]
+}

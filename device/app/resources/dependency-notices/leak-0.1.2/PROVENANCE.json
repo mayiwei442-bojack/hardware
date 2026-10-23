@@ -1,0 +1,30 @@
+{
+  "package_name": "leak",
+  "package_version": "0.1.2",
+  "repository": "https://github.com/jmesmon/leak.git",
+  "source_commit": null,
+  "crate_archive_sha256": "bd100e01f1154f2908dfa7d02219aeab25d0b9c7fa955164192e3245255a0c73",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "MIT",
+  "original_license_declaration": "Apache-2.0 OR MIT",
+  "original_authors": [
+    "Cody P Schafer <dev@codyps.com>"
+  ],
+  "upstream_notice_status": "No standalone license text was shipped in this crate archive; original Cargo metadata and available README retained.",
+  "attribution_note": "Upstream declares this license but its crate archive ships no standalone license text. Standard SPDX text is included for reference and is not represented as recovered upstream text. Authors and license declarations are copied from the original Cargo manifest; no copyright year or holder statement is invented.",
+  "files": [
+    {
+      "file": "SPDX-MIT.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5"
+    },
+    {
+      "file": "Cargo.toml.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "Cargo.toml",
+      "source_url": "https://static.crates.io/crates/leak/leak-0.1.2.crate",
+      "sha256": "8800b6172da0ce015fdc69cbe3fdc48c22f4223babe254e207255c681c83e8dd"
+    }
+  ]
+}

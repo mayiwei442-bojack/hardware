@@ -80,15 +80,17 @@ jobs:
         run: |
           set -euo pipefail
           before="$(shasum -a 256 app/Cargo.lock | awk '{print $1}')"
-          cargo install cargo-bundle-licenses --version 4.2.0 --locked
           (
             cd app
-            cargo bundle-licenses --format json --prefer MIT,Apache-2.0 \
-              --output ../dist/licenses/Rust-dependency-licenses.json
             cargo metadata --locked --format-version 1 \
               --filter-platform aarch64-apple-darwin \
               > ../dist/logs/cargo-macos-metadata.json
           ) 2>&1 | tee dist/logs/dependency-notices.txt
+          python3 scripts/collect-dependency-licenses.py \
+            --metadata dist/logs/cargo-macos-metadata.json \
+            --output dist/licenses/Rust-dependency-licenses.json \
+            2>&1 | tee -a dist/logs/dependency-notices.txt
+          cp dist/licenses/Rust-dependency-licenses.json dist/logs/
           after="$(shasum -a 256 app/Cargo.lock | awk '{print $1}')"
           test "$before" = "$after"
 

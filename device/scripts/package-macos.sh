@@ -44,7 +44,7 @@ ICON="$REPO_ROOT/app/macos/MacroPad.icns"
 [[ -f "$REPO_ROOT/LICENSE" ]] || fail "missing source license."
 LICENSES_FILE="${MACROPAD_DEPENDENCY_LICENSES_FILE:-$OUTPUT_DIR/licenses/Rust-dependency-licenses.json}"
 LICENSES_FILE="$(python3 -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).expanduser().resolve())' "$LICENSES_FILE")"
-[[ -f "$LICENSES_FILE" ]] || fail "set MACROPAD_DEPENDENCY_LICENSES_FILE to cargo-bundle-licenses JSON from this build."
+[[ -f "$LICENSES_FILE" ]] || fail "set MACROPAD_DEPENDENCY_LICENSES_FILE to the dependency license JSON from this build."
 python3 - "$LICENSES_FILE" <<'PY'
 import json, pathlib, sys
 text = pathlib.Path(sys.argv[1]).read_text()

@@ -49,7 +49,7 @@ def normal_dependencies(metadata: dict) -> set[tuple[str, str]]:
         require(package_id in nodes, f"Missing Cargo resolve node: {package_id}")
         visited.add(package_id)
         for dependency in nodes[package_id].get("deps", []):
-            if any(kind.get("kind") in (None, "normal") for kind in dependency["dep_kinds"]):
+            if any(kind.get("kind") in (None, "normal", "build") for kind in dependency["dep_kinds"]):
                 pending.append(dependency["pkg"])
     return {
         (packages[package_id]["name"], packages[package_id]["version"])
@@ -74,6 +74,7 @@ def inspect_licenses(resources: Path, metadata_path: Path | None) -> dict:
     notices = json.loads(read_required(notices_path))
     libraries = notices.get("third_party_libraries", [])
     require(bool(libraries), "Rust dependency notices contain no libraries")
+    require(not notices.get("unresolved"), "Rust dependency notices still report unresolved source licenses")
     identities: set[tuple[str, str]] = set()
     missing_text: list[str] = []
     for library in libraries:
@@ -86,6 +87,12 @@ def inspect_licenses(resources: Path, metadata_path: Path | None) -> dict:
             for license in licenses
         ):
             missing_text.append("@".join(identity))
+        for license in licenses:
+            if license.get("source_sha256"):
+                encoding = license.get("source_encoding", "utf-8")
+                original = license["text"].encode(encoding)
+                require(hashlib.sha256(original).hexdigest() == license["source_sha256"],
+                        f"Bundled license text hash mismatch: {'@'.join(identity)} / {license.get('source_path')}")
     require(not missing_text, "License text needs review for: " + ", ".join(sorted(missing_text)))
     require({"gpui", "gpui-component", "hidapi", "libusb1-sys"}.issubset({x[0] for x in identities}),
             "Expected desktop/native dependencies are absent from the Rust notices")
@@ -93,13 +100,15 @@ def inspect_licenses(resources: Path, metadata_path: Path | None) -> dict:
     if metadata_path:
         expected = normal_dependencies(json.loads(read_required(metadata_path)))
         missing = expected - identities
-        require(not missing, "Mac normal dependencies absent from notices: " + ", ".join(
+        require(not missing, "Mac normal/build dependencies absent from notices: " + ", ".join(
             "@".join(identity) for identity in sorted(missing)))
         expected_count = len(expected)
     return {
         "rust_library_count": len(identities),
-        "mac_normal_dependency_count": expected_count,
+        "mac_normal_and_build_dependency_count": expected_count,
         "upstream_notice_retained": upstream_retained,
+        "canonical_reference_package_count": notices.get("collection", {}).get("canonical_reference_package_count", 0),
+        "attribution_limitations": notices.get("attribution_limitations", []),
         "notes": "Automated source/metadata coverage check; not a manual legal review.",
     }
 

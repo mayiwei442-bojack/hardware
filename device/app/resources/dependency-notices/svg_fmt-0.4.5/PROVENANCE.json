@@ -1,0 +1,14 @@
+{
+  "package_name": "svg_fmt",
+  "package_version": "0.4.5",
+  "source_commit": "93f414cd572b5c2781df93dbdc068ed13443d05a",
+  "repository": "https://github.com/nical/rust_debug",
+  "crate_vcs_source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\device\\.tools\\cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\svg_fmt-0.4.5\\.cargo_vcs_info.json",
+  "files": [
+    {
+      "file": "LICENSE",
+      "source_url": "https://raw.githubusercontent.com/nical/rust_debug/93f414cd572b5c2781df93dbdc068ed13443d05a/LICENSE",
+      "sha256": "7e98bed7f100747aaae7d82ab94fbe6b76fd6b84b09a3aaa413bff8196d0fbb1"
+    }
+  ]
+}

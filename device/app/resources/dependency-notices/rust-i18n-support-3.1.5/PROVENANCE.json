@@ -1,0 +1,41 @@
+{
+  "package_name": "rust-i18n-support",
+  "package_version": "3.1.5",
+  "source_commit": "a6b110e5bf48e3c20aa19bfb4c0f05146b5017c6",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "repository": "https://github.com/longbridge/rust-i18n",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "MIT",
+  "upstream_notice_status": "Package archive contains a license declaration but no standalone license text. The original source Cargo manifest and available README are retained.",
+  "attribution_note": "Upstream package declares MIT but ships no standalone license; standard MIT text from the pinned SPDX license-list-data commit is included for reference. This is not recovered upstream copyright or license text. Authors are copied verbatim from Cargo metadata; no copyright year or author attribution has been invented.",
+  "authors_from_manifest": [],
+  "files": [
+    {
+      "file": "SPDX-MIT-REFERENCE.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5",
+      "origin": "canonical-spdx-reference"
+    },
+    {
+      "file": "UPSTREAM-Cargo.toml",
+      "crate_source_path": "Cargo.toml",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/rust-i18n-support/3.1.5/download",
+      "sha256": "33f70e515c366e7e02a4f88b35bc2bc014efa5236ef4c7e584b02b0c2fb87e90"
+    },
+    {
+      "file": "UPSTREAM-Cargo.toml.orig",
+      "crate_source_path": "Cargo.toml.orig",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/rust-i18n-support/3.1.5/download",
+      "sha256": "3a7e5519025ab105ed90398095593d5a327379ed5459089355bdeea56e4388c9"
+    },
+    {
+      "file": "UPSTREAM-README.md",
+      "crate_source_path": "README.md",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/rust-i18n-support/3.1.5/download",
+      "sha256": "4a79266277127b851ea1783316f9caae796867181c3d781d987cfb60596a0b61"
+    }
+  ]
+}
