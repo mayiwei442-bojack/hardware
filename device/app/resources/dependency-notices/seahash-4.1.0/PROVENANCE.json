@@ -1,0 +1,45 @@
+{
+  "package_name": "seahash",
+  "package_version": "4.1.0",
+  "repository": "https://gitlab.redox-os.org/redox-os/seahash",
+  "source_commit": "94b632aeac099031c373599313d5b5f0acbbaec0",
+  "crate_archive_sha256": "1c107b6f4780854c8b126e228ea8869f4d7b71260f962fefb57b996b8959ba6b",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "MIT",
+  "original_license_declaration": "MIT",
+  "original_authors": [
+    "ticki <ticki@users.noreply.github.com>",
+    "Tom Almeida <tom@tommoa.me>"
+  ],
+  "upstream_notice_status": "No standalone license text was shipped in this crate archive; original Cargo metadata and available README retained.",
+  "attribution_note": "Upstream declares this license but its crate archive ships no standalone license text. Standard SPDX text is included for reference and is not represented as recovered upstream text. Authors and license declarations are copied from the original Cargo manifest; no copyright year or holder statement is invented.",
+  "files": [
+    {
+      "file": "SPDX-MIT.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5"
+    },
+    {
+      "file": "Cargo.toml.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "Cargo.toml",
+      "source_url": "https://static.crates.io/crates/seahash/seahash-4.1.0.crate",
+      "sha256": "1d610f6d1bce065add6ec5f2fb764e97eeda505afbe26271acc5f3d73a8c410a"
+    },
+    {
+      "file": "Cargo.toml.orig.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "Cargo.toml.orig",
+      "source_url": "https://static.crates.io/crates/seahash/seahash-4.1.0.crate",
+      "sha256": "dd213de338ca98b7ef7a2562bcf4e4214d215d1a8277750a6a72b4e809c8d0dd"
+    },
+    {
+      "file": "README.md.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "README.md",
+      "source_url": "https://static.crates.io/crates/seahash/seahash-4.1.0.crate",
+      "sha256": "38357210ef69a97bf9858ff22661cb1c2384179f5e6b73143cb33193e36c6473"
+    }
+  ]
+}

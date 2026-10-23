@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -50,7 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -61,7 +61,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -72,7 +72,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -83,7 +83,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -95,7 +95,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -106,7 +106,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -117,7 +117,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]
@@ -128,7 +128,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/keyboard.app/Contents/MacOS/keyboard agent-hook claude-code",
+            "command": "/Applications/MacroPad.app/Contents/MacOS/MacroPad agent-hook claude-code",
             "timeout": 2
           }
         ]

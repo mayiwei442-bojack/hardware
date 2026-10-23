@@ -5,8 +5,9 @@
 //! `Slot` array synced over the vendor-HID protocol, see device.rs); what a
 //! slot *means* on the host — its `Action` — lives here, per machine. Stored
 //! as JSON under the OS config dir (e.g. ~/Library/Application
-//! Support/keyboard/config.json), the same path the pre-profile app used, so
-//! `load()` transparently migrates the old `{ bindings: [...] }` schema.
+//! Support/MacroPad/config.json). On first launch, `load()` can read an older
+//! keyboard/config.json without changing that file. Subsequent saves use the
+//! MacroPad directory, and the old `{ bindings: [...] }` schema still migrates.
 
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -213,6 +214,7 @@ pub struct InputConfig {
 #[serde(rename_all = "snake_case")]
 pub enum ProfileMode {
     #[default]
+    #[serde(alias = "open_micro")]
     Keyboard,
     CodexMicro,
 }
@@ -785,7 +787,7 @@ pub enum ThemeSetting {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct AppConfig {
     pub active_profile: usize,
-    #[serde(default)]
+    #[serde(default, alias = "active_openmicro_profile")]
     pub active_keyboard_profile: Option<usize>,
     #[serde(default)]
     pub active_codex_profile: Option<usize>,
@@ -827,7 +829,7 @@ impl Default for AppConfig {
             show_dock: true,
             led_brightness: DEFAULT_LED_BRIGHTNESS,
             language: LanguageSetting::Auto,
-            theme: ThemeSetting::System,
+            theme: ThemeSetting::Dark,
             led_key_pattern: LedPattern::Rainbow,
             led_ambient_pattern: LedPattern::Rainbow,
             activity_status_colors: ActivityStatusColors::default(),
@@ -1336,7 +1338,7 @@ fn migrate_legacy(legacy: LegacyConfig) -> AppConfig {
         show_dock: true,
         led_brightness: DEFAULT_LED_BRIGHTNESS,
         language: LanguageSetting::Auto,
-        theme: ThemeSetting::System,
+        theme: ThemeSetting::Dark,
         led_key_pattern: LedPattern::Rainbow,
         led_ambient_pattern: LedPattern::Rainbow,
         activity_status_colors: ActivityStatusColors::default(),
@@ -1358,7 +1360,14 @@ fn parse_any(text: &str) -> Option<AppConfig> {
 // ---------------------------------------------------------------------------
 
 fn config_path() -> Option<PathBuf> {
-    Some(dirs::config_dir()?.join("keyboard").join("config.json"))
+    if let Some(directory) = crate::brand::data_dir_override() {
+        return Some(directory.join("config.json"));
+    }
+    Some(
+        dirs::config_dir()?
+            .join(crate::brand::APP_NAME)
+            .join("config.json"),
+    )
 }
 
 /// Load the config, migrating the legacy schema if that's what's on disk.
@@ -1367,24 +1376,53 @@ fn config_path() -> Option<PathBuf> {
 /// saves on every edit and on quit: without the backup, one corrupt read
 /// would silently overwrite whatever the user had.
 pub fn load() -> AppConfig {
+    let Some(path) = config_path() else {
+        return AppConfig::default();
+    };
+    if crate::brand::data_dir_override().is_some() {
+        // A process-local preview directory must not import an unrelated
+        // user's settings through the normal legacy migration fallback.
+        return load_from_paths(&path, &path);
+    }
+    let legacy_path = path
+        .parent()
+        .and_then(Path::parent)
+        .expect("config path includes a product directory")
+        .join("keyboard")
+        .join("config.json");
+    load_from_paths(&path, &legacy_path)
+}
+
+fn load_from_paths(path: &Path, legacy_path: &Path) -> AppConfig {
     let mut cfg = AppConfig::default();
-    if let Some(path) = config_path() {
-        if let Ok(text) = std::fs::read_to_string(&path) {
-            match parse_any(&text) {
-                Some(parsed) => cfg = parsed,
-                None => {
-                    let backup = path.with_extension("json.invalid");
-                    match std::fs::write(&backup, &text) {
-                        Ok(()) => eprintln!(
-                            "config: {} is unreadable — preserved at {}, using defaults",
-                            path.display(),
-                            backup.display()
-                        ),
-                        Err(e) => eprintln!(
-                            "config: {} is unreadable AND could not be backed up ({e}) — using defaults",
-                            path.display()
-                        ),
-                    }
+    // An existing MacroPad config always wins. Only a missing file allows
+    // reading the older product directory; malformed new data never revives
+    // stale settings, and the legacy file is never written during migration.
+    let source_path = if !path.exists() && legacy_path.is_file() {
+        legacy_path
+    } else {
+        path
+    };
+    if let Ok(text) = std::fs::read_to_string(source_path) {
+        match parse_any(&text) {
+            Some(parsed) => cfg = parsed,
+            None => {
+                let backup = path.with_extension("json.invalid");
+                let preserved = path
+                    .parent()
+                    .map(std::fs::create_dir_all)
+                    .transpose()
+                    .and_then(|_| std::fs::write(&backup, &text));
+                match preserved {
+                    Ok(()) => eprintln!(
+                        "config: {} is unreadable — preserved at {}, using defaults",
+                        source_path.display(),
+                        backup.display()
+                    ),
+                    Err(e) => eprintln!(
+                        "config: {} is unreadable AND could not be backed up ({e}) — using defaults",
+                        source_path.display()
+                    ),
                 }
             }
         }
@@ -1426,7 +1464,7 @@ pub fn import_from(path: &Path, mode: ImportMode, into: &mut AppConfig) -> Resul
     let text =
         std::fs::read_to_string(path).map_err(|e| format!("read {}: {e}", path.display()))?;
     let mut imported = parse_any(&text)
-        .ok_or_else(|| format!("{} is not an keyboard config file", path.display()))?;
+        .ok_or_else(|| format!("{} is not a MacroPad config file", path.display()))?;
     sanitize(&mut imported);
 
     match mode {
@@ -1489,6 +1527,73 @@ pub fn factory_reset(cfg: &mut AppConfig) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn upstream_profile_names_import_with_mode_and_selection_preserved() {
+        let mut original = serde_json::to_value(AppConfig::default()).unwrap();
+        let root = original.as_object_mut().unwrap();
+        let selected = root.remove("active_keyboard_profile").unwrap();
+        root.insert("active_openmicro_profile".into(), selected);
+        root["profiles"].as_array_mut().unwrap()[0]["mode"] =
+            serde_json::Value::String("open_micro".into());
+
+        let parsed = parse_any(&serde_json::to_string(&original).unwrap())
+            .expect("original profile mode and selection import");
+        assert_eq!(parsed.active_keyboard_profile, Some(0));
+        assert_eq!(parsed.profiles[0].mode, ProfileMode::Keyboard);
+        let canonical = serde_json::to_value(parsed).unwrap();
+        assert_eq!(canonical["profiles"][0]["mode"], "keyboard");
+        assert!(canonical.get("active_openmicro_profile").is_none());
+        assert_eq!(canonical["active_keyboard_profile"], 0);
+    }
+
+    #[test]
+    fn macropad_config_migration_preserves_legacy_file_and_newer_preferences() {
+        let root = std::env::temp_dir().join(format!(
+            "macropad-config-migration-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let primary = root.join("MacroPad/config.json");
+        let legacy = root.join("keyboard/config.json");
+        std::fs::create_dir_all(legacy.parent().unwrap()).unwrap();
+        let mut old = AppConfig::default();
+        old.profiles[0].name = "Existing profile".into();
+        old.theme = ThemeSetting::Light;
+        let original = serde_json::to_string_pretty(&old).unwrap();
+        std::fs::write(&legacy, &original).unwrap();
+
+        let migrated = load_from_paths(&primary, &legacy);
+        assert_eq!(migrated.profiles[0].name, "Existing profile");
+        assert_eq!(migrated.theme, ThemeSetting::Light);
+        assert!(
+            !primary.exists(),
+            "reading legacy data does not write configuration"
+        );
+        assert_eq!(std::fs::read_to_string(&legacy).unwrap(), original);
+
+        let mut current = AppConfig::default();
+        current.profiles[0].name = "MacroPad profile".into();
+        std::fs::create_dir_all(primary.parent().unwrap()).unwrap();
+        std::fs::write(&primary, serde_json::to_string(&current).unwrap()).unwrap();
+        let loaded = load_from_paths(&primary, &legacy);
+        assert_eq!(loaded.profiles[0].name, "MacroPad profile");
+        assert_eq!(loaded.theme, ThemeSetting::Dark);
+
+        std::fs::write(&primary, "{invalid config").unwrap();
+        let recovered = load_from_paths(&primary, &legacy);
+        assert_eq!(recovered.theme, ThemeSetting::Dark);
+        assert_eq!(
+            std::fs::read_to_string(primary.with_extension("json.invalid")).unwrap(),
+            "{invalid config"
+        );
+        assert_eq!(std::fs::read_to_string(&legacy).unwrap(), original);
+        assert!(root.starts_with(std::env::temp_dir()));
+        std::fs::remove_dir_all(&root).unwrap();
+    }
 
     #[test]
     fn empty_template_binds_nothing() {
@@ -2045,7 +2150,7 @@ mod tests {
         // Emitted codes come from the new defaults, not the legacy file.
         assert_eq!(inputs[0].emitted.code, 0x68);
         assert!(cfg.launch_at_login && cfg.show_menubar);
-        assert_eq!(cfg.theme, ThemeSetting::System);
+        assert_eq!(cfg.theme, ThemeSetting::Dark);
     }
 
     #[test]

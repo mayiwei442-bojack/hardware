@@ -2,6 +2,8 @@
 name = "keyboard-layout"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+license-file = "../LICENSE"
 description = "Flash/RAM layout, image header, handoff words and bootloader protocol shared by the keyboard v1 bootloader, firmware and host app"
 publish = false
 

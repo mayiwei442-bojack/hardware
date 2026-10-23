@@ -4,12 +4,13 @@ use std::path::{Path, PathBuf};
 fn main() {
     println!("cargo:rustc-check-cfg=cfg(keyboard_sparkle)");
     println!("cargo:rerun-if-changed=macos/sparkle_bridge.m");
+    println!("cargo:rerun-if-env-changed=MACROPAD_SPARKLE_FRAMEWORK_DIR");
     println!("cargo:rerun-if-env-changed=KEYBOARD_SPARKLE_FRAMEWORK_DIR");
 
     if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("windows") {
         println!("cargo:rerun-if-changed=windows/keyboard.rc");
         println!("cargo:rerun-if-changed=windows/keyboard.exe.manifest");
-        println!("cargo:rerun-if-changed=../site/public/favicon.ico");
+        println!("cargo:rerun-if-changed=resources/macropad.ico");
         embed_resource::compile("windows/keyboard.rc", embed_resource::NONE)
             .manifest_required()
             .expect("failed to compile Windows application resources");
@@ -20,10 +21,12 @@ fn main() {
         return;
     }
 
-    let Some(framework_dir) = env::var_os("KEYBOARD_SPARKLE_FRAMEWORK_DIR").map(PathBuf::from)
+    let Some(framework_dir) = env::var_os("MACROPAD_SPARKLE_FRAMEWORK_DIR")
+        .or_else(|| env::var_os("KEYBOARD_SPARKLE_FRAMEWORK_DIR"))
+        .map(PathBuf::from)
     else {
         // Normal source builds deliberately use the no-op Rust implementation.
-        // Release packaging supplies the pinned framework directory.
+        // Packaging opts in only when a MacroPad update feed is configured.
         return;
     };
     validate_framework(&framework_dir);
@@ -51,7 +54,7 @@ fn validate_framework(parent: &Path) {
     let binary = framework.join("Versions/B/Sparkle");
     if !header.is_file() || !binary.is_file() {
         panic!(
-            "KEYBOARD_SPARKLE_FRAMEWORK_DIR must contain a complete Sparkle.framework: {}",
+            "MACROPAD_SPARKLE_FRAMEWORK_DIR must contain a complete Sparkle.framework: {}",
             parent.display()
         );
     }

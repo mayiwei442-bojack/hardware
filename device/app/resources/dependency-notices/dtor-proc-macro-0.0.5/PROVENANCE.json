@@ -1,0 +1,19 @@
+{
+  "package_name": "dtor-proc-macro",
+  "package_version": "0.0.5",
+  "source_commit": "b05136ac964049a1ee29de763d0b119c42258567",
+  "repository": "https://github.com/mmastrac/rust-ctor",
+  "crate_vcs_source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\device\\.tools\\cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\dtor-proc-macro-0.0.5\\.cargo_vcs_info.json",
+  "files": [
+    {
+      "file": "LICENSE-MIT",
+      "source_url": "https://raw.githubusercontent.com/mmastrac/rust-ctor/b05136ac964049a1ee29de763d0b119c42258567/LICENSE-MIT",
+      "sha256": "bccaa8b6c09f94e81f06696e179dbe058464bbdfbc823b6d49cada1d71e84ac3"
+    },
+    {
+      "file": "LICENSE-APACHE",
+      "source_url": "https://raw.githubusercontent.com/mmastrac/rust-ctor/b05136ac964049a1ee29de763d0b119c42258567/LICENSE-APACHE",
+      "sha256": "a8ad31b1c3f40dca5a84119351b8fa8ddc868edd77fad8a8ebf6d8f2d16fa4ae"
+    }
+  ]
+}

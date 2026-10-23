@@ -1,0 +1,14 @@
+{
+  "package_name": "zune-inflate",
+  "package_version": "0.2.54",
+  "source_commit": "69502ce83fdfecdd0beefd677e2abb3781b29d98",
+  "repository": "https://github.com/etemesi254/zune-image",
+  "crate_vcs_source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\device\\.tools\\cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\zune-inflate-0.2.54\\.cargo_vcs_info.json",
+  "files": [
+    {
+      "file": "LICENSE.md",
+      "source_url": "https://raw.githubusercontent.com/etemesi254/zune-image/69502ce83fdfecdd0beefd677e2abb3781b29d98/LICENSE.md",
+      "sha256": "e870d7fd7819a9f0453c62798cb52ae95d148a8c91dc2de1d983f997143c72de"
+    }
+  ]
+}

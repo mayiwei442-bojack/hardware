@@ -2,19 +2,20 @@
 #import <Sparkle/Sparkle.h>
 #include <stdbool.h>
 
-static SPUStandardUpdaterController *keyboardUpdaterController;
+static SPUStandardUpdaterController *macropadUpdaterController;
 
 bool keyboard_sparkle_is_enabled(void) {
     if (![NSThread isMainThread]) {
-        NSLog(@"keyboard updater configuration must be read on the main thread");
+        NSLog(@"MacroPad updater configuration must be read on the main thread");
         return false;
     }
-    return [NSBundle.mainBundle.infoDictionary[@"keyboardAutomaticUpdates"] boolValue];
+    return [NSBundle.mainBundle.bundleIdentifier isEqualToString:@"io.macropad.desktop"] &&
+           [NSBundle.mainBundle.infoDictionary[@"MacroPadAutomaticUpdates"] boolValue];
 }
 
 bool keyboard_sparkle_start(void) {
     if (![NSThread isMainThread]) {
-        NSLog(@"keyboard updater must start on the main thread");
+        NSLog(@"MacroPad updater must start on the main thread");
         return false;
     }
 
@@ -29,46 +30,54 @@ bool keyboard_sparkle_start(void) {
         ![publicKey isKindOfClass:NSString.class] || publicKey.length == 0 ||
         ![info[@"SURequireSignedFeed"] boolValue] ||
         ![info[@"SUVerifyUpdateBeforeExtraction"] boolValue]) {
-        NSLog(@"keyboard updater is disabled because its signed feed is not configured");
+        NSLog(@"MacroPad updater is disabled because its signed feed is not configured");
         return false;
     }
 
-    if (keyboardUpdaterController == nil) {
-        keyboardUpdaterController = [[SPUStandardUpdaterController alloc]
+    NSURL *feed = [NSURL URLWithString:feedURL];
+    NSData *decodedKey = [[NSData alloc] initWithBase64EncodedString:publicKey options:0];
+    if (![feed.scheme.lowercaseString isEqualToString:@"https"] || feed.host.length == 0 ||
+        feed.user != nil || feed.password != nil || feed.fragment != nil || decodedKey.length != 32) {
+        NSLog(@"MacroPad updater is disabled because the feed or public key is invalid");
+        return false;
+    }
+
+    if (macropadUpdaterController == nil) {
+        macropadUpdaterController = [[SPUStandardUpdaterController alloc]
             initWithStartingUpdater:YES
                  updaterDelegate:nil
               userDriverDelegate:nil];
     }
-    return keyboardUpdaterController != nil;
+    return macropadUpdaterController != nil;
 }
 
 bool keyboard_sparkle_can_check_for_updates(void) {
     if (![NSThread isMainThread]) {
-        NSLog(@"keyboard updater checks must run on the main thread");
+        NSLog(@"MacroPad updater checks must run on the main thread");
         return false;
     }
-    return keyboardUpdaterController != nil &&
-           keyboardUpdaterController.updater.canCheckForUpdates;
+    return macropadUpdaterController != nil &&
+           macropadUpdaterController.updater.canCheckForUpdates;
 }
 
 bool keyboard_sparkle_session_in_progress(void) {
     if (![NSThread isMainThread]) {
-        NSLog(@"keyboard updater state must be read on the main thread");
+        NSLog(@"MacroPad updater state must be read on the main thread");
         return false;
     }
-    return keyboardUpdaterController != nil &&
-           keyboardUpdaterController.updater.sessionInProgress;
+    return macropadUpdaterController != nil &&
+           macropadUpdaterController.updater.sessionInProgress;
 }
 
 bool keyboard_sparkle_check_for_updates(void) {
     if (![NSThread isMainThread]) {
-        NSLog(@"keyboard updater checks must run on the main thread");
+        NSLog(@"MacroPad updater checks must run on the main thread");
         return false;
     }
-    if (keyboardUpdaterController == nil ||
-        !keyboardUpdaterController.updater.canCheckForUpdates) {
+    if (macropadUpdaterController == nil ||
+        !macropadUpdaterController.updater.canCheckForUpdates) {
         return false;
     }
-    [keyboardUpdaterController checkForUpdates:nil];
+    [macropadUpdaterController checkForUpdates:nil];
     return true;
 }

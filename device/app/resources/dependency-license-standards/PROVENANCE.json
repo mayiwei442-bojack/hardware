@@ -1,0 +1,14 @@
+[
+  {
+    "license_id": "MIT",
+    "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/json/details/MIT.json",
+    "source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+    "sha256": "0c2b3c87a154a4aaac6bc6a735dd454dc29d9a78c23a85deedb080e0c65de1f8"
+  },
+  {
+    "license_id": "CC0-1.0",
+    "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/json/details/CC0-1.0.json",
+    "source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+    "sha256": "294ac7fc5a0bd851cf1367a9673491aa25a43f182f93cdb8b77d214f54f42ac6"
+  }
+]

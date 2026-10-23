@@ -3434,6 +3434,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "keyboard-app"
+version = "0.15.0"
+dependencies = [
+ "async-channel 2.5.0",
+ "auto-launch",
+ "cc",
+ "cocoa 0.26.0",
+ "dirs 6.0.0",
+ "embed-resource",
+ "enigo",
+ "getrandom 0.3.4",
+ "global-hotkey",
+ "gpui",
+ "gpui-component",
+ "gtk",
+ "hidapi",
+ "keyboard-layout",
+ "objc",
+ "open",
+ "rusb",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "sys-locale",
+ "tray-icon",
+ "ureq",
+]
+
+[[package]]
+name = "keyboard-layout"
+version = "0.1.0"
+
+[[package]]
 name = "keyboard-types"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4482,39 +4515,6 @@ dependencies = [
  "is-wsl",
  "libc",
 ]
-
-[[package]]
-name = "keyboard-app"
-version = "0.15.0"
-dependencies = [
- "async-channel 2.5.0",
- "auto-launch",
- "cc",
- "cocoa 0.26.0",
- "dirs 6.0.0",
- "embed-resource",
- "enigo",
- "getrandom 0.3.4",
- "global-hotkey",
- "gpui",
- "gpui-component",
- "gtk",
- "hidapi",
- "objc",
- "open",
- "keyboard-layout",
- "rusb",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "sys-locale",
- "tray-icon",
- "ureq",
-]
-
-[[package]]
-name = "keyboard-layout"
-version = "0.1.0"
 
 [[package]]
 name = "openssl-probe"

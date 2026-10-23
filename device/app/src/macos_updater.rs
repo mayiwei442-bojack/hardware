@@ -1,8 +1,8 @@
 //! Thin main-thread wrapper around Sparkle's standard macOS updater UI.
 //!
 //! Ordinary `cargo run` and test builds do not link a third-party framework.
-//! The release packaging script opts into the bridge with a pinned embedded
-//! `Sparkle.framework`; ad-hoc packages additionally disable it in Info.plist.
+//! Packaging opts into the bridge only with a configured MacroPad update feed,
+//! its signing key, and a Developer ID identity. Default packages omit Sparkle.
 
 #[derive(Debug, Default)]
 pub struct MacOsUpdater {

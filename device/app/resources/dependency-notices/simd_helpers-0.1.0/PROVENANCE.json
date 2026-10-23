@@ -1,0 +1,43 @@
+{
+  "package_name": "simd_helpers",
+  "package_version": "0.1.0",
+  "source_commit": "ca1a2f84aa386d758e98f8a609d990263932fb85",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "repository": "https://github.com/lu-zero/simd_helpers",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "MIT",
+  "upstream_notice_status": "Package archive contains a license declaration but no standalone license text. The original source Cargo manifest and available README are retained.",
+  "attribution_note": "Upstream package declares MIT but ships no standalone license; standard MIT text from the pinned SPDX license-list-data commit is included for reference. This is not recovered upstream copyright or license text. Authors are copied verbatim from Cargo metadata; no copyright year or author attribution has been invented.",
+  "authors_from_manifest": [
+    "Luca Barbato <lu_zero@gentoo.org>"
+  ],
+  "files": [
+    {
+      "file": "SPDX-MIT-REFERENCE.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5",
+      "origin": "canonical-spdx-reference"
+    },
+    {
+      "file": "UPSTREAM-Cargo.toml",
+      "crate_source_path": "Cargo.toml",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/simd_helpers/0.1.0/download",
+      "sha256": "42364d200c5cc7792960bdf10354a108b6c68ca49f2e1567967e2d5b1dba37a6"
+    },
+    {
+      "file": "UPSTREAM-Cargo.toml.orig",
+      "crate_source_path": "Cargo.toml.orig",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/simd_helpers/0.1.0/download",
+      "sha256": "b41497677a5498040f2eb3fc089e3c2c38c413dca64f41dc57a115e26480461d"
+    },
+    {
+      "file": "UPSTREAM-README.md",
+      "crate_source_path": "README.md",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/simd_helpers/0.1.0/download",
+      "sha256": "e672b974ba905441c8eee630f10bc351f4e8e462c99d178b334ae3e48d8ca7f5"
+    }
+  ]
+}

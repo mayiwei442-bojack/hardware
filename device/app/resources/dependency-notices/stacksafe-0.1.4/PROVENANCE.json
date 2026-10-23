@@ -1,0 +1,14 @@
+{
+  "package_name": "stacksafe",
+  "package_version": "0.1.4",
+  "source_commit": "a5c029b7d3a5fe6771ecd79266b6e21313cfa174",
+  "repository": "https://github.com/fast/stacksafe",
+  "crate_vcs_source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\device\\.tools\\cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\stacksafe-0.1.4\\.cargo_vcs_info.json",
+  "files": [
+    {
+      "file": "LICENSE",
+      "source_url": "https://raw.githubusercontent.com/fast/stacksafe/a5c029b7d3a5fe6771ecd79266b6e21313cfa174/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    }
+  ]
+}

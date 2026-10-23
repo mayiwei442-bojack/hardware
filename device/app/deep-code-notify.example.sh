@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Managed by keyboard Settings. Remove this line before editing; marked files may be replaced on update.
+# Managed by MacroPad Settings. Remove this line before editing; marked files may be replaced on update.
 # Copy to ~/.deepcode/keyboard-notify.sh, make it executable, and set the
 # `notify` key in ~/.deepcode/settings.json to that absolute path.
-KEYBOARD_BIN="/Applications/keyboard.app/Contents/MacOS/keyboard"
+KEYBOARD_BIN="/Applications/MacroPad.app/Contents/MacOS/MacroPad"
 
 case "${STATUS:-}" in
   completed) light_status="success" ;;

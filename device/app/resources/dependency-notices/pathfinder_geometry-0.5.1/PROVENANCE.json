@@ -1,0 +1,83 @@
+{
+  "package_name": "pathfinder_geometry",
+  "package_version": "0.5.1",
+  "source_commit": "a5e98fac00f433fe2ff4b2135383d82491b8bfc5",
+  "repository": "https://github.com/servo/pathfinder",
+  "license_source_commit": "1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3",
+  "source_commit_unavailable_reason": "Published .cargo_vcs_info commit returns 404 at the official repository tree and raw-license endpoints. GitHub commit search returned no matching commit. No claim is made that its unobservable tree was inspected.",
+  "source_equivalence": [
+    {
+      "path": "src/angle.rs",
+      "sha256": "dce9c08facbaceccb920035477ac53ffc2798247b42b2ddef9338f2e35ab9c80",
+      "upstream_sha256": "dce9c08facbaceccb920035477ac53ffc2798247b42b2ddef9338f2e35ab9c80",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/geometry/src/angle.rs"
+    },
+    {
+      "path": "src/lib.rs",
+      "sha256": "cedfb2d85e682e9b9e327a169347bf0cebecd52668e1ed91a3af05ec91b42090",
+      "upstream_sha256": "cedfb2d85e682e9b9e327a169347bf0cebecd52668e1ed91a3af05ec91b42090",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/geometry/src/lib.rs"
+    },
+    {
+      "path": "src/line_segment.rs",
+      "sha256": "4af21598890aef0ffec10abd5460c0416cb1bb56b003fb499f0cd75fc68177da",
+      "upstream_sha256": "4af21598890aef0ffec10abd5460c0416cb1bb56b003fb499f0cd75fc68177da",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/geometry/src/line_segment.rs"
+    },
+    {
+      "path": "src/rect.rs",
+      "sha256": "68d48ddd9934ac11f0ed0e81c2cc6ede9271528dc318c3dd49cc9c9f51cb15ca",
+      "upstream_sha256": "68d48ddd9934ac11f0ed0e81c2cc6ede9271528dc318c3dd49cc9c9f51cb15ca",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/geometry/src/rect.rs"
+    },
+    {
+      "path": "src/transform2d.rs",
+      "sha256": "36514cf158f7bd2118a1e2f2586e439f6484d61f0505919e8005fb733e3c917c",
+      "upstream_sha256": "36514cf158f7bd2118a1e2f2586e439f6484d61f0505919e8005fb733e3c917c",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/geometry/src/transform2d.rs"
+    },
+    {
+      "path": "src/transform3d.rs",
+      "sha256": "d42aa24d02570376c429256f24891f489bd71ef257d9691f80b4fb6528e09275",
+      "upstream_sha256": "d42aa24d02570376c429256f24891f489bd71ef257d9691f80b4fb6528e09275",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/geometry/src/transform3d.rs"
+    },
+    {
+      "path": "src/unit_vector.rs",
+      "sha256": "a6c30c98aaf859492746696b9d67999322b18117fbe891b53f38ccfca5b28a5f",
+      "upstream_sha256": "a6c30c98aaf859492746696b9d67999322b18117fbe891b53f38ccfca5b28a5f",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/geometry/src/unit_vector.rs"
+    },
+    {
+      "path": "src/util.rs",
+      "sha256": "33a05481be71f5cf41128eeeb3e378248249d0f6f30ebc057e4c05f11344a0e5",
+      "upstream_sha256": "33a05481be71f5cf41128eeeb3e378248249d0f6f30ebc057e4c05f11344a0e5",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/geometry/src/util.rs"
+    },
+    {
+      "path": "src/vector.rs",
+      "sha256": "cfcaad0394c5489a412bcdbbbe6928e1875d4a422eb5a7da1a3e415fdbc0790c",
+      "upstream_sha256": "cfcaad0394c5489a412bcdbbbe6928e1875d4a422eb5a7da1a3e415fdbc0790c",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/geometry/src/vector.rs"
+    },
+    {
+      "path": "Cargo.toml.orig",
+      "sha256": "fdcc9be8eb9a2f08cd416fffc6e6c3d5c3311a9d06a2b8210e16e38ac91e9f78",
+      "upstream_sha256": "fdcc9be8eb9a2f08cd416fffc6e6c3d5c3311a9d06a2b8210e16e38ac91e9f78",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/geometry/Cargo.toml"
+    }
+  ],
+  "files": [
+    {
+      "file": "LICENSE-APACHE",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/LICENSE-APACHE",
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    {
+      "file": "LICENSE-MIT",
+      "source_url": "https://raw.githubusercontent.com/servo/pathfinder/1cd5966d3d7c3d395b6886d1ed63eb7b306f9be3/LICENSE-MIT",
+      "sha256": "0621878e61f0d0fda054bcbe02df75192c28bde1ecc8289cbd86aeba2dd72720"
+    }
+  ],
+  "source_equivalence_method": "All 9 packaged Rust source files and Cargo.toml.orig match the official geometry directory byte for byte. Cargo.toml.orig corresponds to upstream Cargo.toml."
+}

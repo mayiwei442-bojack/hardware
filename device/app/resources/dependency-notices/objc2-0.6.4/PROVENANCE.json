@@ -1,0 +1,33 @@
+{
+  "package_name": "objc2",
+  "package_version": "0.6.4",
+  "source_commit": "8852b424193ca41602281b3d7540d7c8ed51e49a",
+  "repository": "https://github.com/madsmtm/objc2",
+  "declared_license": "MIT",
+  "source_path_in_repository": "crates/objc2",
+  "version_evidence": {
+    "type": "published_crate_cargo_vcs_info",
+    "cargo_vcs_info": {
+      "git": {
+        "sha1": "8852b424193ca41602281b3d7540d7c8ed51e49a"
+      },
+      "path_in_vcs": "crates/objc2"
+    },
+    "cargo_vcs_info_sha256": "45343a7cb8cebbb23c2804f99a14f01f6618ce0956dba62f387fb9ffaf00eff7"
+  },
+  "registry_package": {
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "sha256": "3a12a8ed07aefc768292f076dc3ac8c48f3781c8f2d5851dd3d98950e8c5a89f",
+    "cached_archive_sha256_verified": true
+  },
+  "files": [
+    {
+      "file": "LICENSE.md",
+      "source_url": "https://raw.githubusercontent.com/madsmtm/objc2/8852b424193ca41602281b3d7540d7c8ed51e49a/LICENSE.md",
+      "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+      "git_blob_sha1": "540ae4c81adb5f64a9f61e222b688880da24300e",
+      "git_blob_identity_verified": true
+    }
+  ],
+  "recovery_note": "Unmodified license file from the exact published package repository revision; that package omitted its workspace-root license text."
+}

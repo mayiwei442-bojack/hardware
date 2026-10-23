@@ -1,0 +1,33 @@
+{
+  "package_name": "blade-util",
+  "package_version": "0.3.0",
+  "source_commit": "23e378613440513e1045f4e0f7c5979e67645d3b",
+  "repository": "https://github.com/kvark/blade",
+  "declared_license": "MIT",
+  "source_path_in_repository": "blade-util",
+  "version_evidence": {
+    "type": "published_crate_cargo_vcs_info",
+    "cargo_vcs_info": {
+      "git": {
+        "sha1": "23e378613440513e1045f4e0f7c5979e67645d3b"
+      },
+      "path_in_vcs": "blade-util"
+    },
+    "cargo_vcs_info_sha256": "b3ca990cabfb5e83df78c244757eb9356878fc205c7f046a424d53b00d4764df"
+  },
+  "registry_package": {
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "sha256": "3a6be3a82c001ba7a17b6f8e413ede5d1004e6047213f8efaf0ffc15b5c4904c",
+    "cached_archive_sha256_verified": true
+  },
+  "files": [
+    {
+      "file": "LICENSE",
+      "source_url": "https://raw.githubusercontent.com/kvark/blade/23e378613440513e1045f4e0f7c5979e67645d3b/LICENSE",
+      "sha256": "8e9e23a134d00ae1760811ca60482b2e98b2db9154ffda66e58791796aa24ca1",
+      "git_blob_sha1": "8d8caa9025867a4d58247b7c92c206ddb079ec24",
+      "git_blob_identity_verified": true
+    }
+  ],
+  "recovery_note": "Unmodified license file from the exact published package repository revision; that package omitted its workspace-root license text."
+}

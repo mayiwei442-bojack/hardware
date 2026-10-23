@@ -1,0 +1,33 @@
+{
+  "package_name": "objc2-core-data",
+  "package_version": "0.2.2",
+  "source_commit": "e282618be4c3a3b9542957e0c8540e9588472ce8",
+  "repository": "https://github.com/madsmtm/objc2",
+  "declared_license": "MIT",
+  "source_path_in_repository": "framework-crates/objc2-core-data",
+  "version_evidence": {
+    "type": "published_crate_cargo_vcs_info",
+    "cargo_vcs_info": {
+      "git": {
+        "sha1": "e282618be4c3a3b9542957e0c8540e9588472ce8"
+      },
+      "path_in_vcs": "framework-crates/objc2-core-data"
+    },
+    "cargo_vcs_info_sha256": "931afa8111485b3917b8280253d69eaa9a4054506d55f7ecd483bb3e7c901754"
+  },
+  "registry_package": {
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "sha256": "617fbf49e071c178c0b24c080767db52958f716d9eabdf0890523aeae54773ef",
+    "cached_archive_sha256_verified": true
+  },
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "source_url": "https://raw.githubusercontent.com/madsmtm/objc2/e282618be4c3a3b9542957e0c8540e9588472ce8/LICENSE.txt",
+      "sha256": "e353f37b12aefbb9f9b29490e837cfee05d9bda70804b3562839a3285c1df1e5",
+      "git_blob_sha1": "e9ab3babc0d8602b83dccde8a462f8f3dc1e52ad",
+      "git_blob_identity_verified": true
+    }
+  ],
+  "recovery_note": "Unmodified license file from the exact published package repository revision; that package omitted its workspace-root license text."
+}

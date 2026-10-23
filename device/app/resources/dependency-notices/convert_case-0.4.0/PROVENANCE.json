@@ -1,0 +1,43 @@
+{
+  "package_name": "convert_case",
+  "package_version": "0.4.0",
+  "source_commit": "300d9eef9e8c970e15f324afbc3df8b6a4ebbf71",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "repository": "https://github.com/rutrum/convert-case",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "MIT",
+  "upstream_notice_status": "Package archive contains a license declaration but no standalone license text. The original source Cargo manifest and available README are retained.",
+  "attribution_note": "Upstream package declares MIT but ships no standalone license; standard MIT text from the pinned SPDX license-list-data commit is included for reference. This is not recovered upstream copyright or license text. Authors are copied verbatim from Cargo metadata; no copyright year or author attribution has been invented.",
+  "authors_from_manifest": [
+    "David Purdum <purdum41@gmail.com>"
+  ],
+  "files": [
+    {
+      "file": "SPDX-MIT-REFERENCE.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5",
+      "origin": "canonical-spdx-reference"
+    },
+    {
+      "file": "UPSTREAM-Cargo.toml",
+      "crate_source_path": "Cargo.toml",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/convert_case/0.4.0/download",
+      "sha256": "bbd8c27bde074b1c78539307cc2f1770efdaf890253cce4b9557cfdc32d4e605"
+    },
+    {
+      "file": "UPSTREAM-Cargo.toml.orig",
+      "crate_source_path": "Cargo.toml.orig",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/convert_case/0.4.0/download",
+      "sha256": "5f821f7641c67da8a4e0eb2ebf994f5ba88ad811a3529cb91017d26c8075aea2"
+    },
+    {
+      "file": "UPSTREAM-README.md",
+      "crate_source_path": "README.md",
+      "origin": "crate-archive",
+      "source_url": "https://crates.io/api/v1/crates/convert_case/0.4.0/download",
+      "sha256": "e2c239f152b34058cca9848c12a357eabd4af3df9d97bac11cfdcdd09f612b72"
+    }
+  ]
+}

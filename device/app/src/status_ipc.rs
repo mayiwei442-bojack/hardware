@@ -1,6 +1,6 @@
 //! Local IPC bridge for transient LED activity status.
 //!
-//! The keyboard process owns the HID handle, so hook clients must not open
+//! The MacroPad process owns the HID handle, so hook clients must not open
 //! the pad directly. A per-user Unix socket on Unix or authenticated loopback
 //! endpoint on Windows lets a short-lived helper (the same app binary invoked
 //! with `agent-hook`) hand a small, allow-listed event to the resident app
@@ -21,7 +21,7 @@ const MAX_IPC_MESSAGE_BYTES: usize = 4096;
 // events. Keep the local socket protocol small, but allow bounded lifecycle
 // input large enough for normal agent turns.
 const MAX_HOOK_INPUT_BYTES: usize = 16 * 1024 * 1024;
-const SOCKET_DIR: &str = "keyboard";
+const SOCKET_DIR: &str = crate::brand::APP_NAME;
 const SOCKET_FILE: &str = "activity.sock";
 const WINDOWS_ENDPOINT_FILE: &str = "activity.json";
 
@@ -107,9 +107,12 @@ impl AgentClient {
 
 /// Stable per-user endpoint shared by the resident app and hook helper.
 pub fn socket_path() -> PathBuf {
-    dirs::cache_dir()
-        .unwrap_or_else(std::env::temp_dir)
-        .join(SOCKET_DIR)
+    crate::brand::data_dir_override()
+        .unwrap_or_else(|| {
+            dirs::cache_dir()
+                .unwrap_or_else(std::env::temp_dir)
+                .join(SOCKET_DIR)
+        })
         .join(if cfg!(target_os = "windows") {
             WINDOWS_ENDPOINT_FILE
         } else {
@@ -132,11 +135,11 @@ pub fn spawn_listener() {
 
         let path = socket_path();
         let Some(parent) = path.parent() else {
-            eprintln!("keyboard activity socket has no parent directory");
+            eprintln!("MacroPad activity socket has no parent directory");
             return;
         };
         if let Err(error) = std::fs::create_dir_all(parent) {
-            eprintln!("cannot create keyboard activity socket directory: {error}");
+            eprintln!("cannot create MacroPad activity socket directory: {error}");
             return;
         }
         let _ = std::fs::set_permissions(parent, std::fs::Permissions::from_mode(0o700));
@@ -144,7 +147,7 @@ pub fn spawn_listener() {
             Ok(()) => {}
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
             Err(error) => {
-                eprintln!("cannot replace keyboard activity socket: {error}");
+                eprintln!("cannot replace MacroPad activity socket: {error}");
                 return;
             }
         }
@@ -152,19 +155,19 @@ pub fn spawn_listener() {
         let listener = match UnixListener::bind(&path) {
             Ok(listener) => listener,
             Err(error) => {
-                eprintln!("cannot bind keyboard activity socket: {error}");
+                eprintln!("cannot bind MacroPad activity socket: {error}");
                 return;
             }
         };
         let _ = std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600));
 
         let _ = std::thread::Builder::new()
-            .name("keyboard-activity-ipc".into())
+            .name("macropad-activity-ipc".into())
             .spawn(move || {
                 for incoming in listener.incoming() {
                     match incoming {
                         Ok(stream) => handle_stream(stream),
-                        Err(error) => eprintln!("keyboard activity socket error: {error}"),
+                        Err(error) => eprintln!("MacroPad activity socket error: {error}"),
                     }
                 }
             });
@@ -183,20 +186,20 @@ pub fn spawn_listener() {
         let listener = match TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)) {
             Ok(listener) => listener,
             Err(error) => {
-                eprintln!("cannot bind keyboard activity listener: {error}");
+                eprintln!("cannot bind MacroPad activity listener: {error}");
                 return;
             }
         };
         let port = match listener.local_addr() {
             Ok(address) => address.port(),
             Err(error) => {
-                eprintln!("cannot inspect keyboard activity listener: {error}");
+                eprintln!("cannot inspect MacroPad activity listener: {error}");
                 return;
             }
         };
         let mut secret = [0u8; 32];
         if let Err(error) = getrandom::fill(&mut secret) {
-            eprintln!("cannot secure keyboard activity listener: {error}");
+            eprintln!("cannot secure MacroPad activity listener: {error}");
             return;
         }
         let token = secret
@@ -207,17 +210,17 @@ pub fn spawn_listener() {
             port,
             token: token.clone(),
         }) {
-            eprintln!("cannot publish keyboard activity listener: {error}");
+            eprintln!("cannot publish MacroPad activity listener: {error}");
             return;
         }
 
         let _ = std::thread::Builder::new()
-            .name("keyboard-activity-ipc".into())
+            .name("macropad-activity-ipc".into())
             .spawn(move || {
                 for incoming in listener.incoming() {
                     match incoming {
                         Ok(stream) => handle_windows_stream(stream, &token),
-                        Err(error) => eprintln!("keyboard activity listener error: {error}"),
+                        Err(error) => eprintln!("MacroPad activity listener error: {error}"),
                     }
                 }
             });
@@ -264,13 +267,10 @@ fn write_windows_endpoint(endpoint: &WindowsEndpoint) -> Result<(), String> {
     let path = socket_path();
     let parent = path
         .parent()
-        .ok_or_else(|| "keyboard activity endpoint has no parent directory".to_string())?;
+        .ok_or_else(|| "MacroPad activity endpoint has no parent directory".to_string())?;
     std::fs::create_dir_all(parent)
         .map_err(|error| format!("cannot create {}: {error}", parent.display()))?;
-    let temporary = parent.join(format!(
-        ".activity-{}.tmp",
-        std::process::id()
-    ));
+    let temporary = parent.join(format!(".activity-{}.tmp", std::process::id()));
     let bytes = serde_json::to_vec(endpoint).map_err(|error| error.to_string())?;
     std::fs::write(&temporary, bytes)
         .map_err(|error| format!("cannot write {}: {error}", temporary.display()))?;
@@ -318,13 +318,26 @@ fn status_for_hook(client: AgentClient, input: &LifecycleHookInput) -> Option<Ac
         // that the turn is working again.
         "posttooluse" | "post_tool_use" | "after_tool_call" => Some(ActivityStatus::Working),
         "stop" | "on_turn_end" => Some(ActivityStatus::Success),
-        "sessionend" | "session_end" | "stopcancelled" | "stop_cancelled" => Some(ActivityStatus::Idle),
-        "posttoolusefailure" | "post_tool_use_failure" | "permissiondenied" | "permission_denied" | "posttoolbatch" | "post_tool_batch" | "elicitationresult" | "elicitation_result"
+        "sessionend" | "session_end" | "stopcancelled" | "stop_cancelled" => {
+            Some(ActivityStatus::Idle)
+        }
+        "posttoolusefailure"
+        | "post_tool_use_failure"
+        | "permissiondenied"
+        | "permission_denied"
+        | "posttoolbatch"
+        | "post_tool_batch"
+        | "elicitationresult"
+        | "elicitation_result"
             if client == AgentClient::ClaudeCode =>
         {
             Some(ActivityStatus::Working)
         }
-        "stopfailure" | "stop_failure" if matches!(client, AgentClient::ClaudeCode | AgentClient::Grok) => Some(ActivityStatus::Error),
+        "stopfailure" | "stop_failure"
+            if matches!(client, AgentClient::ClaudeCode | AgentClient::Grok) =>
+        {
+            Some(ActivityStatus::Error)
+        }
         "pretooluse" | "pre_tool_use"
             if client == AgentClient::ClaudeCode
                 && input
@@ -420,7 +433,7 @@ fn send_event(event: &ActivityEvent) -> Result<(), String> {
     #[cfg(not(any(unix, target_os = "windows")))]
     {
         let _ = event;
-        Err("keyboard activity IPC is not supported on this host".into())
+        Err("MacroPad activity IPC is not supported on this host".into())
     }
 }
 
@@ -451,7 +464,7 @@ pub fn run_cli_if_requested() -> bool {
 
 fn run_agent_hook(client_name: Option<&str>) -> i32 {
     let Some(client) = client_name.and_then(AgentClient::from_name) else {
-        eprintln!("usage: keyboard-app agent-hook <codex|claude-code|grok|octoscode>");
+        eprintln!("usage: MacroPad agent-hook <codex|claude-code|grok|octoscode>");
         return 2;
     };
     let mut bytes = Vec::new();
@@ -521,7 +534,7 @@ fn decode_agent_hook(client: AgentClient, bytes: &[u8]) -> Option<ActivityEvent>
 
 fn run_manual_status(status: Option<&str>, session_id: Option<String>) -> i32 {
     let Some(status) = status.and_then(ActivityStatus::from_name) else {
-        eprintln!("usage: keyboard-app status <idle|working|attention|success|error> [session]");
+        eprintln!("usage: MacroPad status <idle|working|attention|success|error> [session]");
         return 2;
     };
     let event = ActivityEvent {
@@ -533,7 +546,7 @@ fn run_manual_status(status: Option<&str>, session_id: Option<String>) -> i32 {
     match send_event(&event) {
         Ok(()) => 0,
         Err(error) => {
-            eprintln!("cannot reach keyboard: {error}");
+            eprintln!("cannot reach MacroPad: {error}");
             1
         }
     }

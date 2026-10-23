@@ -1,0 +1,14 @@
+{
+  "package_name": "taffy",
+  "package_version": "0.9.0",
+  "source_commit": "599b1b7d7410d97e13bafc4c01fbe6d7a9cf060a",
+  "repository": "https://github.com/DioxusLabs/taffy",
+  "crate_vcs_source": "C:\\Users\\myw\\Documents\\ChatGPT\\\u786c\u4ef6\\device\\.tools\\cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\taffy-0.9.0\\.cargo_vcs_info.json",
+  "files": [
+    {
+      "file": "LICENSE.md",
+      "source_url": "https://raw.githubusercontent.com/DioxusLabs/taffy/599b1b7d7410d97e13bafc4c01fbe6d7a9cf060a/LICENSE.md",
+      "sha256": "a7083ef3dd41a65eeb2162c2c091b0082e2724fb4c6ed029b363c7840d244ecd"
+    }
+  ]
+}

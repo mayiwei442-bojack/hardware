@@ -1,0 +1,37 @@
+{
+  "package_name": "block",
+  "package_version": "0.1.6",
+  "repository": "http://github.com/SSheldon/rust-block",
+  "source_commit": "47178790cfc9d4a8b092051d8b413b78bd31254a",
+  "crate_archive_sha256": "0d8c1fef690941d3e7788d328517591fecc684c084084702d6ff1641e993699a",
+  "license_source_commit": "31ba1a50e5397e00a304dbadc76531740e89ee48",
+  "acquisition": "canonical-spdx-reference",
+  "canonical_license": "MIT",
+  "original_license_declaration": "MIT",
+  "original_authors": [
+    "Steven Sheldon"
+  ],
+  "upstream_notice_status": "No standalone license text was shipped in this crate archive; original Cargo metadata and available README retained.",
+  "attribution_note": "Upstream declares this license but its crate archive ships no standalone license text. Standard SPDX text is included for reference and is not represented as recovered upstream text. Authors and license declarations are copied from the original Cargo manifest; no copyright year or holder statement is invented.",
+  "files": [
+    {
+      "file": "SPDX-MIT.txt",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5"
+    },
+    {
+      "file": "Cargo.toml.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "Cargo.toml",
+      "source_url": "https://static.crates.io/crates/block/block-0.1.6.crate",
+      "sha256": "24df2f33b48c9e756a4f864f882c1ab07a159b6c2b790f45af2e8162499b6719"
+    },
+    {
+      "file": "README.md.upstream",
+      "origin": "crate-archive",
+      "crate_source_path": "README.md",
+      "source_url": "https://static.crates.io/crates/block/block-0.1.6.crate",
+      "sha256": "01c56329fa14f48ea1c9c7986c3660c41beeff2477f61c2d36bd8e666b9fc562"
+    }
+  ]
+}
